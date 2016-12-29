@@ -18,6 +18,7 @@ type connectionHandler struct {
 	registeredTopics []string
 	RegisterEvent    []func(connectionHandler, []string) // will be fired when a client registeres himself at some topics
 	UnregisterEvent  []func(connectionHandler, []string) // will be fired when a client un-registeres himself at some topics
+	SendEvent        []func(connectionHandler, []string, string)
 }
 
 func (ch *connectionHandler) Init(connection *net.Conn) {
@@ -111,6 +112,7 @@ func contains(s []string, e string) bool {
 
 func (ch *connectionHandler) handleSending(message Message) {
 	logger.Error("NOT IMPLEMENTED!")
+	logger.Debug(fmt.Sprintf("Send message to topics %#v", message.Topics))
 }
 
 func (ch *connectionHandler) handleLogout(message Message) {

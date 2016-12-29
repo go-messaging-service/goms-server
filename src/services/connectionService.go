@@ -38,6 +38,7 @@ func (cs *ConnectionService) Run() {
 			}
 
 			connHandler.RegisterEvent = append(connHandler.RegisterEvent, cs.handleRegisterEvent)
+			connHandler.UnregisterEvent = append(connHandler.UnregisterEvent, cs.handleUnregisterEvent)
 			connHandler.HandleConnection()
 
 		} else {
@@ -51,6 +52,27 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 		cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
 		logger.Debug("Register " + topic)
 	}
+}
+
+func (cs *ConnectionService) handleUnregisterEvent(conn connectionHandler, topics []string) {
+	logger.Debug(strconv.Itoa(len(cs.topicToConnection["a"])))
+	for key, handlerList := range cs.topicToConnection {
+		cs.topicToConnection[key] = remove(handlerList, conn)
+	}
+	logger.Debug(strconv.Itoa(len(cs.topicToConnection["a"])))
+}
+
+func remove(s []connectionHandler, e connectionHandler) []connectionHandler {
+	for i, a := range s {
+		if a.connection == e.connection {
+			// Remove element at inedx i (s. "Slice Tricks" on github)
+			// https://github.com/golang/go/wiki/SliceTricks
+			logger.Debug("Remove element")
+			s = append(s[:i], s[i+1:]...)
+			return s
+		}
+	}
+	return s
 }
 
 func (cs *ConnectionService) listenTo(host, port string) {
