@@ -5,6 +5,7 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"strings"
 )
 
 var DebugMode = false
@@ -27,7 +28,10 @@ func Error(message string) {
 
 func getCallerName() string {
 	pc, _, _, _ := runtime.Caller(2)
-	return runtime.FuncForPC(pc).Name() //runtime.FuncForPC(pc).Name()
+	path := runtime.FuncForPC(pc).Name()
+	splittedPath := strings.Split(path, "/")
+	fileName := splittedPath[len(splittedPath)-1]
+	return fileName
 }
 
 func getCallerLine() int {
