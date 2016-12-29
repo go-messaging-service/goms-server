@@ -18,7 +18,7 @@ type connectionHandler struct {
 
 func (ch *connectionHandler) HandleConnection() {
 	if ch.connection == nil {
-		logger.Err("Connection not set!")
+		logger.Error("Connection not set!")
 		return
 	}
 

@@ -8,11 +8,10 @@ import (
 func main() {
 	logger.Info("Server starting...")
 
-	topicToConnection = make(map[string]net.Conn)
-	listenToPort("55545")
-	connectionManager := connectionManager{}
+	connectionManager := services.ConnectionManager{}
+	connectionManager.Init("127.0.0.1", 55545)
 
 	logger.Info("Server startet")
 
-	connectionManager.run()
+	connectionManager.Run()
 }

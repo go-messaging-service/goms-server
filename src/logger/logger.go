@@ -14,7 +14,7 @@ func Info(message string) {
 	fmt.Printf("[info]  %s: %s\n", getCallerName(), message)
 }
 
-func Err(message string) {
+func Error(message string) {
 	fmt.Errorf("[ERROR] %s: %s\n", getCallerName()+"() at "+strconv.Itoa(getCallerLine()), message)
 }
 
