@@ -1,13 +1,16 @@
-package main
+package services
 
 import (
-	"./logger"
+	"../logger"
+	"../material"
 	"bufio"
 	"encoding/json"
 	"fmt"
 	"math"
 	"net"
 )
+
+type Message material.Message // just simplify the access to the Message struct
 
 type connectionHandler struct {
 	connection *net.Conn
@@ -20,7 +23,7 @@ func (ch *connectionHandler) HandleConnection() {
 	}
 
 	//TODO implement them:
-	ch.waitFor([]string{mtRegister}, []func(Message){ch.handleRegistration})
+	ch.waitFor([]string{material.MtRegister}, []func(Message){ch.handleRegistration})
 	//	ch.handleSending()
 	//	ch.handleClose()
 	//TODO handle logout
@@ -39,8 +42,7 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 		logger.Info(output)
 
 		// JSON to Message-struct
-		message := Message{}
-		json.Unmarshal([]byte(rawMessage), &message)
+		message := ch.getMessageFromJSON(rawMessage)
 
 		// check type
 		for i := 0; i < len(messageTypes); i++ {
@@ -53,6 +55,12 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 		// read again...
 		rawMessage, err = bufio.NewReader(*ch.connection).ReadString('\n')
 	}
+}
+
+func (ch *connectionHandler) getMessageFromJSON(jsonData string) Message {
+	message := Message{}
+	json.Unmarshal([]byte(jsonData), &message)
+	return message
 }
 
 func (ch *connectionHandler) handleRegistration(message Message) {

@@ -1,7 +1,7 @@
-package main
+package services
 
 import (
-	"./logger"
+	"../logger"
 	"net"
 )
 
