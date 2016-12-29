@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
+	logger.DebugMode = true
 	logger.Info("Server starting...")
 
 	connectionManager := services.ConnectionService{}

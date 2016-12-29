@@ -8,13 +8,13 @@ import (
 )
 
 type ConnectionService struct {
-	topicToConnection map[string]net.Conn
+	topicToConnection map[string][]connectionHandler
 	listener          net.Listener
 	initialized       bool
 }
 
-func (cm *ConnectionService) Init(host string, port int) {
-	cm.topicToConnection = make(map[string]net.Conn)
+func (cs *ConnectionService) Init(host string, port int) {
+	cm.topicToConnection = make(map[string][]connectionHandler)
 	cm.listenTo(host, strconv.Itoa(port))
 
 	cm.initialized = true
@@ -37,11 +37,19 @@ func (cm *ConnectionService) Run() {
 				connection: conn,
 			}
 
+			connHandler.RegisterEvent = append(connHandler.RegisterEvent, cm.handleRegisterEvent)
 			connHandler.HandleConnection()
 
 		} else {
 			logger.Error(err.Error())
 		}
+	}
+}
+
+func (cm *ConnectionService) handleRegisterEvent(conn connectionHandler, topics []string) {
+	for _, topic := range topics {
+		cm.topicToConnection[topic] = append(cm.topicToConnection[topic], conn)
+		logger.Debug("Register " + topic)
 	}
 }
 

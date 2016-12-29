@@ -8,12 +8,15 @@ import (
 	"fmt"
 	"math"
 	"net"
+	"strconv"
 )
 
 type Message material.Message // just simplify the access to the Message struct
 
 type connectionHandler struct {
-	connection *net.Conn
+	connection      *net.Conn
+	RegisterEvent   []func(connectionHandler, []string) // will be fired when a client registeres himself at some topics
+	UnregisterEvent []func(connectionHandler, []string) // will be fired when a client un-registeres himself at some topics
 }
 
 func (ch *connectionHandler) HandleConnection() {
@@ -22,8 +25,8 @@ func (ch *connectionHandler) HandleConnection() {
 		return
 	}
 
-	//TODO implement them:
 	ch.waitFor([]string{material.MtRegister}, []func(Message){ch.handleRegistration})
+	//TODO implement them:
 	//	ch.handleSending()
 	//	ch.handleClose()
 	//TODO handle logout
@@ -65,6 +68,10 @@ func (ch *connectionHandler) getMessageFromJSON(jsonData string) Message {
 
 func (ch *connectionHandler) handleRegistration(message Message) {
 	logger.Debug(fmt.Sprintf("%#v", message))
+	logger.Debug(strconv.Itoa(len(ch.RegisterEvent)))
+	for _, event := range ch.RegisterEvent {
+		event(*ch, message.Topics)
+	}
 }
 
 func (ch *connectionHandler) handleSending(message Message) {

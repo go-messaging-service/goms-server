@@ -6,7 +6,13 @@ import (
 	"strconv"
 )
 
+var DebugMode = false
+
 func Debug(message string) {
+	if !DebugMode {
+		return
+	}
+
 	fmt.Printf("[debug] %s: %s\n", getCallerName()+"() at "+strconv.Itoa(getCallerLine()), message)
 }
 
