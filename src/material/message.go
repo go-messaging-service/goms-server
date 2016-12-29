@@ -16,11 +16,13 @@ The optionel reg-ack() is left out, because it's not clear wether this will be i
 
 // All message types (mt)
 const (
+	// client -> server
 	MtRegister = "register"
 	MtSend     = "send"
-	MtMessage  = "message"
 	MtLogout   = "logout"
 	MtClose    = "close"
+	// server -> client
+	MtMessage = "message"
 )
 
 type Message struct {

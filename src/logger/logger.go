@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 	"strconv"
 )
@@ -13,15 +14,15 @@ func Debug(message string) {
 		return
 	}
 
-	fmt.Printf("[debug] %s: %s\n", getCallerName()+"() at "+strconv.Itoa(getCallerLine()), message)
+	os.Stdout.WriteString(fmt.Sprintf("[debug] %s: %s\n", getCallerName()+"() at "+strconv.Itoa(getCallerLine()), message))
 }
 
 func Info(message string) {
-	fmt.Printf("[info]  %s: %s\n", getCallerName(), message)
+	os.Stdout.WriteString(fmt.Sprintf("[info]  %s: %s\n", getCallerName(), message))
 }
 
 func Error(message string) {
-	fmt.Errorf("[ERROR] %s: %s\n", getCallerName()+"() at "+strconv.Itoa(getCallerLine()), message)
+	os.Stderr.WriteString(fmt.Sprintf("[ERROR] %s: %s\n", getCallerName()+"() at "+strconv.Itoa(getCallerLine()), message))
 }
 
 func getCallerName() string {

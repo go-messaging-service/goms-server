@@ -14,20 +14,20 @@ type ConnectionService struct {
 }
 
 func (cs *ConnectionService) Init(host string, port int) {
-	cm.topicToConnection = make(map[string][]connectionHandler)
-	cm.listenTo(host, strconv.Itoa(port))
+	cs.topicToConnection = make(map[string][]connectionHandler)
+	cs.listenTo(host, strconv.Itoa(port))
 
-	cm.initialized = true
+	cs.initialized = true
 }
 
-func (cm *ConnectionService) Run() {
-	if !cm.initialized {
+func (cs *ConnectionService) Run() {
+	if !cs.initialized {
 		logger.Error("Connection Service not initialized!")
 		os.Exit(1)
 	}
 
 	for {
-		conn, err := cm.waitForConnection()
+		conn, err := cs.waitForConnection()
 
 		if err == nil {
 
@@ -37,7 +37,7 @@ func (cm *ConnectionService) Run() {
 				connection: conn,
 			}
 
-			connHandler.RegisterEvent = append(connHandler.RegisterEvent, cm.handleRegisterEvent)
+			connHandler.RegisterEvent = append(connHandler.RegisterEvent, cs.handleRegisterEvent)
 			connHandler.HandleConnection()
 
 		} else {
@@ -46,28 +46,33 @@ func (cm *ConnectionService) Run() {
 	}
 }
 
-func (cm *ConnectionService) handleRegisterEvent(conn connectionHandler, topics []string) {
+func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics []string) {
 	for _, topic := range topics {
-		cm.topicToConnection[topic] = append(cm.topicToConnection[topic], conn)
+		cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
 		logger.Debug("Register " + topic)
 	}
 }
 
-func (cm *ConnectionService) listenTo(host, port string) {
+func (cs *ConnectionService) listenTo(host, port string) {
 	logger.Info("Try to listen on port " + port)
 
 	listener, err := net.Listen("tcp", host+":"+port)
-	cm.listener = listener
 
-	if err == nil {
+	if err == nil && listener != nil {
 		logger.Info("Got listener for port " + port)
-	} else {
+		cs.listener = listener
+	} else if err != nil {
 		logger.Error(err.Error())
+		logger.Error("Maybe the port is not free?")
+		os.Exit(1)
+	} else if listener == nil {
+		logger.Error("Could not listen to " + host + ":" + port + ". Unfortunately there's no error I could print here :( Check if no other services are running on port " + port + ".")
+		os.Exit(1)
 	}
 }
 
-func (cm *ConnectionService) waitForConnection() (*net.Conn, error) {
-	conn, err := cm.listener.Accept()
+func (cs *ConnectionService) waitForConnection() (*net.Conn, error) {
+	conn, err := cs.listener.Accept()
 
 	if err == nil {
 		logger.Info("Got connection :D")

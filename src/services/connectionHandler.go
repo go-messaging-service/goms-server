@@ -8,15 +8,20 @@ import (
 	"fmt"
 	"math"
 	"net"
-	"strconv"
 )
 
 type Message material.Message // just simplify the access to the Message struct
 
 type connectionHandler struct {
-	connection      *net.Conn
-	RegisterEvent   []func(connectionHandler, []string) // will be fired when a client registeres himself at some topics
-	UnregisterEvent []func(connectionHandler, []string) // will be fired when a client un-registeres himself at some topics
+	connection       *net.Conn
+	connectionClosed bool
+	registeredTopics []string
+	RegisterEvent    []func(connectionHandler, []string) // will be fired when a client registeres himself at some topics
+	UnregisterEvent  []func(connectionHandler, []string) // will be fired when a client un-registeres himself at some topics
+}
+
+func (ch *connectionHandler) Init(connection *net.Conn) {
+	ch.connection = connection
 }
 
 func (ch *connectionHandler) HandleConnection() {
@@ -25,17 +30,31 @@ func (ch *connectionHandler) HandleConnection() {
 		return
 	}
 
-	ch.waitFor([]string{material.MtRegister}, []func(Message){ch.handleRegistration})
-	//TODO implement them:
-	//	ch.handleSending()
-	//	ch.handleClose()
-	//TODO handle logout
+	ch.waitFor(
+		[]string{material.MtRegister},
+		[]func(Message){ch.handleRegistration})
+
+	for true {
+		ch.waitFor(
+			[]string{material.MtRegister,
+				material.MtLogout,
+				material.MtClose,
+				material.MtSend},
+			[]func(Message){ch.handleRegistration,
+				ch.handleLogout,
+				ch.handleClose,
+				ch.handleSending})
+
+		if ch.connectionClosed {
+			break
+		}
+	}
 }
 
 func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(message Message)) {
 	rawMessage, err := bufio.NewReader(*ch.connection).ReadString('\n')
 
-	for err == nil {
+	if err == nil {
 		// the length of the message that should be printed
 		maxOutputLength := int(math.Min(float64(len(rawMessage))-1, 30))
 		output := rawMessage[:maxOutputLength]
@@ -50,13 +69,14 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 		// check type
 		for i := 0; i < len(messageTypes); i++ {
 			messageType := messageTypes[i]
+			logger.Info("Check " + messageType + " type")
+
 			if message.MessageType == messageType {
+				logger.Info("Handle " + messageType + " type")
 				handler[i](message)
+				break
 			}
 		}
-
-		// read again...
-		rawMessage, err = bufio.NewReader(*ch.connection).ReadString('\n')
 	}
 }
 
@@ -67,17 +87,48 @@ func (ch *connectionHandler) getMessageFromJSON(jsonData string) Message {
 }
 
 func (ch *connectionHandler) handleRegistration(message Message) {
-	logger.Debug(fmt.Sprintf("%#v", message))
-	logger.Debug(strconv.Itoa(len(ch.RegisterEvent)))
+	logger.Debug("Register to topics " + fmt.Sprintf("%#v", message.Topics))
+
 	for _, event := range ch.RegisterEvent {
 		event(*ch, message.Topics)
 	}
+
+	for _, topic := range message.Topics {
+		if !contains(ch.registeredTopics, topic) {
+			ch.registeredTopics = append(ch.registeredTopics, topic)
+		}
+	}
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
 
 func (ch *connectionHandler) handleSending(message Message) {
+	logger.Error("NOT IMPLEMENTED!")
+}
 
+func (ch *connectionHandler) handleLogout(message Message) {
+	logger.Debug(fmt.Sprintf("Unsubscribe from topics %#v", message.Topics))
+	ch.logout(message.Topics)
 }
 
 func (ch *connectionHandler) handleClose(message Message) {
+	logger.Debug("Unsubscribe from all topics")
+	ch.logout(ch.registeredTopics)
 
+	logger.Debug("Close connection")
+	(*ch.connection).Close()
+	ch.connectionClosed = true
+}
+
+func (ch *connectionHandler) logout(topics []string) {
+	for _, event := range ch.UnregisterEvent {
+		event(*ch, topics)
+	}
 }
