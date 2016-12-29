@@ -7,20 +7,20 @@ import (
 	"strconv"
 )
 
-type ConnectionManager struct {
+type ConnectionService struct {
 	topicToConnection map[string]net.Conn
 	listener          net.Listener
 	initialized       bool
 }
 
-func (cm *ConnectionManager) Init(host string, port int) {
+func (cm *ConnectionService) Init(host string, port int) {
 	cm.topicToConnection = make(map[string]net.Conn)
 	cm.listenTo(host, strconv.Itoa(port))
 
 	cm.initialized = true
 }
 
-func (cm *ConnectionManager) Run() {
+func (cm *ConnectionService) Run() {
 	if !cm.initialized {
 		logger.Error("Connection Service not initialized!")
 		os.Exit(1)
@@ -45,7 +45,7 @@ func (cm *ConnectionManager) Run() {
 	}
 }
 
-func (cm *ConnectionManager) listenTo(host, port string) {
+func (cm *ConnectionService) listenTo(host, port string) {
 	logger.Info("Try to listen on port " + port)
 
 	listener, err := net.Listen("tcp", host+":"+port)
@@ -58,7 +58,7 @@ func (cm *ConnectionManager) listenTo(host, port string) {
 	}
 }
 
-func (cm *ConnectionManager) waitForConnection() (*net.Conn, error) {
+func (cm *ConnectionService) waitForConnection() (*net.Conn, error) {
 	conn, err := cm.listener.Accept()
 
 	if err == nil {
