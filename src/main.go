@@ -9,10 +9,10 @@ func main() {
 	logger.DebugMode = true
 	logger.Info("Server starting...")
 
-	connectionManager := services.ConnectionService{}
-	connectionManager.Init("127.0.0.1", 55545)
+	connectionService := services.ConnectionService{}
+	connectionService.Init("127.0.0.1", 55545)
 
 	logger.Info("Server startet")
 
-	connectionManager.Run()
+	connectionService.Run()
 }
