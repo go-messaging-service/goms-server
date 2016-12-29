@@ -46,6 +46,7 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
 
 	connHandler.RegisterEvent = append(connHandler.RegisterEvent, cs.handleRegisterEvent)
 	connHandler.UnregisterEvent = append(connHandler.UnregisterEvent, cs.handleUnregisterEvent)
+	connHandler.SendEvent = append(connHandler.SendEvent, cs.handleSendEvent)
 	connHandler.HandleConnection()
 }
 
@@ -75,6 +76,15 @@ func remove(s []connectionHandler, e connectionHandler) []connectionHandler {
 		}
 	}
 	return s
+}
+
+func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics []string, data string) {
+	for _, topic := range topics {
+		handlerList := cs.topicToConnection[topic]
+		for _, destHandler := range handlerList {
+			(*destHandler.connection).Write([]byte(data))
+		}
+	}
 }
 
 func (cs *ConnectionService) listenTo(host, port string) {

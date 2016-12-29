@@ -115,8 +115,11 @@ func contains(s []string, e string) bool {
 }
 
 func (ch *connectionHandler) handleSending(message Message) {
-	logger.Error("NOT IMPLEMENTED!")
 	logger.Debug(fmt.Sprintf("Send message to topics %#v", message.Topics))
+
+	for _, event := range ch.SendEvent {
+		event(*ch, message.Topics, message.Data)
+	}
 }
 
 func (ch *connectionHandler) handleLogout(message Message) {
