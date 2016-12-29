@@ -26,15 +26,18 @@ func (ch *connectionHandler) Init(connection *net.Conn) {
 }
 
 func (ch *connectionHandler) HandleConnection() {
+	// Not initialized
 	if ch.connection == nil {
 		logger.Error("Connection not set!")
 		return
 	}
 
+	// at first only a registration message is allowed
 	ch.waitFor(
 		[]string{material.MtRegister},
 		[]func(Message){ch.handleRegistration})
 
+	// Now a arbitrary amount of registration, logout, close and send messages is allowed
 	for true {
 		ch.waitFor(
 			[]string{material.MtRegister,
@@ -46,6 +49,7 @@ func (ch *connectionHandler) HandleConnection() {
 				ch.handleClose,
 				ch.handleSending})
 
+		// When the connection is closed, exit the loop and we're done
 		if ch.connectionClosed {
 			break
 		}

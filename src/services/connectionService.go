@@ -30,21 +30,23 @@ func (cs *ConnectionService) Run() {
 		conn, err := cs.waitForConnection()
 
 		if err == nil {
-
-			logger.Info("Create connection handler")
-
-			connHandler := connectionHandler{
-				connection: conn,
-			}
-
-			connHandler.RegisterEvent = append(connHandler.RegisterEvent, cs.handleRegisterEvent)
-			connHandler.UnregisterEvent = append(connHandler.UnregisterEvent, cs.handleUnregisterEvent)
-			connHandler.HandleConnection()
-
+			go cs.createAndRunHandler(conn)
 		} else {
 			logger.Error(err.Error())
 		}
 	}
+}
+
+func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
+	logger.Info("Create connection handler")
+
+	connHandler := connectionHandler{
+		connection: conn,
+	}
+
+	connHandler.RegisterEvent = append(connHandler.RegisterEvent, cs.handleRegisterEvent)
+	connHandler.UnregisterEvent = append(connHandler.UnregisterEvent, cs.handleUnregisterEvent)
+	connHandler.HandleConnection()
 }
 
 func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics []string) {
