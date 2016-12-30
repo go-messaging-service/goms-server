@@ -82,7 +82,7 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 	for _, topic := range topics {
 		handlerList := cs.topicToConnection[topic]
 		for _, destHandler := range handlerList {
-			(*destHandler.connection).Write([]byte(data))
+			(*destHandler.connection).Write([]byte(data + "\n"))
 		}
 	}
 }
