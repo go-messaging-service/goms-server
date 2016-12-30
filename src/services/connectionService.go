@@ -1,19 +1,21 @@
 package services
 
 import (
-	"../technical/services/logger"
+	"goMS/src/technical/material"
+	"goMS/src/technical/services/logger"
 	"net"
 	"os"
 	"strconv"
 )
 
 type ConnectionService struct {
+	topicConfig       material.TopicConfig
 	topicToConnection map[string][]connectionHandler
 	listener          net.Listener
 	initialized       bool
 }
 
-func (cs *ConnectionService) Init(host string, port int) {
+func (cs *ConnectionService) Init(host string, port int, topics) {
 	cs.topicToConnection = make(map[string][]connectionHandler)
 	cs.listenTo(host, strconv.Itoa(port))
 

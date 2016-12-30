@@ -1,11 +1,11 @@
 package services
 
 import (
-	"../material"
-	"../technical/services/logger"
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"goMS/src/material"
+	"goMS/src/technical/services/logger"
 	"math"
 	"net"
 )
