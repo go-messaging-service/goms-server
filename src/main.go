@@ -7,12 +7,12 @@ import (
 )
 
 func main() {
+	logger.DebugMode = true
 	logger.Plain("Welcome to the goMS (go Message Service)!")
 	logger.Plain("I will just initialize me and serve you as you configured me :)")
 	logger.Plain("\n\n")
 
 	logger.Info("Initialize logger")
-	logger.DebugMode = true
 
 	logger.Info("Initialize server")
 	configLoader := loadConfigs()

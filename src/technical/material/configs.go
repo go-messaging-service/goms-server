@@ -6,5 +6,5 @@ type Config struct {
 
 type TopicConfig struct {
 	Config
-	Topics []string
+	Topics []string `json:"topics"`
 }
