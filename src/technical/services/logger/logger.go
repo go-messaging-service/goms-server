@@ -26,6 +26,10 @@ func Error(message string) {
 	os.Stderr.WriteString(fmt.Sprintf("[ERROR] %s: %s\n", getCallerName()+"() at "+strconv.Itoa(getCallerLine()), message))
 }
 
+func Plain(message string) {
+	os.Stdout.WriteString(message + "\n")
+}
+
 func getCallerName() string {
 	pc, _, _, _ := runtime.Caller(2)
 	path := runtime.FuncForPC(pc).Name()
