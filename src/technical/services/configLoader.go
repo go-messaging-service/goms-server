@@ -12,12 +12,14 @@ import (
 type Config material.Config
 type TopicConfig material.TopicConfig
 
-type ConfiLoader struct {
-	topicConfig TopicConfig
+type ConfigLoader struct {
+	TopicConfig TopicConfig
 }
 
-func (cl *ConfiLoader) LoadTopics(filename string) {
-	cl.topicConfig = TopicConfig{}
+// LoadTopics reads the config file for the topics and fills the TopicConfig field
+// The default location is /config/topics.json
+func (cl *ConfigLoader) LoadTopics(filename string) {
+	cl.TopicConfig = TopicConfig{}
 	data, err := ioutil.ReadFile(filename)
 
 	if err != nil {
@@ -25,5 +27,5 @@ func (cl *ConfiLoader) LoadTopics(filename string) {
 		os.Exit(1)
 	}
 
-	json.Unmarshal(data, cl.topicConfig)
+	json.Unmarshal(data, cl.TopicConfig)
 }
