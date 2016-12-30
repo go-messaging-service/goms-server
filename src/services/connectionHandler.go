@@ -1,8 +1,8 @@
 package services
 
 import (
-	"../logger"
 	"../material"
+	"../technical/services/logger"
 	"bufio"
 	"encoding/json"
 	"fmt"

@@ -1,7 +1,7 @@
 package services
 
 import (
-	"../logger"
+	"../technical/services/logger"
 	"net"
 	"os"
 	"strconv"

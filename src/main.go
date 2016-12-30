@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./logger"
 	"./services"
+	"./technical/services/logger"
 )
 
 func main() {
