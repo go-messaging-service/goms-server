@@ -61,11 +61,9 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 }
 
 func (cs *ConnectionService) handleUnregisterEvent(conn connectionHandler, topics []string) {
-	logger.Debug(strconv.Itoa(len(cs.topicToConnection["a"])))
 	for key, handlerList := range cs.topicToConnection {
 		cs.topicToConnection[key] = remove(handlerList, conn)
 	}
-	logger.Debug(strconv.Itoa(len(cs.topicToConnection["a"])))
 }
 
 func remove(s []connectionHandler, e connectionHandler) []connectionHandler {

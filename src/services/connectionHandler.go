@@ -38,7 +38,7 @@ func (ch *connectionHandler) HandleConnection() {
 		[]func(Message){ch.handleRegistration})
 
 	// Now a arbitrary amount of registration, logout, close and send messages is allowed
-	for true {
+	for !ch.connectionClosed {
 		ch.waitFor(
 			[]string{material.MtRegister,
 				material.MtLogout,
@@ -82,6 +82,9 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 				break
 			}
 		}
+	} else {
+		logger.Info("The connection will be closed. Reason: " + err.Error())
+		ch.exit()
 	}
 }
 
@@ -128,6 +131,10 @@ func (ch *connectionHandler) handleLogout(message Message) {
 }
 
 func (ch *connectionHandler) handleClose(message Message) {
+	ch.exit()
+}
+
+func (ch *connectionHandler) exit() {
 	logger.Debug("Unsubscribe from all topics")
 	ch.logout(ch.registeredTopics)
 
