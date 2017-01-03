@@ -17,18 +17,23 @@ The optionel reg-ack() is left out, because it's not clear wether this will be i
 // All message types (mt)
 const (
 	// client -> server
-	MtRegister = "register"
-	MtSend     = "send"
-	MtLogout   = "logout"
-	MtClose    = "close"
+	MT_REGISTER = "register"
+	MT_SEND     = "send"
+	MT_LOGOUT   = "logout"
+	MT_CLOSE    = "close"
 	// server -> client
-	MtMessage = "message"
-	MtError   = "error"
+	MT_MESSAGE = "message"
+	MT_ERROR   = "error"
 )
 
 // All error codes
 const (
-	ErrReg_Forbidden = "001001" // registration on topics forbidden
+	//000
+	//001
+	ERR_REG_FORBIDDEN = "001001" // registration on topics forbidden
+	//002
+	//003
+	//004
 )
 
 type GenerallMessage struct {

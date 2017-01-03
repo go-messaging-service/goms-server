@@ -75,9 +75,9 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 	if len(forbiddenTopics) != 0 {
 		errorMessage := ErrorMessage{
 			GenerallMessage: material.GenerallMessage{
-				MessageType: material.MtError,
+				MessageType: material.MT_ERROR,
 			},
-			ErrorCode: material.ErrReg_Forbidden,
+			ErrorCode: material.ERR_REG_FORBIDDEN,
 			Error:     forbiddenTopics,
 		}
 		cs.sendErrorMessage(conn.connection, errorMessage)

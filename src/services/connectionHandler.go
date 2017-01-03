@@ -35,16 +35,16 @@ func (ch *connectionHandler) HandleConnection() {
 
 	// at first only a registration message is allowed
 	ch.waitFor(
-		[]string{material.MtRegister},
+		[]string{material.MT_REGISTER},
 		[]func(Message){ch.handleRegistration})
 
 	// Now a arbitrary amount of registration, logout, close and send messages is allowed
 	for !ch.connectionClosed {
 		ch.waitFor(
-			[]string{material.MtRegister,
-				material.MtLogout,
-				material.MtClose,
-				material.MtSend},
+			[]string{material.MT_REGISTER,
+				material.MT_LOGOUT,
+				material.MT_CLOSE,
+				material.MT_SEND},
 			[]func(Message){ch.handleRegistration,
 				ch.handleLogout,
 				ch.handleClose,
