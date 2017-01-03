@@ -1,12 +1,16 @@
 package services
 
 import (
+	"encoding/json"
+	"goMS/src/material"
 	"goMS/src/technical/common"
 	"goMS/src/technical/services/logger"
 	"net"
 	"os"
 	"strconv"
 )
+
+type ErrorMessage material.ErrorMessage
 
 type ConnectionService struct {
 	topics            []string
@@ -55,14 +59,28 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
 }
 
 func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics []string) {
+	forbiddenTopics := ""
+
 	for _, topic := range topics {
 		if common.ContainsString(cs.topics, topic) {
 			cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
 			logger.Debug("Register " + topic)
 		} else {
 			//TODO send error message (or collect invalid topics to send one big message)
+			forbiddenTopics += "," + topic
 			logger.Info("Clients wants to register on invalid topic (" + topic + ").")
 		}
+	}
+
+	if len(forbiddenTopics) != 0 {
+		errorMessage := ErrorMessage{
+			GenerallMessage: material.GenerallMessage{
+				MessageType: material.MtError,
+			},
+			ErrorCode: material.ErrReg_Forbidden,
+			Error:     forbiddenTopics,
+		}
+		cs.sendErrorMessage(conn.connection, errorMessage)
 	}
 }
 
@@ -72,26 +90,26 @@ func (cs *ConnectionService) handleUnregisterEvent(conn connectionHandler, topic
 	}
 }
 
-func remove(s []connectionHandler, e connectionHandler) []connectionHandler {
-	for i, a := range s {
-		if a.connection == e.connection {
-			// Remove element at inedx i (s. "Slice Tricks" on github)
-			// https://github.com/golang/go/wiki/SliceTricks
-			logger.Debug("Remove element")
-			s = append(s[:i], s[i+1:]...)
-			return s
-		}
-	}
-	return s
-}
-
 func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics []string, data string) {
 	for _, topic := range topics {
 		handlerList := cs.topicToConnection[topic]
 		for _, destHandler := range handlerList {
-			(*destHandler.connection).Write([]byte(data + "\n"))
+			cs.sendMessageTo(destHandler.connection, data)
 		}
 	}
+}
+
+func (cs *ConnectionService) sendErrorMessage(conn *net.Conn, errorMessage ErrorMessage) {
+	data, err := json.Marshal(errorMessage)
+	if err == nil {
+		cs.sendMessageTo(conn, string(data))
+	} else {
+		logger.Error("Error while sending error: " + err.Error())
+	}
+}
+
+func (cs *ConnectionService) sendMessageTo(connection *net.Conn, data string) {
+	(*connection).Write([]byte(data + "\n"))
 }
 
 func (cs *ConnectionService) listenTo(host, port string) {
@@ -122,4 +140,17 @@ func (cs *ConnectionService) waitForConnection() (*net.Conn, error) {
 
 	logger.Error(err.Error())
 	return nil, err
+}
+
+func remove(s []connectionHandler, e connectionHandler) []connectionHandler {
+	for i, a := range s {
+		if a.connection == e.connection {
+			// Remove element at inedx i (s. "Slice Tricks" on github)
+			// https://github.com/golang/go/wiki/SliceTricks
+			logger.Debug("Remove element")
+			s = append(s[:i], s[i+1:]...)
+			return s
+		}
+	}
+	return s
 }

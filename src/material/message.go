@@ -23,10 +23,26 @@ const (
 	MtClose    = "close"
 	// server -> client
 	MtMessage = "message"
+	MtError   = "error"
 )
 
+// All error codes
+const (
+	ErrReg_Forbidden = "001001" // registration on topics forbidden
+)
+
+type GenerallMessage struct {
+	MessageType string `json:"type,omitempty"`
+}
+
 type Message struct {
-	MessageType string   `json:"type,omitempty"`
-	Data        string   `json:"data,omitempty"`
-	Topics      []string `json:"topics,omitempty"`
+	GenerallMessage
+	Data   string   `json:"data,omitempty"`
+	Topics []string `json:"topics,omitempty"`
+}
+
+type ErrorMessage struct {
+	GenerallMessage
+	ErrorCode string `json:"error-code"`
+	Error     string `json:"error"`
 }
