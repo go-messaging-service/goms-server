@@ -13,7 +13,58 @@ All topic names are __lowercase__ letters! A registration with some capital lett
 ## Messages
 A message can be everything and of (currently) any size. Normally it would be some XML, JSON or *insert-file-format-here* data and thats fine. In the JSON-message (see below) will everything be escaped, but you can send everything you like.
 
-# Data structure for connections and topics
+## Message types
+There're different types of messages, namely `register`, `send`, `message`, `logout`, `close` and `error`.
+
+### register
+Goes from client to server.
+
+Need the field `topics` with a list of topics. A client can only connect to topics, that are configured in the server config.
+
+### send
+Goes from client to server.
+
+Needs the fields `topics` and `data`. The field `topics` contains all topics the data goes to. The field `data` contains all data that will be send as message to all registered clients.
+
+### message
+Goes from server to client.
+
+Only contains the `data` field from the `send` message.
+
+### logout
+Goes from client to server.
+
+Needs the field `topics` which is a list of all topics the client wants to unregister himself of.
+
+### close
+Goes from client to server.
+
+Needs no fields.
+
+### error
+Goes from server to client.
+
+Contains the field `error-code` which is normally a number (like the HTTP status codes) and the field `error` which is a message that describes the error.
+
+# Server stuff
+Here're some information about the server (usage, configuration and internals).
+
+## Configuration
+### Topics
+To limit the amount of topics, a client is not able to create one. This is the responsibility of the server administrator. The file `/conf/topics.json` contains all available topics.
+It's a simple json list like this one:
+```json
+{
+  "topics":[
+    "technology",
+    "goms",
+    "golang"
+  ]
+}
+```
+
+## Internals
+### Data structure for connections and topics
 The server uses a map from `topic (string)` to `connection (net.Conn)`. The reason is, that the normal situation would be a notification to all users of a topic. This need exactly this kind of mapping for a fast distribution of messages.
 # Connect with server
 The process of connecting and notifying is the following:
@@ -97,6 +148,33 @@ If you want to be kind to the server, you can use the close-message:
   "type": "close"
 }
 ```
+
+# Errors
+Now some words about the `error` message (s. above).
+
+This list of numbers and codes may not be up-to-date and also may change very quickly, so don't wonder about differeces.
+
+## Categories
+To structure the whole thing, each message has its own category.
+
+| Error code | Category |
+|-|:-|
+| 000xxx | General Server error |
+| 001xxx | `register` error |
+| 002xxx | `send` error |
+| 003xxx | `logout` error |
+| 004xxx | `close` error |
+
+## Error-code list
+### 000
+### 001
+| Error code   | Message |
+|-|:-|
+| 001001 | Registration not allowed. Maybe the topic does'nt exist in the server config? |
+
+### 002
+### 003
+### 004
 
 # Planned things
 * Create users (with optional passoword) for server, to allow multiple topics with the same name within a single server. A user can create an account at the service provider (e.g. a website that runs this server) and then setup his/her own message service.
