@@ -11,7 +11,7 @@ A client can register itself to a topic and is allowed to receive and send messa
 All topic names are __lowercase__ letters! A registration with some capital letters (e.g. camel-case like "aCoolTopicName") will be changed into lowercase names.
 
 ## Messages
-A message can be everything and of (currently) any size. Normally it would be some XML, JSON or *insert-file-format-here* data and thats fine. In the JSON-message (see below) will everything be escaped, but you can send everything you like.
+A message can be everything and of (currently) any size. Normally it would be some XML, JSON or *insert-your-favorite-file-format-here* data and thats fine. In the JSON-message (see below) will everything be escaped, but you can send everything you like.
 
 ## Message types
 There're different types of messages, namely `register`, `send`, `message`, `logout`, `close` and `error`.
@@ -44,7 +44,7 @@ Needs no fields.
 ### error
 Goes from server to client.
 
-Contains the field `error-code` which is normally a number (like the HTTP status codes) and the field `error` which is a message that describes the error.
+Contains the field `error-code` which is normally a number (like the HTTP status codes) and the field `error` which contains some data belonging to the error (meaning of error codes below).
 
 # Server stuff
 Here're some information about the server (usage, configuration and internals).
@@ -168,9 +168,9 @@ To structure the whole thing, each message has its own category.
 ## Error-code list
 ### 000
 ### 001
-| Error code   | Message |
+| Error code   | Describtion | The field `Error` contains ... |
 |-|:-|
-| 001001 | Registration not allowed. Maybe the topic does'nt exist in the server config? |
+| 001001 | Registration not allowed. Maybe the topic doesn't exist in the server config? | ... a list (normal string separated by comma `,`) of all topics the client was not able to register to.
 
 ### 002
 ### 003
