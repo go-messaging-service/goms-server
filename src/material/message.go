@@ -32,6 +32,7 @@ const (
 	//001
 	ERR_REG_FORBIDDEN = "001001" // registration on topics forbidden
 	//002
+	ERR_SEND_FAILED = "002001"
 	//003
 	//004
 )

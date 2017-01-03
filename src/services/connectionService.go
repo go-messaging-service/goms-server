@@ -73,14 +73,7 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 	}
 
 	if len(forbiddenTopics) != 0 {
-		errorMessage := ErrorMessage{
-			GenerallMessage: material.GenerallMessage{
-				MessageType: material.MT_ERROR,
-			},
-			ErrorCode: material.ERR_REG_FORBIDDEN,
-			Error:     forbiddenTopics,
-		}
-		cs.sendErrorMessage(conn.connection, errorMessage)
+		cs.sendErrorMessage(conn.connection, material.ERR_REG_FORBIDDEN, forbiddenTopics)
 	}
 }
 
@@ -94,21 +87,55 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 	for _, topic := range topics {
 		handlerList := cs.topicToConnection[topic]
 		for _, destHandler := range handlerList {
-			cs.sendMessageTo(destHandler.connection, data)
+			err := cs.sendMessageTo(destHandler.connection, data)
+
+			if err != nil {
+				cs.sendErrorMessage(handler.connection, material.ERR_SEND_FAILED, err.Error())
+			}
 		}
 	}
 }
 
-func (cs *ConnectionService) sendErrorMessage(conn *net.Conn, errorMessage ErrorMessage) {
+func (cs *ConnectionService) sendErrorMessage(conn *net.Conn, errorCode, errorData string) {
+
+	errorMessage := ErrorMessage{
+		GenerallMessage: material.GenerallMessage{
+			MessageType: material.MT_ERROR,
+		},
+		ErrorCode: errorCode,
+		Error:     errorData,
+	}
+
 	data, err := json.Marshal(errorMessage)
+
 	if err == nil {
-		cs.sendMessageTo(conn, string(data))
+		logger.Debug("Sending error")
+		cs.sendStringTo(conn, string(data))
 	} else {
 		logger.Error("Error while sending error: " + err.Error())
 	}
 }
 
-func (cs *ConnectionService) sendMessageTo(connection *net.Conn, data string) {
+func (cs *ConnectionService) sendMessageTo(connection *net.Conn, data string) error {
+	message := Message{
+		GenerallMessage: material.GenerallMessage{
+			MessageType: material.MT_MESSAGE,
+		},
+		Data: data,
+	}
+
+	dataArray, err := json.Marshal(message)
+
+	if err != nil {
+		logger.Error("Error sending data: " + err.Error())
+		return err
+	}
+
+	cs.sendStringTo(connection, string(dataArray))
+	return nil
+}
+
+func (cs *ConnectionService) sendStringTo(connection *net.Conn, data string) {
 	(*connection).Write([]byte(data + "\n"))
 }
 

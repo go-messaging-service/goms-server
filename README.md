@@ -173,6 +173,9 @@ To structure the whole thing, each message has its own category.
 | 001001 | Registration not allowed. Maybe the topic doesn't exist in the server config? | ... a list (normal string separated by comma `,`) of all topics the client was not able to register to.
 
 ### 002
+| Error code   | Describtion | The field `Error` contains ... |
+|-|:-|
+| 002001 | Error sending the message | ... the error message the runtime gives to the server. |
 ### 003
 ### 004
 
