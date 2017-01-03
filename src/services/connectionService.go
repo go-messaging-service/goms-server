@@ -1,6 +1,7 @@
 package services
 
 import (
+	"goMS/src/technical/common"
 	"goMS/src/technical/services/logger"
 	"net"
 	"os"
@@ -55,8 +56,13 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
 
 func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics []string) {
 	for _, topic := range topics {
-		cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
-		logger.Debug("Register " + topic)
+		if common.ContainsString(cs.topics, topic) {
+			cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
+			logger.Debug("Register " + topic)
+		} else {
+			//TODO send error message (or collect invalid topics to send one big message)
+			logger.Info("Clients wants to register on invalid topic (" + topic + ").")
+		}
 	}
 }
 

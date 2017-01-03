@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"goMS/src/material"
+	"goMS/src/technical/common"
 	"goMS/src/technical/services/logger"
 	"math"
 	"net"
@@ -102,19 +103,10 @@ func (ch *connectionHandler) handleRegistration(message Message) {
 	}
 
 	for _, topic := range message.Topics {
-		if !contains(ch.registeredTopics, topic) {
+		if !common.ContainsString(ch.registeredTopics, topic) {
 			ch.registeredTopics = append(ch.registeredTopics, topic)
 		}
 	}
-}
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }
 
 func (ch *connectionHandler) handleSending(message Message) {
