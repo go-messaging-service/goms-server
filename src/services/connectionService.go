@@ -13,18 +13,27 @@ import (
 type ErrorMessage material.ErrorMessage
 
 type ConnectionService struct {
-	topics            []string
-	topicToConnection map[string][]connectionHandler
-	listener          net.Listener
-	initialized       bool
+	topics                      []string
+	topicToConnection           map[string][]connectionHandler
+	topicToNotificationServices map[string]TopicNotifyService
+	listener                    net.Listener
+	initialized                 bool
 }
 
 func (cs *ConnectionService) Init(host string, port int, topics []string) {
 	cs.topicToConnection = make(map[string][]connectionHandler)
-	cs.listenTo(host, strconv.Itoa(port))
+
+	cs.topicToNotificationServices = make(map[string]TopicNotifyService)
+	for _, topic := range topics {
+		service := TopicNotifyService{}
+
+		cs.topicToNotificationServices[topic] = service
+		go service.StartNotifier()
+	}
 
 	cs.topics = topics
 
+	cs.listenTo(host, strconv.Itoa(port))
 	cs.initialized = true
 }
 
@@ -93,12 +102,12 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 		}
 
 		// create notification
-		//		notification := &Notification{
-		//			Connections: &connectionList,
-		//			Data:        data,
-		//		}
+		notification := &Notification{
+			Connections: &connectionList,
+			Data:        data,
+		}
 
-		//TODO send to notification services channel for messages
+		cs.topicToNotificationServices[topic].queue <- notification
 	}
 }
 

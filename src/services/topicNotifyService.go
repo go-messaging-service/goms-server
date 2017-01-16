@@ -16,6 +16,12 @@ type TopicNotifyService struct {
 	exit   chan bool
 }
 
+func (tn *TopicNotifyService) Init() {
+	tn.queue = make(chan *Notification)
+	tn.errors = make(chan *Notification)
+	tn.exit = make(chan bool)
+}
+
 func (tn *TopicNotifyService) StartNotifier() {
 	for {
 		select {
