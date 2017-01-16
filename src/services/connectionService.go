@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"goMS/src/material"
 	"goMS/src/technical/common"
 	"goMS/src/technical/services/logger"
@@ -25,6 +26,7 @@ func (cs *ConnectionService) Init(host string, port int, topics []string) {
 	cs.topicToNotificationServices = make(map[string]TopicNotifyService)
 	for _, topic := range topics {
 		service := TopicNotifyService{}
+		service.Init()
 
 		cs.topicToNotificationServices[topic] = service
 		logger.Info("Start notifier for " + topic)
@@ -75,7 +77,6 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 			cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
 			logger.Debug("Register " + topic)
 		} else {
-			//TODO send error message (or collect invalid topics to send one big message)
 			forbiddenTopics += "," + topic
 			logger.Info("Clients wants to register on invalid topic (" + topic + ").")
 		}
@@ -97,8 +98,8 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 		// Get all connections (as *net.Conn slice)
 		handlerList := cs.topicToConnection[topic]
 		connectionList := make([]*net.Conn, len(handlerList))
-		for _, handler := range handlerList {
-			connectionList = append(connectionList, handler.connection)
+		for i, handler := range handlerList {
+			connectionList[i] = handler.connection
 		}
 
 		// create notification
@@ -107,7 +108,6 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 			Data:        data,
 		}
 
-		logger.Info("KO - " + topic)
 		cs.topicToNotificationServices[topic].queue <- notification
 	}
 }

@@ -24,7 +24,6 @@ func (tn *TopicNotifyService) StartNotifier() {
 	for {
 		select {
 		case notification := <-tn.queue:
-			logger.Info("OK")
 			tn.sendNotification(notification)
 		case <-tn.exit:
 			return
