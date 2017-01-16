@@ -85,14 +85,20 @@ func (cs *ConnectionService) handleUnregisterEvent(conn connectionHandler, topic
 
 func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics []string, data string) {
 	for _, topic := range topics {
+		// Get all connections (as *net.Conn slice)
 		handlerList := cs.topicToConnection[topic]
-		for _, destHandler := range handlerList {
-			err := cs.sendMessageTo(destHandler.connection, data)
-
-			if err != nil {
-				cs.sendErrorMessage(handler.connection, material.ERR_SEND_FAILED, err.Error())
-			}
+		connectionList := make([]*net.Conn, len(handlerList))
+		for _, handler := range handlerList {
+			connectionList = append(connectionList, handler.connection)
 		}
+
+		// create notification
+		//		notification := &Notification{
+		//			Connections: &connectionList,
+		//			Data:        data,
+		//		}
+
+		//TODO send to notification services channel for messages
 	}
 }
 
