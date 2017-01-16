@@ -30,6 +30,7 @@ func Error(message string) {
 func Fatal(message string) {
 	os.Stderr.WriteString(fmt.Sprintf("\n\n[FATAL] %s: %s\n\n\n", getCallerName()+"() at "+strconv.Itoa(getCallerLine()), message))
 	debug.PrintStack()
+	Plain("\n\nAhhh, *urg*, I'm sorry but there was a really bad error inside of me. Above the stack trace is a message marked with [FATAL], you'll find some information there.\nIf not, feel free to contact my maker via:\n\n    goms@hauke-stieler.de\n\nI hope my death ... eh ... crash is only an exception and will be fixed soon ... my power ... leaves me ... good bye ... x.x")
 	os.Exit(1)
 }
 
