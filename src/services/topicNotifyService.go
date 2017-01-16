@@ -3,7 +3,6 @@ package services
 import (
 	domain "goMS/src/material"
 	technical "goMS/src/technical/material"
-	"goMS/src/technical/services/logger"
 )
 
 type Notification technical.Notification

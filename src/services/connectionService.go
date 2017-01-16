@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"goMS/src/material"
 	"goMS/src/technical/common"
 	"goMS/src/technical/services/logger"
@@ -18,6 +17,8 @@ type ConnectionService struct {
 	topicToNotificationServices map[string]TopicNotifyService
 	listener                    net.Listener
 	initialized                 bool
+	host                        string
+	port                        string
 }
 
 func (cs *ConnectionService) Init(host string, port int, topics []string) {
@@ -34,8 +35,9 @@ func (cs *ConnectionService) Init(host string, port int, topics []string) {
 	}
 
 	cs.topics = topics
+	cs.host = host
+	cs.port = strconv.Itoa(port)
 
-	cs.listenTo(host, strconv.Itoa(port))
 	cs.initialized = true
 }
 
@@ -44,6 +46,8 @@ func (cs *ConnectionService) Run() {
 		logger.Error("Connection Service not initialized!")
 		os.Exit(1)
 	}
+
+	cs.listenTo(cs.host, cs.port)
 
 	for {
 		conn, err := cs.waitForConnection()
