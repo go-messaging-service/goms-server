@@ -1,7 +1,6 @@
 package services
 
 import (
-	"encoding/json"
 	"goMS/src/material"
 	"goMS/src/technical/common"
 	"goMS/src/technical/services/logger"
@@ -28,6 +27,7 @@ func (cs *ConnectionService) Init(host string, port int, topics []string) {
 		service := TopicNotifyService{}
 
 		cs.topicToNotificationServices[topic] = service
+		logger.Info("Start notifier for " + topic)
 		go service.StartNotifier()
 	}
 
@@ -82,7 +82,7 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 	}
 
 	if len(forbiddenTopics) != 0 {
-		cs.sendErrorMessage(conn.connection, material.ERR_REG_FORBIDDEN, forbiddenTopics)
+		sendErrorMessage(conn.connection, material.ERR_REG_FORBIDDEN, forbiddenTopics)
 	}
 }
 
@@ -107,51 +107,9 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 			Data:        data,
 		}
 
+		logger.Info("KO - " + topic)
 		cs.topicToNotificationServices[topic].queue <- notification
 	}
-}
-
-func (cs *ConnectionService) sendErrorMessage(conn *net.Conn, errorCode, errorData string) {
-
-	errorMessage := ErrorMessage{
-		GenerallMessage: material.GenerallMessage{
-			MessageType: material.MT_ERROR,
-		},
-		ErrorCode: errorCode,
-		Error:     errorData,
-	}
-
-	data, err := json.Marshal(errorMessage)
-
-	if err == nil {
-		logger.Debug("Sending error")
-		cs.sendStringTo(conn, string(data))
-	} else {
-		logger.Error("Error while sending error: " + err.Error())
-	}
-}
-
-func (cs *ConnectionService) sendMessageTo(connection *net.Conn, data string) error {
-	message := Message{
-		GenerallMessage: material.GenerallMessage{
-			MessageType: material.MT_MESSAGE,
-		},
-		Data: data,
-	}
-
-	dataArray, err := json.Marshal(message)
-
-	if err != nil {
-		logger.Error("Error sending data: " + err.Error())
-		return err
-	}
-
-	cs.sendStringTo(connection, string(dataArray))
-	return nil
-}
-
-func (cs *ConnectionService) sendStringTo(connection *net.Conn, data string) {
-	(*connection).Write([]byte(data + "\n"))
 }
 
 func (cs *ConnectionService) listenTo(host, port string) {

@@ -1,0 +1,2 @@
+{"type":"register","topics":["golang","news"]}
+{"type":"send","topics":["golang","news"],"data":"Hallo123"}

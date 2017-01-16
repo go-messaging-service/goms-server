@@ -1,11 +1,9 @@
 package services
 
 import (
-	"encoding/json"
 	domain "goMS/src/material"
 	technical "goMS/src/technical/material"
 	"goMS/src/technical/services/logger"
-	"net"
 )
 
 type Notification technical.Notification
@@ -26,42 +24,21 @@ func (tn *TopicNotifyService) StartNotifier() {
 	for {
 		select {
 		case notification := <-tn.queue:
+			logger.Info("OK")
 			tn.sendNotification(notification)
 		case <-tn.exit:
-			break
+			return
 		}
 	}
 }
 
 func (tn *TopicNotifyService) sendNotification(notification *Notification) {
-	//TODO implement sending to all connections
+	for _, connection := range *notification.Connections {
 
-	//		err := cs.sendMessageTo(destHandler.connection, data)
+		err := sendMessageTo(connection, notification.Data)
 
-	//		if err != nil {
-	//			cs.sendErrorMessage(handler.connection, material.ERR_SEND_FAILED, err.Error())
-	//		}
-}
-
-func (tn *TopicNotifyService) sendMessageTo(connection *net.Conn, data string) error {
-	message := Message{
-		GenerallMessage: domain.GenerallMessage{
-			MessageType: domain.MT_MESSAGE,
-		},
-		Data: data,
+		if err != nil {
+			sendErrorMessage(connection, domain.ERR_SEND_FAILED, err.Error())
+		}
 	}
-
-	dataArray, err := json.Marshal(message)
-
-	if err != nil {
-		logger.Error("Error sending data: " + err.Error())
-		return err
-	}
-
-	tn.sendStringTo(connection, string(dataArray))
-	return nil
-}
-
-func (tn *TopicNotifyService) sendStringTo(connection *net.Conn, data string) {
-	(*connection).Write([]byte(data + "\n"))
 }
