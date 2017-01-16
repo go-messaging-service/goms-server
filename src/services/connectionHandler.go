@@ -29,8 +29,7 @@ func (ch *connectionHandler) Init(connection *net.Conn) {
 func (ch *connectionHandler) HandleConnection() {
 	// Not initialized
 	if ch.connection == nil {
-		logger.Error("Connection not set!")
-		return
+		logger.Fatal("Connection not set!")
 	}
 
 	// at first only a registration message is allowed

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"runtime/debug"
 	"strconv"
 	"strings"
 )
@@ -24,6 +25,12 @@ func Info(message string) {
 
 func Error(message string) {
 	os.Stderr.WriteString(fmt.Sprintf("[ERROR] %s: %s\n", getCallerName()+"() at "+strconv.Itoa(getCallerLine()), message))
+}
+
+func Fatal(message string) {
+	os.Stderr.WriteString(fmt.Sprintf("\n\n[FATAL] %s: %s\n\n\n", getCallerName()+"() at "+strconv.Itoa(getCallerLine()), message))
+	debug.PrintStack()
+	os.Exit(1)
 }
 
 func Plain(message string) {

@@ -5,7 +5,6 @@ import (
 	"goMS/src/technical/material"
 	"goMS/src/technical/services/logger"
 	"io/ioutil"
-	"os"
 )
 
 // simplify the way of access to structs
@@ -22,8 +21,7 @@ func (cl *ConfigLoader) LoadTopics(filename string) {
 	data, err := ioutil.ReadFile(filename)
 
 	if err != nil {
-		logger.Error(err.Error())
-		os.Exit(1)
+		logger.Fatal(err.Error())
 	}
 
 	cl.TopicConfig = &TopicConfig{}
