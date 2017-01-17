@@ -1,4 +1,4 @@
-package services
+package technicalServices
 
 import (
 	"encoding/json"
@@ -8,8 +8,8 @@ import (
 )
 
 // simplify the way of access to structs
-type Config material.Config
-type TopicConfig material.TopicConfig
+type Config technicalMaterial.Config
+type TopicConfig technicalMaterial.TopicConfig
 
 type ConfigLoader struct {
 	TopicConfig *TopicConfig

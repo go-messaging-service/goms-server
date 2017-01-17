@@ -1,4 +1,4 @@
-package material
+package technicalMaterial
 
 type Config struct {
 	Path string

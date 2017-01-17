@@ -102,7 +102,7 @@ func (ch *connectionHandler) handleRegistration(message Message) {
 	}
 
 	for _, topic := range message.Topics {
-		if !common.ContainsString(ch.registeredTopics, topic) {
+		if !technicalCommon.ContainsString(ch.registeredTopics, topic) {
 			ch.registeredTopics = append(ch.registeredTopics, topic)
 		}
 	}

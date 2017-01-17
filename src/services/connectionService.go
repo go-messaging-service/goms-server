@@ -103,7 +103,7 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 	forbiddenTopics := ""
 
 	for _, topic := range topics {
-		if common.ContainsString(cs.topics, topic) {
+		if technicalCommon.ContainsString(cs.topics, topic) {
 			cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
 			logger.Debug("Register " + topic)
 		} else {
