@@ -71,6 +71,34 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
 	connHandler.HandleConnection()
 }
 
+func (cs *ConnectionService) listenTo(host, port string) {
+	logger.Info("Try to listen on port " + port)
+
+	listener, err := net.Listen("tcp", host+":"+port)
+
+	if err == nil && listener != nil {
+		logger.Info("Got listener for port " + port)
+		cs.listener = listener
+	} else if err != nil {
+		logger.Error(err.Error())
+		logger.Fatal("Maybe the port is not free?")
+	} else if listener == nil {
+		logger.Fatal("Could not listen to " + host + ":" + port + ". Unfortunately there's no error I could print here :( Check if no other services are running on port " + port + ".")
+	}
+}
+
+func (cs *ConnectionService) waitForConnection() (*net.Conn, error) {
+	conn, err := cs.listener.Accept()
+
+	if err == nil {
+		logger.Info("Got connection :D")
+		return &conn, nil
+	}
+
+	logger.Error(err.Error())
+	return nil, err
+}
+
 func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics []string) {
 	forbiddenTopics := ""
 
@@ -112,34 +140,6 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 
 		cs.topicToNotificationServices[topic].queue <- notification
 	}
-}
-
-func (cs *ConnectionService) listenTo(host, port string) {
-	logger.Info("Try to listen on port " + port)
-
-	listener, err := net.Listen("tcp", host+":"+port)
-
-	if err == nil && listener != nil {
-		logger.Info("Got listener for port " + port)
-		cs.listener = listener
-	} else if err != nil {
-		logger.Error(err.Error())
-		logger.Fatal("Maybe the port is not free?")
-	} else if listener == nil {
-		logger.Fatal("Could not listen to " + host + ":" + port + ". Unfortunately there's no error I could print here :( Check if no other services are running on port " + port + ".")
-	}
-}
-
-func (cs *ConnectionService) waitForConnection() (*net.Conn, error) {
-	conn, err := cs.listener.Accept()
-
-	if err == nil {
-		logger.Info("Got connection :D")
-		return &conn, nil
-	}
-
-	logger.Error(err.Error())
-	return nil, err
 }
 
 func remove(s []connectionHandler, e connectionHandler) []connectionHandler {
