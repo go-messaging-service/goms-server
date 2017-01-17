@@ -6,6 +6,7 @@ import (
 	"goMS/src/technical/services/logger"
 	"net"
 	"strconv"
+	"sync"
 )
 
 type ErrorMessage material.ErrorMessage
@@ -18,6 +19,7 @@ type ConnectionService struct {
 	initialized                 bool
 	host                        string
 	port                        string
+	mutex                       *sync.Mutex
 }
 
 func (cs *ConnectionService) Init(host string, port int, topics []string) {
@@ -36,6 +38,8 @@ func (cs *ConnectionService) Init(host string, port int, topics []string) {
 	cs.topics = topics
 	cs.host = host
 	cs.port = strconv.Itoa(port)
+
+	cs.mutex = &sync.Mutex{}
 
 	cs.initialized = true
 }
@@ -100,6 +104,8 @@ func (cs *ConnectionService) waitForConnection() (*net.Conn, error) {
 }
 
 func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics []string) {
+	cs.lock()
+
 	forbiddenTopics := ""
 
 	for _, topic := range topics {
@@ -115,12 +121,18 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 	if len(forbiddenTopics) != 0 {
 		sendErrorMessage(conn.connection, material.ERR_REG_FORBIDDEN, forbiddenTopics)
 	}
+
+	cs.unlock()
 }
 
 func (cs *ConnectionService) handleUnregisterEvent(conn connectionHandler, topics []string) {
+	cs.lock()
+
 	for key, handlerList := range cs.topicToConnection {
 		cs.topicToConnection[key] = remove(handlerList, conn)
 	}
+
+	cs.unlock()
 }
 
 func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics []string, data string) {
@@ -140,6 +152,14 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 
 		cs.topicToNotificationServices[topic].queue <- notification
 	}
+}
+
+func (cs *ConnectionService) lock() {
+	cs.mutex.Lock()
+}
+
+func (cs *ConnectionService) unlock() {
+	cs.mutex.Unlock()
 }
 
 func remove(s []connectionHandler, e connectionHandler) []connectionHandler {

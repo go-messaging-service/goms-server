@@ -34,7 +34,7 @@ func initConnectionService(topics []string) domainServices.ConnectionService {
 	logger.Info("Initialize connection service")
 
 	connectionService := domainServices.ConnectionService{}
-	connectionService.Init("127.0.0.1", 55545, topics)
+	connectionService.Init("0.0.0.0", 55545, topics)
 
 	return connectionService
 }
