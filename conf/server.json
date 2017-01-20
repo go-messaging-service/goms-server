@@ -5,6 +5,11 @@
 			"protocoll":"tcp",
 			"ip":"127.0.0.1",
 			"port":55545
+		},
+		{
+			"protocoll":"tcp",
+			"ip":"0.0.0.0",
+			"port":55547
 		}
 	]
 }

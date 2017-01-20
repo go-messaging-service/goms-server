@@ -24,7 +24,7 @@ func startServer() {
 
 	logger.Info("Start server")
 	for _, connectionService := range connectionServices {
-		go connectionService.Run()
+		connectionService.Run()
 	}
 
 	//TODO remove this and pass channels for closing

@@ -51,15 +51,17 @@ func (cs *ConnectionService) Run() {
 
 	cs.listenTo(cs.host, cs.port)
 
-	for {
-		conn, err := cs.waitForConnection()
+	go func() {
+		for {
+			conn, err := cs.waitForConnection()
 
-		if err == nil {
-			go cs.createAndRunHandler(conn)
-		} else {
-			logger.Error(err.Error())
+			if err == nil {
+				go cs.createAndRunHandler(conn)
+			} else {
+				logger.Error(err.Error())
+			}
 		}
-	}
+	}()
 }
 
 func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
