@@ -1,0 +1,10 @@
+{
+	"topic-config":"./conf/topics.json",
+	"connectors":[
+		{
+			"protocoll":"tcp",
+			"ip":"127.0.0.1",
+			"port":"55545"
+		}
+	]
+}

@@ -25,7 +25,7 @@ func loadConfigs() technicalServices.ConfigLoader {
 	logger.Info("Load configs")
 
 	configLoader := technicalServices.ConfigLoader{}
-	configLoader.LoadTopics("./conf/topics.json")
+	configLoader.LoadConfig("./conf/server.json")
 
 	return configLoader
 }
