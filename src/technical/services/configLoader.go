@@ -8,13 +8,13 @@ import (
 )
 
 // simplify the way of access to structs
-type Config technicalMaterial.Config
-type TopicConfig technicalMaterial.TopicConfig
-type ServerConfig technicalMaterial.ServerConfig
+//type Config technicalMaterial.Config
+//type TopicConfig technicalMaterial.TopicConfig
+//type ServerConfig technicalMaterial.ServerConfig
 
 type ConfigLoader struct {
-	TopicConfig  *TopicConfig
-	ServerConfig *ServerConfig
+	topicConfig  *technicalMaterial.TopicConfig
+	serverConfig *technicalMaterial.ServerConfig
 }
 
 // LoadTopics reads the config file for the topics and fills the TopicConfig field
@@ -27,8 +27,8 @@ func (cl *ConfigLoader) loadTopics(filename string) {
 		logger.Fatal(err.Error())
 	}
 
-	cl.TopicConfig = &TopicConfig{}
-	json.Unmarshal(data, cl.TopicConfig)
+	cl.topicConfig = &technicalMaterial.TopicConfig{}
+	json.Unmarshal(data, cl.topicConfig)
 }
 
 func (cl *ConfigLoader) LoadConfig(filename string) {
@@ -39,8 +39,15 @@ func (cl *ConfigLoader) LoadConfig(filename string) {
 		logger.Fatal(err.Error())
 	}
 
-	cl.ServerConfig = &ServerConfig{}
-	json.Unmarshal(data, cl.ServerConfig)
+	cl.serverConfig = &technicalMaterial.ServerConfig{}
+	json.Unmarshal(data, cl.serverConfig)
 
-	cl.loadTopics(cl.ServerConfig.TopicLocation)
+	cl.loadTopics(cl.serverConfig.TopicLocation)
+}
+
+func (cl *ConfigLoader) GetConfig() technicalMaterial.Config {
+	return technicalMaterial.Config{
+		TopicConfig:  *cl.topicConfig,
+		ServerConfig: *cl.serverConfig,
+	}
 }

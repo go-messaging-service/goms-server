@@ -2,39 +2,56 @@ package main
 
 import (
 	domainServices "goMS/src/services"
+	technicalMaterial "goMS/src/technical/material"
 	technicalServices "goMS/src/technical/services"
 	"goMS/src/technical/services/logger"
 )
 
 func main() {
+	logger.Info("Initialize logger")
+
 	logger.DebugMode = true
 	logger.Plain("Welcome to the goMS (go Message Service)!")
 	logger.Plain("I will just initialize me and serve you as you configured me :)\n\n")
 
-	logger.Info("Initialize logger")
-
-	logger.Info("Initialize server")
-	configLoader := loadConfigs()
-	connectionService := initConnectionService(configLoader.TopicConfig.Topics)
-
-	logger.Info("Start server")
-	connectionService.Run()
+	startServer()
 }
 
-func loadConfigs() technicalServices.ConfigLoader {
+func startServer() {
+	logger.Info("Initialize server")
+	config := loadConfig()
+	connectionServices := initConnectionService(config)
+
+	logger.Info("Start server")
+	for _, connectionService := range connectionServices {
+		go connectionService.Run()
+	}
+
+	//TODO remove this and pass channels for closing
+	for {
+	}
+}
+
+func loadConfig() technicalMaterial.Config {
 	logger.Info("Load configs")
 
 	configLoader := technicalServices.ConfigLoader{}
 	configLoader.LoadConfig("./conf/server.json")
 
-	return configLoader
+	return configLoader.GetConfig()
 }
 
-func initConnectionService(topics []string) domainServices.ConnectionService {
+func initConnectionService(config technicalMaterial.Config) []domainServices.ConnectionService {
 	logger.Info("Initialize connection service")
 
-	connectionService := domainServices.ConnectionService{}
-	connectionService.Init("0.0.0.0", 55545, topics)
+	connectionServices := make([]domainServices.ConnectionService, len(config.ServerConfig.Connectors))
 
-	return connectionService
+	for i, connector := range config.ServerConfig.Connectors {
+		connectionService := domainServices.ConnectionService{}
+		connectionService.Init(connector.Ip, connector.Port, config.TopicConfig.Topics)
+
+		connectionServices[i] = connectionService
+	}
+
+	return connectionServices
 }

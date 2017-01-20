@@ -1,11 +1,11 @@
 package technicalMaterial
 
 type Config struct {
-	Path string
+	ServerConfig ServerConfig
+	TopicConfig  TopicConfig
 }
 
 type TopicConfig struct {
-	Config
 	Topics []string `json:"topics"`
 }
 
@@ -15,7 +15,7 @@ type ServerConfig struct {
 }
 
 type Connector struct {
-	protocol string
-	ip       string
-	port     string
+	Protocol string
+	Ip       string
+	Port     int
 }
