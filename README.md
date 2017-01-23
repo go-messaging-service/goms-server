@@ -84,7 +84,7 @@ It's a simple json list like this one:
 The following fields need to be specified:
 
 | Field | Type | Description |
-|-|:-|
+|:---|:---|:---|
 | topic-config | string | Path to the `topics.json` file |
 | connectors | list (s. below) | List of connectors, on which the server is available |
 
@@ -92,7 +92,7 @@ The following fields need to be specified:
 A connector is a specification of a listener, the server is listening on.
 
 | Field | Type | Description |
-|-|:-|
+|:---|:---|:---|
 | protocoll | string | The protocoll of the connector. This can be `tcp` or `udp`. |
 | ip | string | The IP address the server is listening on. |
 | port | number | The port, which is `55545` as default.
@@ -191,7 +191,7 @@ This list of numbers and codes may not be up-to-date and also may change very qu
 To structure the whole thing, each message has its own category.
 
 | Error code | Category |
-|-|:-|
+|:---:|:---|
 | 000xxx | General Server error |
 | 001xxx | `register` error |
 | 002xxx | `send` error |
@@ -202,12 +202,12 @@ To structure the whole thing, each message has its own category.
 ### 000
 ### 001
 | Error code   | Describtion | The field `Error` contains ... |
-|-|:-|
+|:---:|:---|:---|
 | 001001 | Registration not allowed. Maybe the topic doesn't exist in the server config? | ... a list (normal string separated by comma `,`) of all topics the client was not able to register to.
 
 ### 002
 | Error code   | Describtion | The field `Error` contains ... |
-|-|:-|
+|:---:|:---|:---|
 | 002001 | Error sending the message | ... the error message the runtime gives to the server. |
 ### 003
 ### 004
