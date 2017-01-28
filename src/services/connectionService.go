@@ -3,6 +3,7 @@ package services
 import (
 	"goMS/src/material"
 	"goMS/src/technical/common"
+	technical "goMS/src/technical/material"
 	"goMS/src/technical/services/logger"
 	"net"
 	"strconv"
@@ -147,12 +148,12 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 		}
 
 		// create notification
-		notification := &Notification{
+		notification := &technical.Notification{
 			Connections: &connectionList,
 			Data:        data,
 		}
 
-		cs.topicToNotificationServices[topic].queue <- notification
+		cs.topicToNotificationServices[topic].Queue <- notification
 	}
 }
 
