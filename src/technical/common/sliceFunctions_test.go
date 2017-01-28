@@ -9,7 +9,8 @@ func TestContainsStringEmpty(t *testing.T) {
 	testSlice := make([]string, 0)
 	testString := "test"
 
-	if technicalCommon.ContainsString(testSlice, testString) {
+	b := technicalCommon.ContainsString(testSlice, testString)
+	if b {
 		t.FailNow()
 	}
 }
