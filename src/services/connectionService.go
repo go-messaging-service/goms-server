@@ -52,17 +52,15 @@ func (cs *ConnectionService) Run() {
 
 	cs.listenTo(cs.host, cs.port)
 
-	go func() {
-		for {
-			conn, err := cs.waitForConnection()
+	for {
+		conn, err := cs.waitForConnection()
 
-			if err == nil {
-				go cs.createAndRunHandler(conn)
-			} else {
-				logger.Error(err.Error())
-			}
+		if err == nil {
+			go cs.createAndRunHandler(conn)
+		} else {
+			logger.Error(err.Error())
 		}
-	}()
+	}
 }
 
 func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
@@ -95,6 +93,7 @@ func (cs *ConnectionService) listenTo(host, port string) {
 }
 
 func (cs *ConnectionService) waitForConnection() (*net.Conn, error) {
+	// TODO also close the listener
 	conn, err := cs.listener.Accept()
 
 	if err == nil {
@@ -109,6 +108,7 @@ func (cs *ConnectionService) waitForConnection() (*net.Conn, error) {
 func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics []string) {
 	cs.lock()
 
+	// A comma separated list of all topics, the client is not allowed to register to
 	forbiddenTopics := ""
 
 	for _, topic := range topics {
