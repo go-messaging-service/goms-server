@@ -74,6 +74,8 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
 	connHandler.UnregisterEvent = append(connHandler.UnregisterEvent, cs.handleUnregisterEvent)
 	connHandler.SendEvent = append(connHandler.SendEvent, cs.handleSendEvent)
 	connHandler.HandleConnection()
+
+	conn.Close()
 }
 
 func (cs *ConnectionService) listenTo(host, port string) {
@@ -93,7 +95,6 @@ func (cs *ConnectionService) listenTo(host, port string) {
 }
 
 func (cs *ConnectionService) waitForConnection() (*net.Conn, error) {
-	// TODO also close the listener
 	conn, err := cs.listener.Accept()
 
 	if err == nil {
