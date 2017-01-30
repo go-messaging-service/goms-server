@@ -213,7 +213,7 @@ To structure the whole thing, each message has its own category.
 ### 004
 
 # Planned things
-* Create users (with optional passoword) for server, to allow multiple topics with the same name within a single server. A user can create an account at the service provider (e.g. a website that runs this server) and then setup his/her own message service.
+* Create users (with optional password) for server, to allow multiple topics with the same name within a single server. A user can create an account at the service provider (e.g. a website that runs this server) and then setup his/her own message service.
 * ~~Do not allow the creation of new topics (only via config-file)~~ _implemented_
 * Every user has it's own directory with own config file
 * Cache huge files (e.g. images or huge XML files) and just send a reference. The client then can download it when needed. Therefore new message-types must be created (`reference` and `download`). The files are cahced withing the usrers directory
