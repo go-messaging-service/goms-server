@@ -75,7 +75,7 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
 	connHandler.SendEvent = append(connHandler.SendEvent, cs.handleSendEvent)
 	connHandler.HandleConnection()
 
-	conn.Close()
+	(*conn).Close()
 }
 
 func (cs *ConnectionService) listenTo(host, port string) {
