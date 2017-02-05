@@ -10,9 +10,10 @@ import (
 )
 
 var DebugMode = false
+var TestMode = false
 
 func Debug(message string) {
-	if !DebugMode {
+	if !DebugMode || TestMode {
 		return
 	}
 
@@ -20,10 +21,18 @@ func Debug(message string) {
 }
 
 func Info(message string) {
+	if TestMode {
+		return
+	}
+
 	os.Stdout.WriteString(fmt.Sprintf("[info]  %s: %s\n", getCallerName(), message))
 }
 
 func Error(message string) {
+	if TestMode {
+		return
+	}
+
 	os.Stderr.WriteString(fmt.Sprintf("[ERROR] %s: %s\n", getCallerName()+"() at "+strconv.Itoa(getCallerLine()), message))
 }
 
@@ -35,6 +44,10 @@ func Fatal(message string) {
 }
 
 func Plain(message string) {
+	if TestMode {
+		return
+	}
+
 	os.Stdout.WriteString(message + "\n")
 }
 
