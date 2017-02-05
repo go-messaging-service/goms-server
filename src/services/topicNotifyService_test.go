@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"goMS/src/services"
 	"goMS/src/technical/material"
+	"goMS/src/technical/services/logger"
 	"net"
 	"testing"
 	"time"
@@ -13,11 +14,21 @@ var conn1, conn2 *net.Conn
 var buf1, buf2 *bufio.Reader
 var serviceUnderTest *services.TopicNotifyService
 
-func initConnections(t *testing.T) {
+func initConnections(t *testing.T) net.Listener {
+	logger.TestMode = true
+
 	//Create connections
-	listen(t)
+	listener := listen(t)
 	conn1, buf1 = dial(t)
 	conn2, buf2 = dial(t)
+
+	return listener
+}
+
+func tearDownConnection(l net.Listener) {
+	l.Close()
+	(*conn1).Close()
+	(*conn2).Close()
 }
 
 func initNotifyService(t *testing.T) {
@@ -28,7 +39,8 @@ func initNotifyService(t *testing.T) {
 
 func TestNotifyCorrectly(t *testing.T) {
 	initNotifyService(t)
-	initConnections(t)
+	l := initConnections(t)
+	defer tearDownConnection(l)
 
 	connections := make([]*net.Conn, 2)
 	connections[0] = conn1
@@ -72,8 +84,8 @@ func TestSendToExitChanWillExitCorrectly(t *testing.T) {
 	serviceUnderTest.Exit <- true
 }
 
-func listen(t *testing.T) {
-	l, err := net.Listen("tcp", ":3000")
+func listen(t *testing.T) net.Listener {
+	l, err := net.Listen("tcp", ":3001")
 
 	if err != nil {
 		t.Fatal(err)
@@ -87,6 +99,8 @@ func listen(t *testing.T) {
 			}
 		}
 	}(&l)
+
+	return l
 }
 
 func dial(t *testing.T) (*net.Conn, *bufio.Reader) {

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	domain "goMS/src/material"
 	technical "goMS/src/technical/material"
 	"goMS/src/technical/services/logger"
@@ -21,10 +22,11 @@ func (tn *TopicNotifyService) Init() {
 	tn.initialized = true
 }
 
-func (tn *TopicNotifyService) StartNotifier() {
+func (tn *TopicNotifyService) StartNotifier() error {
 	// Not initialized
 	if !tn.initialized {
 		logger.Error("TopicNotifyService not initialized")
+		return errors.New("TopicNotifyService not initialized")
 	}
 
 	for {
@@ -35,6 +37,8 @@ func (tn *TopicNotifyService) StartNotifier() {
 			break
 		}
 	}
+
+	return nil
 }
 
 func (tn *TopicNotifyService) sendNotification(notification *technical.Notification) {

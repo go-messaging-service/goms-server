@@ -33,7 +33,13 @@ func (cs *ConnectionService) Init(host string, port int, topics []string) {
 
 		cs.topicToNotificationServices[topic] = service
 		logger.Info("Start notifier for " + topic)
-		go service.StartNotifier()
+		go func(service TopicNotifyService) {
+			err := service.StartNotifier()
+
+			if err != nil {
+				logger.Fatal(err.Error())
+			}
+		}(service)
 	}
 
 	cs.topics = topics
