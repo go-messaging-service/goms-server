@@ -22,7 +22,7 @@ func sendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 
 	if err == nil {
 		logger.Debug("Sending error")
-		sendStringTo(conn, string(data))
+		SendStringTo(conn, string(data))
 	} else {
 		logger.Error("Error while sending error: " + err.Error())
 	}
@@ -43,10 +43,10 @@ func sendMessageTo(connection *net.Conn, data string) error {
 		return err
 	}
 
-	sendStringTo(connection, string(dataArray))
+	SendStringTo(connection, string(dataArray))
 	return nil
 }
 
-func sendStringTo(connection *net.Conn, data string) {
+func SendStringTo(connection *net.Conn, data string) {
 	(*connection).Write([]byte(data + "\n"))
 }
