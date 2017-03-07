@@ -30,8 +30,7 @@ func startServer() {
 	}
 
 	//TODO remove this and pass channels for closing
-	for {
-	}
+	select {}
 }
 
 func loadConfig() technicalMaterial.Config {
