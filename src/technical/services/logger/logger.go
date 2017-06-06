@@ -30,7 +30,7 @@ func Info(message string) {
 	os.Stdout.WriteString(fmt.Sprintf("[info]  %s: %s\n", getCallerName(), message))
 }
 
-// Error prints the given error message only when not in TestMode.
+// Error prints the given error message including the line this function has been called only when not in TestMode.
 func Error(message string) {
 	if TestMode {
 		return

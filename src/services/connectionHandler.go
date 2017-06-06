@@ -64,7 +64,17 @@ func (ch *connectionHandler) HandleConnection() {
 // waitFor wats until on of the given message types arrived.
 // The i-th argument in the messageTypes array must match to the i-th argument in the handler array.
 func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(message Message)) {
-	//TODO check array if the amount matches
+
+	// Check if the arrays match and error/fatal here
+	if len(messageTypes) != len(handler) {
+		if len(messageTypes) > len(handler) {
+			// Fatal here to prevent a "slice bounds out of range" error during runtime
+			logger.Fatal("There're more defined message types then functions mapped to them.")
+		} else {
+			logger.Error("There're more defined functions then message types here. Some message types might not be covered. Fix that!")
+		}
+	}
+
 	rawMessage, err := bufio.NewReader(*ch.connection).ReadString('\n')
 
 	if err == nil {
