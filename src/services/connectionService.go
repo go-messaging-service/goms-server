@@ -150,8 +150,10 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 func (cs *ConnectionService) handleUnregisterEvent(conn connectionHandler, topics []string) {
 	cs.lock()
 
-	for key, handlerList := range cs.topicToConnection {
-		cs.topicToConnection[key] = remove(handlerList, conn)
+	for topic, handlerList := range cs.topicToConnection {
+		if technicalCommon.ContainsString(topics, topic) {
+			cs.topicToConnection[topic] = remove(handlerList, conn)
+		}
 	}
 
 	cs.unlock()
@@ -190,14 +192,13 @@ func (cs *ConnectionService) unlock() {
 
 // remove will remove the given connection handler from the given array of handlers.
 func remove(s []connectionHandler, e connectionHandler) []connectionHandler {
-	for i, a := range s {
-		if a.connection == e.connection {
-			// Remove element at inedx i (s. "Slice Tricks" on github)
-			// https://github.com/golang/go/wiki/SliceTricks
-			logger.Debug("Remove element")
-			s = append(s[:i], s[i+1:]...)
-			return s
+	result := []connectionHandler{}
+
+	for _, a := range s {
+		if a.connection != e.connection {
+			result = append(result, a)
 		}
 	}
-	return s
+
+	return result
 }
