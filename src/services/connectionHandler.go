@@ -163,5 +163,6 @@ func (ch *connectionHandler) logout(topics []string) {
 	for _, event := range ch.UnregisterEvent {
 		event(*ch, topics)
 	}
-	//TODO also remove topics from ch.registeredTopics lol
+
+	ch.registeredTopics = technicalCommon.RemoveStrings(ch.registeredTopics, topics)
 }

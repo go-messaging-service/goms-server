@@ -25,6 +25,8 @@ type ConnectionService struct {
 
 // Init will initialize the connection service by creating all topic notifier and initializing fields.
 func (cs *ConnectionService) Init(host string, port int, topics []string) {
+	logger.Info("Init connection service for " + host + ":" + strconv.Itoa(port))
+
 	cs.topicToConnection = make(map[string][]connectionHandler)
 
 	cs.topicToNotificationServices = make(map[string]TopicNotifyService)

@@ -9,3 +9,16 @@ func ContainsString(s []string, e string) bool {
 	}
 	return false
 }
+
+// RemoveStrings will remove the given strings from the array s.
+func RemoveStrings(s []string, e []string) []string {
+	result := []string{}
+
+	for _, a := range s {
+		if !ContainsString(e, a) {
+			result = append(result, a)
+		}
+	}
+
+	return result
+}
