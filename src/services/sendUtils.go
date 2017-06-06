@@ -8,6 +8,7 @@ import (
 	"net"
 )
 
+// sendErrorMessage sends the given error data as an error message to the given client.
 func sendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 
 	errorMessage := ErrorMessage{
@@ -22,12 +23,13 @@ func sendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 
 	if err == nil {
 		logger.Debug("Sending error")
-		SendStringTo(conn, string(data))
+		sendStringTo(conn, string(data))
 	} else {
 		logger.Error("Error while sending error: " + err.Error())
 	}
 }
 
+// sendMessageTo sends the data as normal message to the given connection
 func sendMessageTo(connection *net.Conn, data string) error {
 	message := Message{
 		GenerallMessage: domain.GenerallMessage{
@@ -43,10 +45,11 @@ func sendMessageTo(connection *net.Conn, data string) error {
 		return err
 	}
 
-	SendStringTo(connection, string(dataArray))
+	sendStringTo(connection, string(dataArray))
 	return nil
 }
 
-func SendStringTo(connection *net.Conn, data string) {
+// SendStringTo sends the given string with an \n character to the given connection.
+func sendStringTo(connection *net.Conn, data string) {
 	(*connection).Write([]byte(data + "\n"))
 }

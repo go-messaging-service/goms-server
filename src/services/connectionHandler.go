@@ -22,10 +22,15 @@ type connectionHandler struct {
 	SendEvent        []func(connectionHandler, []string, string)
 }
 
+const MAX_PRINTING_LENGTH int = 30
+
+// Init initializes the handler with the given connection.
 func (ch *connectionHandler) Init(connection *net.Conn) {
 	ch.connection = connection
 }
 
+// HandleConnection starts a routine to handle registration and sending messages.
+// This will run until the client logs out, so run this in a goroutine.
 func (ch *connectionHandler) HandleConnection() {
 	// Not initialized
 	if ch.connection == nil {
@@ -56,14 +61,17 @@ func (ch *connectionHandler) HandleConnection() {
 	}
 }
 
+// waitFor wats until on of the given message types arrived.
+// The i-th argument in the messageTypes array must match to the i-th argument in the handler array.
 func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(message Message)) {
+	//TODO check array if the amount matches
 	rawMessage, err := bufio.NewReader(*ch.connection).ReadString('\n')
 
 	if err == nil {
 		// the length of the message that should be printed
-		maxOutputLength := int(math.Min(float64(len(rawMessage))-1, 30))
+		maxOutputLength := int(math.Min(float64(len(rawMessage))-1, float64(MAX_PRINTING_LENGTH)))
 		output := rawMessage[:maxOutputLength]
-		if 30 < len(rawMessage)-1 {
+		if MAX_PRINTING_LENGTH < len(rawMessage)-1 {
 			output += " [...]"
 		}
 		logger.Info(output)
@@ -88,12 +96,14 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 	}
 }
 
+// getMessageFromJSON converts the given json-data into a message object.
 func (ch *connectionHandler) getMessageFromJSON(jsonData string) Message {
 	message := Message{}
 	json.Unmarshal([]byte(jsonData), &message)
 	return message
 }
 
+// handleRegistration registeres this connection to the topics specified in the message.
 func (ch *connectionHandler) handleRegistration(message Message) {
 	logger.Debug("Register to topics " + fmt.Sprintf("%#v", message.Topics))
 
@@ -108,6 +118,7 @@ func (ch *connectionHandler) handleRegistration(message Message) {
 	}
 }
 
+// handleSending send the given message to all clients interested in the topics specified in the message.
 func (ch *connectionHandler) handleSending(message Message) {
 	logger.Debug(fmt.Sprintf("Send message to topics %#v", message.Topics))
 
@@ -116,15 +127,18 @@ func (ch *connectionHandler) handleSending(message Message) {
 	}
 }
 
+// handleLogout logs the client out.
 func (ch *connectionHandler) handleLogout(message Message) {
 	logger.Debug(fmt.Sprintf("Unsubscribe from topics %#v", message.Topics))
 	ch.logout(message.Topics)
 }
 
+// handleClose logs the client out from all topics and closes the connection.
 func (ch *connectionHandler) handleClose(message Message) {
 	ch.exit()
 }
 
+// exit logs the client out from all topics and closes the connection.
 func (ch *connectionHandler) exit() {
 	logger.Debug("Unsubscribe from all topics")
 	ch.logout(ch.registeredTopics)
@@ -134,8 +148,10 @@ func (ch *connectionHandler) exit() {
 	ch.connectionClosed = true
 }
 
+// logout will logs the client out from the given topics.
 func (ch *connectionHandler) logout(topics []string) {
 	for _, event := range ch.UnregisterEvent {
 		event(*ch, topics)
 	}
+	//TODO also remove topics from ch.registeredTopics lol
 }

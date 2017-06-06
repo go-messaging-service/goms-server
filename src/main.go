@@ -17,6 +17,7 @@ func main() {
 	startServer()
 }
 
+// startServer loads all configurations inits the services and starts them
 func startServer() {
 	logger.Info("Initialize server")
 	config := loadConfig()
@@ -25,6 +26,7 @@ func startServer() {
 	logger.Info("Start server")
 	for _, connectionService := range connectionServices {
 		go func(connectionService domainServices.ConnectionService) {
+			//TODO evaluate the need of a routine that restarts the service automatically when a error occurred. Something like: Error occurrec --> wait 5 seconds --> create service --> call Run()
 			connectionService.Run()
 		}(connectionService)
 	}
@@ -33,6 +35,7 @@ func startServer() {
 	select {}
 }
 
+// loadConfig loads the server config and its topics config.
 func loadConfig() technicalMaterial.Config {
 	logger.Info("Load configs")
 
@@ -42,6 +45,7 @@ func loadConfig() technicalMaterial.Config {
 	return configLoader.GetConfig()
 }
 
+// initConnectionService creates connection services bases on the given configuration.
 func initConnectionService(config technicalMaterial.Config) []domainServices.ConnectionService {
 	logger.Info("Initialize connection service")
 

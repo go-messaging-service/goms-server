@@ -6,7 +6,7 @@ This messaging Service is pretty similar to the ActiveMQ broker from Apache. Thi
 This service is based in the so called `topics` that are familiar since ActiveMQ used them too.
 A topics is just a key on which you can send or receive messages to/from.
 
-CLients can register themself to a topic and is allowed to receive and send message to it.
+Clients can register them self to a topic and is allowed to receive and send message to it.
 
 All topic names are __lowercase__ letters! A registration with some __capital__ letters (e.g. camel-case like "aCoolTopicName") will be __changed into lowercase__ names.
 

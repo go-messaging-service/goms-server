@@ -14,6 +14,7 @@ type TopicNotifyService struct {
 	initialized bool
 }
 
+// Init creates all neccessary channel (queues) to handle notifications.
 func (tn *TopicNotifyService) Init() {
 	tn.Queue = make(chan *technical.Notification)
 	tn.Errors = make(chan *technical.Notification)
@@ -22,6 +23,7 @@ func (tn *TopicNotifyService) Init() {
 	tn.initialized = true
 }
 
+// StartNotifier listens to incoming notification requests.
 func (tn *TopicNotifyService) StartNotifier() error {
 	// Not initialized
 	if !tn.initialized {
@@ -33,7 +35,7 @@ func (tn *TopicNotifyService) StartNotifier() error {
 		select {
 		case notification := <-tn.Queue:
 			tn.sendNotification(notification)
-		case <-tn.Exit:
+		case <-tn.Exit: //TODO make the value "true" that should be sent in this channel as global constant
 			break
 		}
 	}
@@ -41,6 +43,7 @@ func (tn *TopicNotifyService) StartNotifier() error {
 	return nil
 }
 
+// sendNotification sends the notification or an error if there's one.
 func (tn *TopicNotifyService) sendNotification(notification *technical.Notification) {
 	for _, connection := range *notification.Connections {
 

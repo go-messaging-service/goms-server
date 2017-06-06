@@ -12,6 +12,7 @@ import (
 var DebugMode = false
 var TestMode = false
 
+// Debug prints the given output only when in DebugMode.
 func Debug(message string) {
 	if !DebugMode || TestMode {
 		return
@@ -20,6 +21,7 @@ func Debug(message string) {
 	os.Stdout.WriteString(fmt.Sprintf("[debug] %s: %s\n", getCallerName()+"() at "+strconv.Itoa(getCallerLine()), message))
 }
 
+// Info prints the given output only when not in TestMode.
 func Info(message string) {
 	if TestMode {
 		return
@@ -28,6 +30,7 @@ func Info(message string) {
 	os.Stdout.WriteString(fmt.Sprintf("[info]  %s: %s\n", getCallerName(), message))
 }
 
+// Error prints the given error message only when not in TestMode.
 func Error(message string) {
 	if TestMode {
 		return
@@ -36,6 +39,7 @@ func Error(message string) {
 	os.Stderr.WriteString(fmt.Sprintf("[ERROR] %s: %s\n", getCallerName()+"() at "+strconv.Itoa(getCallerLine()), message))
 }
 
+// Fatal prints the given message including the line this function has been called and closes the application with the exit-code 1.
 func Fatal(message string) {
 	os.Stderr.WriteString(fmt.Sprintf("\n\n[FATAL] %s: %s\n\n\n", getCallerName()+"() at "+strconv.Itoa(getCallerLine()), message))
 	debug.PrintStack()
@@ -43,6 +47,7 @@ func Fatal(message string) {
 	os.Exit(1)
 }
 
+// Plain just prints the message to the stdout when not in TestMode.
 func Plain(message string) {
 	if TestMode {
 		return
@@ -51,6 +56,8 @@ func Plain(message string) {
 	os.Stdout.WriteString(message + "\n")
 }
 
+// getCallerName gets the name of the file the calling function of the caller of this function is in.
+// Example: yourNotWorkingFunc() --> logger.Fatal() --> logger.getCallerName(). This will print the file yourNotWorkingFunc is in.
 func getCallerName() string {
 	pc, _, _, _ := runtime.Caller(2)
 	path := runtime.FuncForPC(pc).Name()
@@ -59,6 +66,8 @@ func getCallerName() string {
 	return fileName
 }
 
+// getCallerLine gets the line the caller of the caller if this function is in.
+// Example: yourNotWorkingFunc() --> logger.Fatal() --> logger.getCallerName(). This will print the line yourNotWorkingFunc calls logger.Fatal.
 func getCallerLine() int {
 	_, _, line, _ := runtime.Caller(2)
 	return line

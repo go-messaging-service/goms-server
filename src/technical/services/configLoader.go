@@ -17,7 +17,7 @@ type ConfigLoader struct {
 	serverConfig *technicalMaterial.ServerConfig
 }
 
-// LoadTopics reads the config file for the topics and fills the TopicConfig field
+// LoadTopics reads the config file for the topics and fills the TopicConfig field.
 // The default location is /config/topics.json
 func (cl *ConfigLoader) loadTopics(filename string) {
 	data, err := ioutil.ReadFile(filename)
@@ -31,6 +31,8 @@ func (cl *ConfigLoader) loadTopics(filename string) {
 	json.Unmarshal(data, cl.topicConfig)
 }
 
+// LoadConfig loads the given server config file.
+// The default location is /config/server.json
 func (cl *ConfigLoader) LoadConfig(filename string) {
 	data, err := ioutil.ReadFile(filename)
 
@@ -45,6 +47,7 @@ func (cl *ConfigLoader) LoadConfig(filename string) {
 	cl.loadTopics(cl.serverConfig.TopicLocation)
 }
 
+// GetConfig creates a configuration every topic and server information is in.
 func (cl *ConfigLoader) GetConfig() technicalMaterial.Config {
 	return technicalMaterial.Config{
 		TopicConfig:  *cl.topicConfig,

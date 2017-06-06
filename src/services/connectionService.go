@@ -23,6 +23,7 @@ type ConnectionService struct {
 	mutex                       *sync.Mutex
 }
 
+// Init will initialize the connection service by creating all topic notifier and initializing fields.
 func (cs *ConnectionService) Init(host string, port int, topics []string) {
 	cs.topicToConnection = make(map[string][]connectionHandler)
 
@@ -37,7 +38,7 @@ func (cs *ConnectionService) Init(host string, port int, topics []string) {
 			err := service.StartNotifier()
 
 			if err != nil {
-				logger.Fatal(err.Error())
+				logger.Fatal(err.Error()) // TODO really fatal here? Check better solutions (trying again? just print error?)
 			}
 		}(service)
 	}
@@ -51,6 +52,7 @@ func (cs *ConnectionService) Init(host string, port int, topics []string) {
 	cs.initialized = true
 }
 
+// Run listens to the port of this service and will start the handler.
 func (cs *ConnectionService) Run() {
 	if !cs.initialized {
 		logger.Fatal("Connection Service not initialized!")
@@ -69,6 +71,8 @@ func (cs *ConnectionService) Run() {
 	}
 }
 
+// createAndRunHandler sets up a new connection handler by registering to its events and starts it then.
+// This should run on a new goroutine.
 func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
 	logger.Info("Create connection handler")
 
@@ -84,6 +88,7 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
 	(*conn).Close()
 }
 
+// listenTo actually listens to the port on the given host. It'll also exits the application if there's any problem.
 func (cs *ConnectionService) listenTo(host, port string) {
 	logger.Info("Try to listen on port " + port)
 
@@ -100,6 +105,7 @@ func (cs *ConnectionService) listenTo(host, port string) {
 	}
 }
 
+// waitForConnection accepts an incoming connection request.
 func (cs *ConnectionService) waitForConnection() (*net.Conn, error) {
 	conn, err := cs.listener.Accept()
 
@@ -112,6 +118,8 @@ func (cs *ConnectionService) waitForConnection() (*net.Conn, error) {
 	return nil, err
 }
 
+// handleRegisterEvent should be called when a connection registered itself to a topic.
+// This will return an error to the client when he wants to register to a topic he's not allowed to register him to.
 func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics []string) {
 	cs.lock()
 
@@ -119,6 +127,7 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 	forbiddenTopics := ""
 
 	for _, topic := range topics {
+		//TODO create a service for this. This should later take care of different user rights
 		if technicalCommon.ContainsString(cs.topics, topic) {
 			cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
 			logger.Debug("Register " + topic)
@@ -135,6 +144,7 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 	cs.unlock()
 }
 
+// handleUnregisterEvent unregisteres the client from the given topics. If there's a topic he's not registered to, nothing happens.
 func (cs *ConnectionService) handleUnregisterEvent(conn connectionHandler, topics []string) {
 	cs.lock()
 
@@ -145,6 +155,7 @@ func (cs *ConnectionService) handleUnregisterEvent(conn connectionHandler, topic
 	cs.unlock()
 }
 
+// handleSendEvent sends the given data to all clients registeres to the given topics.
 func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics []string, data string) {
 	for _, topic := range topics {
 		// Get all connections (as *net.Conn slice)
@@ -160,18 +171,22 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 			Data:        data,
 		}
 
+		// puts the notification in the queue of the responsible service
 		cs.topicToNotificationServices[topic].Queue <- notification
 	}
 }
 
+// lock will prevent race conditions by ensuring that only one goroutine will have access to its fields.
 func (cs *ConnectionService) lock() {
 	cs.mutex.Lock()
 }
 
+// unlock will free the fields so that other goroutines will have access to them.
 func (cs *ConnectionService) unlock() {
 	cs.mutex.Unlock()
 }
 
+// remove will remove the given connection handler from the given array of handlers.
 func remove(s []connectionHandler, e connectionHandler) []connectionHandler {
 	for i, a := range s {
 		if a.connection == e.connection {
