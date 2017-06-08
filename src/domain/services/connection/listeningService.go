@@ -33,12 +33,10 @@ func (ls *ListeningService) Run() {
 	ls.listenTo(ls.host, ls.port)
 
 	for {
-		//conn, err := ls.waitForConnection()
-		_, err := ls.waitForConnection()
+		conn, err := ls.waitForConnection()
 
 		if err == nil {
-			//go ls.createAndRunHandler(conn)
-			//TODO give channel in to add newly established connection to connection manager
+			ls.connectionChannel <- conn
 		} else {
 			logger.Error(err.Error())
 		}
