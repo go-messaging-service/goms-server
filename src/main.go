@@ -66,7 +66,7 @@ func initConnectionService(config technicalMaterial.Config) ([]domainServices.Co
 
 		// listening service
 		listeningService := domainServices.ListeningService{}
-		listeningService.Init(connector.Ip, connector.Port, config.TopicConfig.Topics)
+		listeningService.Init(connector.Ip, connector.Port, config.TopicConfig.Topics, connectionService.ConnectionChannel)
 
 		listeningServices[i] = listeningService
 	}
