@@ -16,10 +16,13 @@ type ListeningService struct {
 }
 
 func (ls *ListeningService) Init(host string, port int, topics []string, connectionChannel chan *net.Conn) {
-	logger.Info("Init listening service for " + host + ":" + strconv.Itoa(port))
+	logger.Debug("Init listening service for " + host + ":" + strconv.Itoa(port))
 
 	ls.host = host
 	ls.port = strconv.Itoa(port)
+	ls.connectionChannel = connectionChannel
+
+	ls.listenTo(ls.host, ls.port)
 
 	ls.initialized = true
 }
@@ -29,8 +32,6 @@ func (ls *ListeningService) Run() {
 	if !ls.initialized {
 		logger.Fatal("Listening Service not initialized!")
 	}
-
-	ls.listenTo(ls.host, ls.port)
 
 	for {
 		conn, err := ls.waitForConnection()
@@ -46,12 +47,12 @@ func (ls *ListeningService) Run() {
 // listenTo actually listens to the port on the given host. It'll also exits the application if there's any problem.
 //TODO remove parameter, they are known in the receiver
 func (ls *ListeningService) listenTo(host, port string) {
-	logger.Info("Try to listen on port " + port)
+	logger.Debug("Try to listen on port " + port)
 
 	listener, err := net.Listen("tcp", host+":"+port)
 
 	if err == nil && listener != nil {
-		logger.Info("Got listener for port " + port)
+		logger.Debug("Got listener for port " + port)
 		ls.listener = listener
 	} else if err != nil {
 		logger.Error(err.Error())
@@ -66,7 +67,7 @@ func (ls *ListeningService) waitForConnection() (*net.Conn, error) {
 	conn, err := ls.listener.Accept()
 
 	if err == nil {
-		logger.Info("Got connection :D")
+		logger.Info("Got connection on " + ls.host + ":" + ls.port)
 		return &conn, nil
 	}
 

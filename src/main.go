@@ -10,7 +10,8 @@ import (
 func main() {
 	logger.Info("Initialize logger")
 
-	logger.DebugMode = true
+	//TODO put this into config
+	//	logger.DebugMode = true
 	logger.Plain("Welcome to the goMS (go Message Service)!")
 	logger.Plain("I will just initialize me and serve you as you configured me :)\n\n")
 
@@ -19,20 +20,30 @@ func main() {
 
 // startServer loads all configurations inits the services and starts them
 func startServer() {
-	logger.Info("Initialize server")
+	logger.Info("Load configuration")
 
 	config := loadConfig()
 
-	//	connectionServices, listeningServices := initConnectionService(config)
-	connectionServices, _ := initConnectionService(config)
+	logger.Info("Initialize services")
+	connectionServices, listeningServices := initConnectionService(config)
 
-	logger.Info("Start server")
+	logger.Info("Start connection handler")
 	for _, connectionService := range connectionServices {
 		go func(connectionService domainServices.ConnectionService) {
 			//TODO evaluate the need of a routine that restarts the service automatically when a error occurred. Something like: Error occurrec --> wait 5 seconds --> create service --> call Run()
 			connectionService.Run()
 		}(connectionService)
 	}
+
+	logger.Info("Start connection listener")
+	for _, listeningService := range listeningServices {
+		go func(listeningService domainServices.ListeningService) {
+			//TODO evaluate the need of a routine that restarts the service automatically when a error occurred. Something like: Error occurrec --> wait 5 seconds --> create service --> call Run()
+			listeningService.Run()
+		}(listeningService)
+	}
+
+	logger.Info("goMS is ready")
 
 	//TODO remove this and pass channels for closing
 	select {}
@@ -60,7 +71,7 @@ func initConnectionService(config technicalMaterial.Config) ([]domainServices.Co
 	for i, connector := range config.ServerConfig.Connectors {
 		// connection service
 		connectionService := domainServices.ConnectionService{}
-		connectionService.Init(connector.Ip, connector.Port, config.TopicConfig.Topics)
+		connectionService.Init(config.TopicConfig.Topics)
 
 		connectionServices[i] = connectionService
 

@@ -1,3 +1,6 @@
-{"type":"register","topics":["golang","news","technology","science","goms"]}
+{"type":"register","topics":["golang","news","technology"]}
+{"type":"register","topics":["golang","science","someInvalidTopic"]}
+
 {"type":"logout","topics":["news","science"]}
+
 {"type":"send","topics":["golang","news"],"data":"Hallo123"}

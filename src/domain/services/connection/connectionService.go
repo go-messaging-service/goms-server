@@ -8,7 +8,6 @@ import (
 	technical "goMS/src/technical/material"
 	"goMS/src/technical/services/logger"
 	"net"
-	"strconv"
 	"sync"
 )
 
@@ -20,17 +19,14 @@ type ConnectionService struct {
 	topics                      []string
 	topicToConnection           map[string][]connectionHandler
 	topicToNotificationServices map[string]notificationServices.TopicNotifyService
-	listener                    net.Listener
 	initialized                 bool
-	//	host                        string
-	//	port                        string
-	mutex             *sync.Mutex
-	ConnectionChannel chan *net.Conn
+	mutex                       *sync.Mutex
+	ConnectionChannel           chan *net.Conn
 }
 
 // Init will initialize the connection service by creating all topic notifier and initializing fields.
-func (cs *ConnectionService) Init(host string, port int, topics []string) {
-	logger.Info("Init connection service for " + host + ":" + strconv.Itoa(port))
+func (cs *ConnectionService) Init(topics []string) {
+	logger.Debug("Init connection service")
 
 	cs.topicToConnection = make(map[string][]connectionHandler)
 
@@ -40,7 +36,7 @@ func (cs *ConnectionService) Init(host string, port int, topics []string) {
 		service.Init()
 
 		cs.topicToNotificationServices[topic] = service
-		logger.Info("Start notifier for " + topic)
+		logger.Debug("Start notifier for " + topic)
 		go func(service notificationServices.TopicNotifyService) {
 			err := service.StartNotifier()
 
@@ -51,11 +47,7 @@ func (cs *ConnectionService) Init(host string, port int, topics []string) {
 	}
 
 	cs.topics = topics
-	//	cs.host = host
-	//	cs.port = strconv.Itoa(port)
-
 	cs.mutex = &sync.Mutex{}
-
 	cs.ConnectionChannel = make(chan *net.Conn, MAX_WAITING_CONNECTIONS)
 
 	cs.initialized = true
@@ -67,12 +59,8 @@ func (cs *ConnectionService) Run() {
 		logger.Fatal("Connection Service not initialized!")
 	}
 
-	//	cs.listenTo(cs.host, cs.port)
-
 	for {
-		//		conn, err := cs.waitForConnection()
 		conn := <-cs.ConnectionChannel
-
 		go cs.createAndRunHandler(conn)
 	}
 }
@@ -80,7 +68,7 @@ func (cs *ConnectionService) Run() {
 // createAndRunHandler sets up a new connection handler by registering to its events and starts it then.
 // This should run on a new goroutine.
 func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
-	logger.Info("Create connection handler")
+	logger.Debug("Create connection handler")
 
 	connHandler := connectionHandler{
 		connection: conn,
@@ -92,36 +80,6 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
 	connHandler.HandleConnection()
 
 	(*conn).Close()
-}
-
-// listenTo actually listens to the port on the given host. It'll also exits the application if there's any problem.
-func (cs *ConnectionService) listenTo(host, port string) {
-	logger.Info("Try to listen on port " + port)
-
-	listener, err := net.Listen("tcp", host+":"+port)
-
-	if err == nil && listener != nil {
-		logger.Info("Got listener for port " + port)
-		cs.listener = listener
-	} else if err != nil {
-		logger.Error(err.Error())
-		logger.Fatal("Maybe the port is not free?")
-	} else if listener == nil {
-		logger.Fatal("Could not listen to " + host + ":" + port + ". Unfortunately there's no error I could print here :( Check if no other services are running on port " + port + ".")
-	}
-}
-
-// waitForConnection accepts an incoming connection request.
-func (cs *ConnectionService) waitForConnection() (*net.Conn, error) {
-	conn, err := cs.listener.Accept()
-
-	if err == nil {
-		logger.Info("Got connection :D")
-		return &conn, nil
-	}
-
-	logger.Error(err.Error())
-	return nil, err
 }
 
 // handleRegisterEvent should be called when a connection registered itself to a topic.
