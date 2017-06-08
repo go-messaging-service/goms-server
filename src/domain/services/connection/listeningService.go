@@ -22,7 +22,7 @@ func (ls *ListeningService) Init(host string, port int, topics []string, connect
 	ls.port = strconv.Itoa(port)
 	ls.connectionChannel = connectionChannel
 
-	ls.listenTo(ls.host, ls.port)
+	ls.listenTo()
 
 	ls.initialized = true
 }
@@ -45,20 +45,19 @@ func (ls *ListeningService) Run() {
 }
 
 // listenTo actually listens to the port on the given host. It'll also exits the application if there's any problem.
-//TODO remove parameter, they are known in the receiver
-func (ls *ListeningService) listenTo(host, port string) {
-	logger.Debug("Try to listen on port " + port)
+func (ls *ListeningService) listenTo() {
+	logger.Debug("Try to listen on port " + ls.port)
 
-	listener, err := net.Listen("tcp", host+":"+port)
+	listener, err := net.Listen("tcp", ls.host+":"+ls.port)
 
 	if err == nil && listener != nil {
-		logger.Debug("Got listener for port " + port)
+		logger.Debug("Got listener for port " + ls.port)
 		ls.listener = listener
 	} else if err != nil {
 		logger.Error(err.Error())
 		logger.Fatal("Maybe the port is not free?")
 	} else if listener == nil {
-		logger.Fatal("Could not listen to " + host + ":" + port + ". Unfortunately there's no error I could print here :( Check if no other services are running on port " + port + ".")
+		logger.Fatal("Could not listen to " + ls.host + ":" + ls.port + ". Unfortunately there's no error I could print here :( Check if no other services are running on port " + ls.port + ".")
 	}
 }
 

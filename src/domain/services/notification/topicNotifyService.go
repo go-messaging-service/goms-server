@@ -1,7 +1,6 @@
 package notificationServices
 
 import (
-	"errors"
 	domain "goMS/src/domain/material"
 	"goMS/src/domain/services/common"
 	technical "goMS/src/technical/material"
