@@ -71,14 +71,14 @@ It's a simple json list like this one:
 ### General
 ```json
 {
-	"topic-config":"path/to/topics.json",
-	"connectors":[
-		{
-			"protocoll":"tcp",
-			"ip":"127.0.0.1",
-			"port":55545
-		}
-	]
+  "topic-config":"path/to/topics.json",
+  "connectors":[
+    {
+      "protocoll":"tcp",
+      "ip":"127.0.0.1",
+      "port":55545
+    }
+  ]
 }
 ```
 The following fields need to be specified:

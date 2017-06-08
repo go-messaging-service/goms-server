@@ -1,7 +1,9 @@
-package services
+package connectionServices
 
 import (
 	"goMS/src/material"
+	"goMS/src/services/common"
+	"goMS/src/services/notification"
 	"goMS/src/technical/common"
 	technical "goMS/src/technical/material"
 	"goMS/src/technical/services/logger"
@@ -15,7 +17,7 @@ type ErrorMessage material.ErrorMessage
 type ConnectionService struct {
 	topics                      []string
 	topicToConnection           map[string][]connectionHandler
-	topicToNotificationServices map[string]TopicNotifyService
+	topicToNotificationServices map[string]notificationServices.TopicNotifyService
 	listener                    net.Listener
 	initialized                 bool
 	host                        string
@@ -29,14 +31,14 @@ func (cs *ConnectionService) Init(host string, port int, topics []string) {
 
 	cs.topicToConnection = make(map[string][]connectionHandler)
 
-	cs.topicToNotificationServices = make(map[string]TopicNotifyService)
+	cs.topicToNotificationServices = make(map[string]notificationServices.TopicNotifyService)
 	for _, topic := range topics {
-		service := TopicNotifyService{}
+		service := notificationServices.TopicNotifyService{}
 		service.Init()
 
 		cs.topicToNotificationServices[topic] = service
 		logger.Info("Start notifier for " + topic)
-		go func(service TopicNotifyService) {
+		go func(service notificationServices.TopicNotifyService) {
 			err := service.StartNotifier()
 
 			if err != nil {
@@ -140,7 +142,7 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 	}
 
 	if len(forbiddenTopics) != 0 {
-		sendErrorMessage(conn.connection, material.ERR_REG_FORBIDDEN, forbiddenTopics)
+		commonServices.SendErrorMessage(conn.connection, material.ERR_REG_FORBIDDEN, forbiddenTopics)
 	}
 
 	cs.unlock()

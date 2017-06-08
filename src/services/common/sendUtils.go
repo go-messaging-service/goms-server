@@ -1,15 +1,17 @@
-package services
+package commonServices
 
 import (
 	"encoding/json"
 	"goMS/src/material"
-	domain "goMS/src/material"
 	"goMS/src/technical/services/logger"
 	"net"
 )
 
+type ErrorMessage material.ErrorMessage
+type Message material.Message
+
 // sendErrorMessage sends the given error data as an error message to the given client.
-func sendErrorMessage(conn *net.Conn, errorCode, errorData string) {
+func SendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 
 	errorMessage := ErrorMessage{
 		GenerallMessage: material.GenerallMessage{
@@ -30,10 +32,10 @@ func sendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 }
 
 // sendMessageTo sends the data as normal message to the given connection
-func sendMessageTo(connection *net.Conn, data string) error {
+func SendMessageTo(connection *net.Conn, data string) error {
 	message := Message{
-		GenerallMessage: domain.GenerallMessage{
-			MessageType: domain.MT_MESSAGE,
+		GenerallMessage: material.GenerallMessage{
+			MessageType: material.MT_MESSAGE,
 		},
 		Data: data,
 	}

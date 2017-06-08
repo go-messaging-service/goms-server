@@ -1,7 +1,7 @@
 package main
 
 import (
-	domainServices "goMS/src/services"
+	domainServices "goMS/src/services/connection"
 	technicalMaterial "goMS/src/technical/material"
 	technicalServices "goMS/src/technical/services"
 	"goMS/src/technical/services/logger"

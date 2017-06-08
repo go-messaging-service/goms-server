@@ -1,8 +1,9 @@
-package services
+package notificationServices
 
 import (
 	"errors"
 	domain "goMS/src/material"
+	"goMS/src/services/common"
 	technical "goMS/src/technical/material"
 	"goMS/src/technical/services/logger"
 )
@@ -47,10 +48,10 @@ func (tn *TopicNotifyService) StartNotifier() error {
 func (tn *TopicNotifyService) sendNotification(notification *technical.Notification) {
 	for _, connection := range *notification.Connections {
 
-		err := sendMessageTo(connection, notification.Data)
+		err := commonServices.SendMessageTo(connection, notification.Data)
 
 		if err != nil {
-			sendErrorMessage(connection, domain.ERR_SEND_FAILED, err.Error())
+			commonServices.SendErrorMessage(connection, domain.ERR_SEND_FAILED, err.Error())
 		}
 	}
 }
