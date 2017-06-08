@@ -89,20 +89,30 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 
 	// A comma separated list of all topics, the client is not allowed to register to
 	forbiddenTopics := ""
+	alreadyRegisteredTopics := ""
 
 	for _, topic := range topics {
 		//TODO create a service for this. This should later take care of different user rights
-		if technicalCommon.ContainsString(cs.topics, topic) {
+		if !technicalCommon.ContainsString(cs.topics, topic) {
+			forbiddenTopics += topic + ","
+			logger.Info("Clients wants to register on invalid topic (" + topic + ").")
+
+		} else if cs.isAlreadyRegistered(conn, topic) {
+			alreadyRegisteredTopics += topic + ","
+			logger.Debug("Client already registered on " + topic)
+
+		} else {
 			cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
 			logger.Debug("Register " + topic)
-		} else {
-			forbiddenTopics += "," + topic
-			logger.Info("Clients wants to register on invalid topic (" + topic + ").")
+
 		}
 	}
 
 	if len(forbiddenTopics) != 0 {
 		commonServices.SendErrorMessage(conn.connection, material.ERR_REG_FORBIDDEN, forbiddenTopics)
+	}
+	if len(alreadyRegisteredTopics) != 0 {
+		commonServices.SendErrorMessage(conn.connection, material.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
 	}
 
 	cs.unlock()
@@ -163,4 +173,14 @@ func remove(s []connectionHandler, e connectionHandler) []connectionHandler {
 	}
 
 	return result
+}
+
+// remove will remove the given connection handler from the given array of handlers.
+func (cs *ConnectionService) isAlreadyRegistered(h connectionHandler, topic string) bool {
+	for _, a := range cs.topicToConnection[topic] {
+		if a.connection == h.connection {
+			return true
+		}
+	}
+	return false
 }

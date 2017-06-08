@@ -203,7 +203,8 @@ To structure the whole thing, each message has its own category.
 ### 001
 | Error code   | Describtion | The field `Error` contains ... |
 |:---:|:---|:---|
-| 001001 | Registration not allowed. Maybe the topic doesn't exist in the server config? | ... a list (normal string separated by comma `,`) of all topics the client was not able to register to.
+| 001001 | Registration not allowed, the topic doesn't exist in the server config. | ... a list (normal string separated by comma `,`) of all topics the client was not able to register to. |
+| 001002 | The client was already registered in on of the topics. | ... a list (normal string separated by comma `,`) of all topics the client was already registered to.
 
 ### 002
 | Error code   | Describtion | The field `Error` contains ... |
