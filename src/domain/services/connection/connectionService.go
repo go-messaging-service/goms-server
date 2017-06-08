@@ -12,6 +12,8 @@ import (
 	"sync"
 )
 
+const MAX_WAITING_CONNECTIONS = 1000
+
 type ErrorMessage material.ErrorMessage
 
 type ConnectionService struct {
@@ -23,6 +25,7 @@ type ConnectionService struct {
 	host                        string
 	port                        string
 	mutex                       *sync.Mutex
+	ConnectionChannel           chan *net.Conn
 }
 
 // Init will initialize the connection service by creating all topic notifier and initializing fields.
@@ -52,6 +55,8 @@ func (cs *ConnectionService) Init(host string, port int, topics []string) {
 	cs.port = strconv.Itoa(port)
 
 	cs.mutex = &sync.Mutex{}
+
+	cs.ConnectionChannel = make(chan *net.Conn, MAX_WAITING_CONNECTIONS)
 
 	cs.initialized = true
 }

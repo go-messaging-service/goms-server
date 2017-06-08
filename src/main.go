@@ -20,8 +20,11 @@ func main() {
 // startServer loads all configurations inits the services and starts them
 func startServer() {
 	logger.Info("Initialize server")
+
 	config := loadConfig()
-	connectionServices := initConnectionService(config)
+
+	//	connectionServices, listeningServices := initConnectionService(config)
+	connectionServices, _ := initConnectionService(config)
 
 	logger.Info("Start server")
 	for _, connectionService := range connectionServices {
@@ -46,17 +49,27 @@ func loadConfig() technicalMaterial.Config {
 }
 
 // initConnectionService creates connection services bases on the given configuration.
-func initConnectionService(config technicalMaterial.Config) []domainServices.ConnectionService {
-	logger.Info("Initialize connection service")
+func initConnectionService(config technicalMaterial.Config) ([]domainServices.ConnectionService, []domainServices.ListeningService) {
+	logger.Info("Initialize connection services")
 
-	connectionServices := make([]domainServices.ConnectionService, len(config.ServerConfig.Connectors))
+	amountConnectors := len(config.ServerConfig.Connectors)
+
+	connectionServices := make([]domainServices.ConnectionService, amountConnectors)
+	listeningServices := make([]domainServices.ListeningService, amountConnectors)
 
 	for i, connector := range config.ServerConfig.Connectors {
+		// connection service
 		connectionService := domainServices.ConnectionService{}
 		connectionService.Init(connector.Ip, connector.Port, config.TopicConfig.Topics)
 
 		connectionServices[i] = connectionService
+
+		// listening service
+		listeningService := domainServices.ListeningService{}
+		listeningService.Init(connector.Ip, connector.Port, config.TopicConfig.Topics)
+
+		listeningServices[i] = listeningService
 	}
 
-	return connectionServices
+	return connectionServices, listeningServices
 }
