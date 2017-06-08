@@ -51,7 +51,7 @@ func (ls *ListeningService) listenTo() {
 	listener, err := net.Listen("tcp", ls.host+":"+ls.port)
 
 	if err == nil && listener != nil {
-		logger.Debug("Got listener for port " + ls.port)
+		logger.Info("Listen on " + ls.host + ":" + ls.port)
 		ls.listener = listener
 	} else if err != nil {
 		logger.Error(err.Error())

@@ -8,23 +8,23 @@ import (
 )
 
 func main() {
-	logger.Info("Initialize logger")
-
-	//TODO put this into config
-	//	logger.DebugMode = true
 	logger.Plain("Welcome to the goMS (go Message Service)!")
 	logger.Plain("I will just initialize me and serve you as you configured me :)\n\n")
 
-	startServer()
-}
-
-// startServer loads all configurations inits the services and starts them
-func startServer() {
 	logger.Info("Load configuration")
 
 	config := loadConfig()
 
+	logger.Info("Initialize logger")
+	logger.DebugMode = config.ServerConfig.DebugLogging
+
+	startServer(config)
+}
+
+// startServer loads all configurations inits the services and starts them
+func startServer(config technicalMaterial.Config) {
 	logger.Info("Initialize services")
+
 	connectionServices, listeningServices := initConnectionService(config)
 
 	logger.Info("Start connection handler")
@@ -43,7 +43,7 @@ func startServer() {
 		}(listeningService)
 	}
 
-	logger.Info("goMS is ready")
+	logger.Plain("\nThere we go, I'm ready to server ... eh ... serve\n")
 
 	//TODO remove this and pass channels for closing
 	select {}

@@ -12,6 +12,7 @@ type TopicConfig struct {
 type ServerConfig struct {
 	TopicLocation string      `json:"topic-config"`
 	Connectors    []Connector `json:"connectors"`
+	DebugLogging  bool        `json:"debug-logging"`
 }
 
 type Connector struct {
