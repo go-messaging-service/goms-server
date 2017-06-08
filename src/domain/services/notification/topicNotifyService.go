@@ -25,23 +25,20 @@ func (tn *TopicNotifyService) Init() {
 }
 
 // StartNotifier listens to incoming notification requests.
-func (tn *TopicNotifyService) StartNotifier() error {
+func (tn *TopicNotifyService) StartNotifier() {
 	// Not initialized
 	if !tn.initialized {
-		logger.Error("TopicNotifyService not initialized")
-		return errors.New("TopicNotifyService not initialized")
+		logger.Fatal("TopicNotifyService not initialized")
 	}
 
 	for {
 		select {
 		case notification := <-tn.Queue:
 			tn.sendNotification(notification)
-		case <-tn.Exit: //TODO make the value "true" that should be sent in this channel as global constant
+		case <-tn.Exit:
 			break
 		}
 	}
-
-	return nil
 }
 
 // sendNotification sends the notification or an error if there's one.

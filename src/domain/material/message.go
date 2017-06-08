@@ -26,11 +26,11 @@ const (
 	MT_ERROR   = "error"
 )
 
-// All error codes
+// All error codes (err)
 const (
 	//000
 	//001
-	ERR_REG_FORBIDDEN          = "001001" // registration on topics forbidden
+	ERR_REG_INVALID_TOPIC      = "001001" // registration on topics forbidden
 	ERR_REG_ALREADY_REGISTERED = "001002" // already registered in (some) topics
 	//002
 	ERR_SEND_FAILED = "002001" // internal server error sending message

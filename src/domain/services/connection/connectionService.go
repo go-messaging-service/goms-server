@@ -36,13 +36,11 @@ func (cs *ConnectionService) Init(topics []string) {
 		service.Init()
 
 		cs.topicToNotificationServices[topic] = service
-		logger.Debug("Start notifier for " + topic)
-		go func(service notificationServices.TopicNotifyService) {
-			err := service.StartNotifier()
 
-			if err != nil {
-				logger.Fatal(err.Error()) // TODO really fatal here? Check better solutions (trying again? just print error?)
-			}
+		logger.Debug("Start notifier for " + topic)
+
+		go func(service notificationServices.TopicNotifyService) {
+			service.StartNotifier()
 		}(service)
 	}
 
@@ -109,7 +107,7 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 	}
 
 	if len(forbiddenTopics) != 0 {
-		commonServices.SendErrorMessage(conn.connection, material.ERR_REG_FORBIDDEN, forbiddenTopics)
+		commonServices.SendErrorMessage(conn.connection, material.ERR_REG_INVALID_TOPIC, forbiddenTopics)
 	}
 	if len(alreadyRegisteredTopics) != 0 {
 		commonServices.SendErrorMessage(conn.connection, material.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
@@ -175,7 +173,7 @@ func remove(s []connectionHandler, e connectionHandler) []connectionHandler {
 	return result
 }
 
-// remove will remove the given connection handler from the given array of handlers.
+// isAlreadyRegistered checks if the given connection handler is already registered to the given topic
 func (cs *ConnectionService) isAlreadyRegistered(h connectionHandler, topic string) bool {
 	for _, a := range cs.topicToConnection[topic] {
 		if a.connection == h.connection {
