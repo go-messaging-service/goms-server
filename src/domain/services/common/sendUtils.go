@@ -2,7 +2,7 @@ package commonServices
 
 import (
 	"encoding/json"
-	"goMS/src/material"
+	"goMS/src/domain/material"
 	"goMS/src/technical/services/logger"
 	"net"
 )
@@ -25,7 +25,7 @@ func SendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 
 	if err == nil {
 		logger.Debug("Sending error")
-		sendStringTo(conn, string(data))
+		SendStringTo(conn, string(data))
 	} else {
 		logger.Error("Error while sending error: " + err.Error())
 	}
@@ -47,11 +47,11 @@ func SendMessageTo(connection *net.Conn, data string) error {
 		return err
 	}
 
-	sendStringTo(connection, string(dataArray))
+	SendStringTo(connection, string(dataArray))
 	return nil
 }
 
 // SendStringTo sends the given string with an \n character to the given connection.
-func sendStringTo(connection *net.Conn, data string) {
+func SendStringTo(connection *net.Conn, data string) {
 	(*connection).Write([]byte(data + "\n"))
 }

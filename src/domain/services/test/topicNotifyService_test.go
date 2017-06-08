@@ -3,7 +3,7 @@ package test
 import (
 	"bufio"
 	"encoding/json"
-	"goMS/src/services"
+	"goMS/src/domain/services/notification"
 	"goMS/src/technical/material"
 	"goMS/src/technical/services/logger"
 	"net"
@@ -13,7 +13,7 @@ import (
 
 var conn1, conn2, serv1, serv2 *net.Conn
 var buf1, buf2 *bufio.Reader
-var serviceUnderTest *services.TopicNotifyService
+var serviceUnderTest *notificationServices.TopicNotifyService
 
 func initConnections(t *testing.T) {
 	conn1, _, serv1, buf1 = initPipe()
@@ -36,7 +36,7 @@ func tearDownConnection() {
 }
 
 func initNotifyService(t *testing.T) {
-	serviceUnderTest = new(services.TopicNotifyService)
+	serviceUnderTest = new(notificationServices.TopicNotifyService)
 	serviceUnderTest.Init()
 	go serviceUnderTest.StartNotifier()
 }
@@ -88,7 +88,7 @@ func TestNotifyCorrectly(t *testing.T) {
 }
 
 func TestNotInitializedCreatesError(t *testing.T) {
-	serviceUnderTest = new(services.TopicNotifyService)
+	serviceUnderTest = new(notificationServices.TopicNotifyService)
 	// This is missing: serviceUnderTest.Init()
 	// There must be an error here:
 	err := serviceUnderTest.StartNotifier()
@@ -99,10 +99,10 @@ func TestNotInitializedCreatesError(t *testing.T) {
 }
 
 func TestSendToExitChanWillExitCorrectly(t *testing.T) {
-	serviceUnderTest = new(services.TopicNotifyService)
+	serviceUnderTest = new(notificationServices.TopicNotifyService)
 	serviceUnderTest.Init()
 
-	go func(service *services.TopicNotifyService, t *testing.T) {
+	go func(service *notificationServices.TopicNotifyService, t *testing.T) {
 		err := service.StartNotifier()
 
 		if err != nil {

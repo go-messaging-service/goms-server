@@ -2,7 +2,7 @@ package test
 
 import (
 	"bufio"
-	"goMS/src/services"
+	services "goMS/src/domain/services/common"
 	"net"
 	"testing"
 )

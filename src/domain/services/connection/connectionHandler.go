@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"goMS/src/material"
+	"goMS/src/domain/material"
 	"goMS/src/technical/common"
 	"goMS/src/technical/services/logger"
 	"math"

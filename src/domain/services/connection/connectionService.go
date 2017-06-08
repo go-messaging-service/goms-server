@@ -1,9 +1,9 @@
 package connectionServices
 
 import (
-	"goMS/src/material"
-	"goMS/src/services/common"
-	"goMS/src/services/notification"
+	"goMS/src/domain/material"
+	"goMS/src/domain/services/common"
+	"goMS/src/domain/services/notification"
 	"goMS/src/technical/common"
 	technical "goMS/src/technical/material"
 	"goMS/src/technical/services/logger"
