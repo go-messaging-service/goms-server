@@ -22,10 +22,10 @@ type ConnectionService struct {
 	topicToNotificationServices map[string]notificationServices.TopicNotifyService
 	listener                    net.Listener
 	initialized                 bool
-	host                        string
-	port                        string
-	mutex                       *sync.Mutex
-	ConnectionChannel           chan *net.Conn
+	//	host                        string
+	//	port                        string
+	mutex             *sync.Mutex
+	ConnectionChannel chan *net.Conn
 }
 
 // Init will initialize the connection service by creating all topic notifier and initializing fields.
@@ -51,8 +51,8 @@ func (cs *ConnectionService) Init(host string, port int, topics []string) {
 	}
 
 	cs.topics = topics
-	cs.host = host
-	cs.port = strconv.Itoa(port)
+	//	cs.host = host
+	//	cs.port = strconv.Itoa(port)
 
 	cs.mutex = &sync.Mutex{}
 
@@ -67,16 +67,13 @@ func (cs *ConnectionService) Run() {
 		logger.Fatal("Connection Service not initialized!")
 	}
 
-	cs.listenTo(cs.host, cs.port)
+	//	cs.listenTo(cs.host, cs.port)
 
 	for {
-		conn, err := cs.waitForConnection()
+		//		conn, err := cs.waitForConnection()
+		conn := <-cs.ConnectionChannel
 
-		if err == nil {
-			go cs.createAndRunHandler(conn)
-		} else {
-			logger.Error(err.Error())
-		}
+		go cs.createAndRunHandler(conn)
 	}
 }
 
