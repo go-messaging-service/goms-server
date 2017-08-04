@@ -8,6 +8,7 @@ import (
 	technical "goMS/src/technical/material"
 	"goMS/src/technical/services/logger"
 	"net"
+	"strings"
 	"sync"
 )
 
@@ -108,13 +109,13 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 
 	// Send error message for forbidden topics and cut trailing comma
 	if len(forbiddenTopics) != 0 {
-		forbiddenTopics = forbiddenTopics[0 : len(forbiddenTopics)-2]
+		forbiddenTopics = strings.TrimSuffix(forbiddenTopics, ",")
 		commonServices.SendErrorMessage(conn.connection, material.ERR_REG_INVALID_TOPIC, forbiddenTopics)
 	}
 
 	// Send error message for already registered topics and cut trailing comma
 	if len(alreadyRegisteredTopics) != 0 {
-		alreadyRegisteredTopics = alreadyRegisteredTopics[0 : len(alreadyRegisteredTopics)-2]
+		alreadyRegisteredTopics = strings.TrimSuffix(alreadyRegisteredTopics, ",")
 		commonServices.SendErrorMessage(conn.connection, material.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
 	}
 
