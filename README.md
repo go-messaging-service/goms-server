@@ -34,7 +34,7 @@ Needs the fields `topics` and `data`. The field `topics` contains all topics the
 ### message
 _Server &#8594; Client_
 
-Only contains the `data` field from the `send` message.
+Only contains the `data` field from the `send` message and also the `topics` the data belongs to.
 
 ### logout
 _Client &#8594; Server_
@@ -154,6 +154,10 @@ It's also possible (for error-correction) to send the list of topics within the 
 ```json
 {
   "type": "message",
+  "topics": [
+    "some",
+    "topics"
+  ],
   "data": "This is the sent message."
 }
 ```
