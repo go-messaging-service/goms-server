@@ -32,12 +32,13 @@ func SendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 }
 
 // sendMessageTo sends the data as normal message to the given connection
-func SendMessageTo(connection *net.Conn, data string) error {
+func SendMessageTo(connection *net.Conn, topic string, data string) error {
 	message := Message{
 		AbstractMessage: material.AbstractMessage{
 			MessageType: material.MT_MESSAGE,
 		},
-		Data: data,
+		Topics: []string{topic},
+		Data:   data,
 	}
 
 	dataArray, err := json.Marshal(message)

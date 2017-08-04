@@ -44,7 +44,7 @@ func (tn *TopicNotifyService) StartNotifier() {
 func (tn *TopicNotifyService) sendNotification(notification *technical.Notification) {
 	for _, connection := range *notification.Connections {
 
-		err := commonServices.SendMessageTo(connection, notification.Data)
+		err := commonServices.SendMessageTo(connection, notification.Topic, notification.Data)
 
 		if err != nil {
 			commonServices.SendErrorMessage(connection, domain.ERR_SEND_FAILED, err.Error())

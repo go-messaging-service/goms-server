@@ -142,6 +142,7 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 		// create notification
 		notification := &technical.Notification{
 			Connections: &connectionList,
+			Topic:       topic,
 			Data:        data,
 		}
 
