@@ -7,7 +7,6 @@ import (
 )
 
 type ListeningService struct {
-	connectionService ConnectionService
 	listener          net.Listener
 	initialized       bool
 	host              string
