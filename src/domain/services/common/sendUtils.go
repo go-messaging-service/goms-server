@@ -14,7 +14,7 @@ type Message material.Message
 func SendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 
 	errorMessage := ErrorMessage{
-		GenerallMessage: material.GenerallMessage{
+		AbstractMessage: material.AbstractMessage{
 			MessageType: material.MT_ERROR,
 		},
 		ErrorCode: errorCode,
@@ -34,7 +34,7 @@ func SendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 // sendMessageTo sends the data as normal message to the given connection
 func SendMessageTo(connection *net.Conn, data string) error {
 	message := Message{
-		GenerallMessage: material.GenerallMessage{
+		AbstractMessage: material.AbstractMessage{
 			MessageType: material.MT_MESSAGE,
 		},
 		Data: data,

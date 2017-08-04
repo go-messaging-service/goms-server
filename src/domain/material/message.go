@@ -38,18 +38,18 @@ const (
 	//004
 )
 
-type GenerallMessage struct {
+type AbstractMessage struct {
 	MessageType string `json:"type,omitempty"`
 }
 
 type Message struct {
-	GenerallMessage
+	AbstractMessage
 	Data   string   `json:"data,omitempty"`
 	Topics []string `json:"topics,omitempty"`
 }
 
 type ErrorMessage struct {
-	GenerallMessage
+	AbstractMessage
 	ErrorCode string `json:"error-code"`
 	Error     string `json:"error"`
 }
