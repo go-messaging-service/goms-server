@@ -1,7 +1,6 @@
 package connectionServices
 
 import (
-	"fmt"
 	"goMS/src/domain/material"
 	"goMS/src/domain/services/common"
 	"goMS/src/domain/services/notification"
@@ -68,7 +67,6 @@ func (cs *ConnectionService) Run() {
 // createAndRunHandler sets up a new connection handler by registering to its events and starts it then.
 // This should run on a new goroutine.
 func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
-
 	logger.Debug("Create connection handler")
 
 	connHandler := connectionHandler{}
@@ -138,7 +136,7 @@ func (cs *ConnectionService) handleUnregisterEvent(conn connectionHandler, topic
 // handleSendEvent sends the given data to all clients registeres to the given topics.
 func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics []string, data string) {
 	cs.lock()
-	for i, topic := range topics {
+	for _, topic := range topics {
 		// Get all connections (as *net.Conn slice)
 		handlerList := cs.topicToConnection[topic]
 		connectionList := make([]*net.Conn, len(handlerList))
@@ -153,7 +151,6 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 			Data:        data,
 		}
 
-		logger.Info(fmt.Sprintf("for - %d - %p", i, &handler))
 		// puts the notification in the queue of the responsible service
 		cs.topicToNotificationServices[topic].Queue <- notification
 	}
@@ -185,7 +182,6 @@ func remove(s []connectionHandler, e connectionHandler) []connectionHandler {
 
 // isAlreadyRegistered checks if the given connection handler is already registered to the given topic
 func (cs *ConnectionService) isAlreadyRegistered(h connectionHandler, topic string) bool {
-
 	for _, a := range cs.topicToConnection[topic] {
 		if a.connection == h.connection {
 			return true

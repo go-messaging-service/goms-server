@@ -31,27 +31,6 @@ func SendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 	}
 }
 
-// sendMessageTo sends the data as normal message to the given connection
-func SendMessageTo(connection *net.Conn, topic string, data string) error {
-	message := Message{
-		AbstractMessage: material.AbstractMessage{
-			MessageType: material.MT_MESSAGE,
-		},
-		Topics: []string{topic},
-		Data:   data,
-	}
-
-	dataArray, err := json.Marshal(message)
-
-	if err != nil {
-		logger.Error("Error sending data: " + err.Error())
-		return err
-	}
-
-	SendStringTo(connection, string(dataArray))
-	return nil
-}
-
 // SendStringTo sends the given string with an \n character to the given connection.
 func SendStringTo(connection *net.Conn, data string) {
 	(*connection).Write([]byte(data + "\n"))

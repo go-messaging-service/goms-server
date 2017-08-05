@@ -22,7 +22,7 @@ type connectionHandler struct {
 	SendEvent        []func(connectionHandler, []string, string)
 }
 
-const MAX_PRINTING_LENGTH int = 100
+const MAX_PRINTING_LENGTH int = 80
 
 // Init initializes the handler with the given connection.
 func (ch *connectionHandler) Init(connection *net.Conn) {
@@ -57,11 +57,6 @@ func (ch *connectionHandler) HandleConnection() {
 				ch.handleClose,
 				ch.handleSending},
 			reader)
-
-		// When the connection is closed, exit the loop and we're done
-		if ch.connectionClosed {
-			break
-		}
 	}
 }
 
@@ -81,10 +76,6 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 
 	rawMessage, err := reader.ReadString('\n')
 
-	if len(handler) == 4 {
-		logger.Info(fmt.Sprintf("aallo - %d", len(rawMessage)))
-	}
-
 	if err == nil {
 		// the length of the message that should be printed
 		maxOutputLength := int(math.Min(float64(len(rawMessage))-1, float64(MAX_PRINTING_LENGTH)))
@@ -100,10 +91,10 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 		// check type
 		for i := 0; i < len(messageTypes); i++ {
 			messageType := messageTypes[i]
-			logger.Info("Check " + messageType + " type")
+			logger.Debug("Check " + messageType + " type")
 
 			if message.MessageType == messageType {
-				logger.Info("Handle " + messageType + " type")
+				logger.Debug("Handle " + messageType + " type")
 				handler[i](message)
 				break
 			}
@@ -111,6 +102,7 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 	} else {
 		logger.Info("The connection will be closed. Reason: " + err.Error())
 		ch.exit()
+		ch.connectionClosed = true
 	}
 }
 
@@ -138,8 +130,6 @@ func (ch *connectionHandler) handleRegistration(message Message) {
 
 // handleSending send the given message to all clients interested in the topics specified in the message.
 func (ch *connectionHandler) handleSending(message Message) {
-	logger.Debug(fmt.Sprintf("Send message %#v", message))
-
 	for _, event := range ch.SendEvent {
 		event(*ch, message.Topics, message.Data)
 	}

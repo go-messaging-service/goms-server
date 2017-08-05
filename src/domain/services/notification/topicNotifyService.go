@@ -1,11 +1,12 @@
 package notificationServices
 
 import (
-	"fmt"
-	domain "goMS/src/domain/material"
+	"encoding/json"
+	"goMS/src/domain/material"
 	"goMS/src/domain/services/common"
 	technical "goMS/src/technical/material"
 	"goMS/src/technical/services/logger"
+	"sync"
 )
 
 type TopicNotifyService struct {
@@ -13,6 +14,7 @@ type TopicNotifyService struct {
 	Errors      chan *technical.Notification
 	Exit        chan bool
 	initialized bool
+	mutex       *sync.Mutex
 }
 
 // Init creates all neccessary channel (queues) to handle notifications.
@@ -21,12 +23,13 @@ func (tn *TopicNotifyService) Init() {
 	tn.Errors = make(chan *technical.Notification)
 	tn.Exit = make(chan bool)
 
+	tn.mutex = &sync.Mutex{}
+
 	tn.initialized = true
 }
 
 // StartNotifier listens to incoming notification requests.
 func (tn *TopicNotifyService) StartNotifier() {
-	// Not initialized
 	if !tn.initialized {
 		logger.Fatal("TopicNotifyService not initialized")
 	}
@@ -43,13 +46,29 @@ func (tn *TopicNotifyService) StartNotifier() {
 
 // sendNotification sends the notification or an error if there's one.
 func (tn *TopicNotifyService) sendNotification(notification *technical.Notification) {
-	logger.Info(fmt.Sprintf("send - %d", len(*(notification.Connections))))
-	for _, connection := range *notification.Connections {
+	message := material.Message{
+		AbstractMessage: material.AbstractMessage{
+			MessageType: material.MT_MESSAGE,
+		},
+		Topics: []string{notification.Topic},
+		Data:   notification.Data,
+	}
 
-		err := commonServices.SendMessageTo(connection, notification.Topic, notification.Data)
+	logger.Info("send message with data: " + notification.Data[0:10] + "[...]")
 
-		if err != nil {
-			commonServices.SendErrorMessage(connection, domain.ERR_SEND_FAILED, err.Error())
+	messageByteArray, err := json.Marshal(message)
+	messageString := string(messageByteArray)
+
+	if err != nil {
+		logger.Error("Error parsing message data: " + err.Error())
+		for _, connection := range *notification.Connections {
+			commonServices.SendErrorMessage(connection, material.ERR_SEND_FAILED, err.Error())
 		}
+		return
+	}
+
+	for _, connection := range *notification.Connections {
+		//no error handling here, because we wouln't be able to send it to the client because SendError uses SendString
+		commonServices.SendStringTo(connection, messageString)
 	}
 }
