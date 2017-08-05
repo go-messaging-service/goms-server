@@ -22,7 +22,7 @@ type connectionHandler struct {
 	SendEvent        []func(connectionHandler, []string, string)
 }
 
-const MAX_PRINTING_LENGTH int = 30
+const MAX_PRINTING_LENGTH int = 100
 
 // Init initializes the handler with the given connection.
 func (ch *connectionHandler) Init(connection *net.Conn) {
@@ -37,10 +37,13 @@ func (ch *connectionHandler) HandleConnection() {
 		logger.Fatal("Connection not set!")
 	}
 
+	reader := bufio.NewReader(*ch.connection)
+
 	// at first only a registration message is allowed
 	ch.waitFor(
 		[]string{material.MT_REGISTER},
-		[]func(Message){ch.handleRegistration})
+		[]func(Message){ch.handleRegistration},
+		reader)
 
 	// Now a arbitrary amount of registration, logout, close and send messages is allowed
 	for !ch.connectionClosed {
@@ -52,7 +55,8 @@ func (ch *connectionHandler) HandleConnection() {
 			[]func(Message){ch.handleRegistration,
 				ch.handleLogout,
 				ch.handleClose,
-				ch.handleSending})
+				ch.handleSending},
+			reader)
 
 		// When the connection is closed, exit the loop and we're done
 		if ch.connectionClosed {
@@ -63,7 +67,7 @@ func (ch *connectionHandler) HandleConnection() {
 
 // waitFor wats until on of the given message types arrived.
 // The i-th argument in the messageTypes array must match to the i-th argument in the handler array.
-func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(message Message)) {
+func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(message Message), reader *bufio.Reader) {
 
 	// Check if the arrays match and error/fatal here
 	if len(messageTypes) != len(handler) {
@@ -75,7 +79,11 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 		}
 	}
 
-	rawMessage, err := bufio.NewReader(*ch.connection).ReadString('\n')
+	rawMessage, err := reader.ReadString('\n')
+
+	if len(handler) == 4 {
+		logger.Info(fmt.Sprintf("aallo - %d", len(rawMessage)))
+	}
 
 	if err == nil {
 		// the length of the message that should be printed
@@ -87,7 +95,7 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 		logger.Info(output)
 
 		// JSON to Message-struct
-		message := ch.getMessageFromJSON(rawMessage)
+		message := getMessageFromJSON(rawMessage)
 
 		// check type
 		for i := 0; i < len(messageTypes); i++ {
@@ -107,7 +115,7 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 }
 
 // getMessageFromJSON converts the given json-data into a message object.
-func (ch *connectionHandler) getMessageFromJSON(jsonData string) Message {
+func getMessageFromJSON(jsonData string) Message {
 	message := Message{}
 	json.Unmarshal([]byte(jsonData), &message)
 	return message
@@ -130,7 +138,7 @@ func (ch *connectionHandler) handleRegistration(message Message) {
 
 // handleSending send the given message to all clients interested in the topics specified in the message.
 func (ch *connectionHandler) handleSending(message Message) {
-	logger.Debug(fmt.Sprintf("Send message to topics %#v", message.Topics))
+	logger.Debug(fmt.Sprintf("Send message %#v", message))
 
 	for _, event := range ch.SendEvent {
 		event(*ch, message.Topics, message.Data)

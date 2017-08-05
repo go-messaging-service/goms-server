@@ -1,6 +1,7 @@
 package notificationServices
 
 import (
+	"fmt"
 	domain "goMS/src/domain/material"
 	"goMS/src/domain/services/common"
 	technical "goMS/src/technical/material"
@@ -33,7 +34,7 @@ func (tn *TopicNotifyService) StartNotifier() {
 	for {
 		select {
 		case notification := <-tn.Queue:
-			tn.sendNotification(notification)
+			go tn.sendNotification(notification)
 		case <-tn.Exit:
 			break
 		}
@@ -42,6 +43,7 @@ func (tn *TopicNotifyService) StartNotifier() {
 
 // sendNotification sends the notification or an error if there's one.
 func (tn *TopicNotifyService) sendNotification(notification *technical.Notification) {
+	logger.Info(fmt.Sprintf("send - %d", len(*(notification.Connections))))
 	for _, connection := range *notification.Connections {
 
 		err := commonServices.SendMessageTo(connection, notification.Topic, notification.Data)

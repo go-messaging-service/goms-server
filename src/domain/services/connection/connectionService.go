@@ -1,6 +1,7 @@
 package connectionServices
 
 import (
+	"fmt"
 	"goMS/src/domain/material"
 	"goMS/src/domain/services/common"
 	"goMS/src/domain/services/notification"
@@ -67,15 +68,17 @@ func (cs *ConnectionService) Run() {
 // createAndRunHandler sets up a new connection handler by registering to its events and starts it then.
 // This should run on a new goroutine.
 func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
+
 	logger.Debug("Create connection handler")
 
-	connHandler := connectionHandler{
-		connection: conn,
-	}
+	connHandler := connectionHandler{}
+	connHandler.Init(conn)
 
+	cs.lock()
 	connHandler.RegisterEvent = append(connHandler.RegisterEvent, cs.handleRegisterEvent)
 	connHandler.UnregisterEvent = append(connHandler.UnregisterEvent, cs.handleUnregisterEvent)
 	connHandler.SendEvent = append(connHandler.SendEvent, cs.handleSendEvent)
+	cs.unlock()
 	connHandler.HandleConnection()
 
 	(*conn).Close()
@@ -84,12 +87,11 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
 // handleRegisterEvent should be called when a connection registered itself to a topic.
 // This will return an error to the client when he wants to register to a topic he's not allowed to register him to.
 func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics []string) {
-	cs.lock()
-
 	// A comma separated list of all topics, the client is not allowed to register to
 	forbiddenTopics := ""
 	alreadyRegisteredTopics := ""
 
+	cs.lock()
 	for _, topic := range topics {
 		//TODO create a service for this. This should later take care of different user rights
 		if !technicalCommon.ContainsString(cs.topics, topic) {
@@ -103,9 +105,9 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 		} else {
 			cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
 			logger.Debug("Register " + topic)
-
 		}
 	}
+	cs.unlock()
 
 	// Send error message for forbidden topics and cut trailing comma
 	if len(forbiddenTopics) != 0 {
@@ -118,8 +120,6 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics 
 		alreadyRegisteredTopics = strings.TrimSuffix(alreadyRegisteredTopics, ",")
 		commonServices.SendErrorMessage(conn.connection, material.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
 	}
-
-	cs.unlock()
 }
 
 // handleUnregisterEvent unregisteres the client from the given topics. If there's a topic he's not registered to, nothing happens.
@@ -137,7 +137,8 @@ func (cs *ConnectionService) handleUnregisterEvent(conn connectionHandler, topic
 
 // handleSendEvent sends the given data to all clients registeres to the given topics.
 func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics []string, data string) {
-	for _, topic := range topics {
+	cs.lock()
+	for i, topic := range topics {
 		// Get all connections (as *net.Conn slice)
 		handlerList := cs.topicToConnection[topic]
 		connectionList := make([]*net.Conn, len(handlerList))
@@ -152,9 +153,11 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 			Data:        data,
 		}
 
+		logger.Info(fmt.Sprintf("for - %d - %p", i, &handler))
 		// puts the notification in the queue of the responsible service
 		cs.topicToNotificationServices[topic].Queue <- notification
 	}
+	cs.unlock()
 }
 
 // lock will prevent race conditions by ensuring that only one goroutine will have access to its fields.
@@ -182,10 +185,12 @@ func remove(s []connectionHandler, e connectionHandler) []connectionHandler {
 
 // isAlreadyRegistered checks if the given connection handler is already registered to the given topic
 func (cs *ConnectionService) isAlreadyRegistered(h connectionHandler, topic string) bool {
+
 	for _, a := range cs.topicToConnection[topic] {
 		if a.connection == h.connection {
 			return true
 		}
 	}
+
 	return false
 }
