@@ -8,6 +8,20 @@ import (
 )
 
 func main() {
+	logger.Plain("           ,,,")
+	logger.Plain("         ,/#/")
+	logger.Plain("       ,/#/")
+	logger.Plain("     ,/#/")
+	logger.Plain("   ,/#/")
+	logger.Plain(" ,/#/")
+	logger.Plain("/#/__________________")
+	logger.Plain("\\####################/")
+	logger.Plain("  \\################/")
+	logger.Plain("    \\############/")
+	logger.Plain("      \\########/")
+	logger.Plain("        \\####/")
+	logger.Plain("          \\/")
+	logger.Plain("")
 	logger.Plain("Welcome to the goMS (go Message Service)!")
 	logger.Plain("I will just initialize me and serve you as you configured me :)\n\n")
 
