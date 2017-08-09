@@ -54,7 +54,11 @@ func (tn *TopicNotifyService) sendNotification(notification *technical.Notificat
 		Data:   notification.Data,
 	}
 
-	logger.Info("send message with data: " + notification.Data[0:10] + "[...]")
+	if len(notification.Data) > 10 {
+		logger.Info("send message with data: " + notification.Data[0:10] + "[...]")
+	} else {
+		logger.Info("send message with data: " + notification.Data)
+	}
 
 	messageByteArray, err := json.Marshal(message)
 	messageString := string(messageByteArray)
