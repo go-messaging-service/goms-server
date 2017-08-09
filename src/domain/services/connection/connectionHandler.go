@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"goMS/src/domain/material"
-	"goMS/src/technical/common"
-	"goMS/src/technical/services/logger"
+	"goms-server/src/domain/material"
+	"goms-server/src/technical/common"
+	"goms-server/src/technical/services/logger"
 	"math"
 	"net"
 )

@@ -2,8 +2,8 @@ package technicalServices
 
 import (
 	"encoding/json"
-	"goMS/src/technical/material"
-	"goMS/src/technical/services/logger"
+	"goms-server/src/technical/material"
+	"goms-server/src/technical/services/logger"
 	"io/ioutil"
 )
 

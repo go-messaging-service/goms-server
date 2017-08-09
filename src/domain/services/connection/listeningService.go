@@ -1,7 +1,7 @@
 package connectionServices
 
 import (
-	"goMS/src/technical/services/logger"
+	"goms-server/src/technical/services/logger"
 	"net"
 	"strconv"
 )

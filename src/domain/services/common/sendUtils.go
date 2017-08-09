@@ -2,8 +2,8 @@ package commonServices
 
 import (
 	"encoding/json"
-	"goMS/src/domain/material"
-	"goMS/src/technical/services/logger"
+	"goms-server/src/domain/material"
+	"goms-server/src/technical/services/logger"
 	"net"
 )
 

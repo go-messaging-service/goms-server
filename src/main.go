@@ -1,10 +1,10 @@
 package main
 
 import (
-	domainServices "goMS/src/domain/services/connection"
-	"goMS/src/technical/material"
-	"goMS/src/technical/services"
-	"goMS/src/technical/services/logger"
+	domainServices "goms-server/src/domain/services/connection"
+	"goms-server/src/technical/material"
+	"goms-server/src/technical/services"
+	"goms-server/src/technical/services/logger"
 )
 
 func main() {

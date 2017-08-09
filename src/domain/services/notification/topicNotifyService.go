@@ -2,10 +2,10 @@ package notificationServices
 
 import (
 	"encoding/json"
-	"goMS/src/domain/material"
-	"goMS/src/domain/services/common"
-	technical "goMS/src/technical/material"
-	"goMS/src/technical/services/logger"
+	"goms-server/src/domain/material"
+	"goms-server/src/domain/services/common"
+	technical "goms-server/src/technical/material"
+	"goms-server/src/technical/services/logger"
 	"sync"
 )
 
