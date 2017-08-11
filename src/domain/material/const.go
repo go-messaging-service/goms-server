@@ -38,6 +38,7 @@ const (
 	//004
 )
 
+/*
 type AbstractMessage struct {
 	MessageType string `json:"type,omitempty"`
 }
@@ -53,3 +54,4 @@ type ErrorMessage struct {
 	ErrorCode string `json:"errorcode"`
 	Error     string `json:"error"`
 }
+*/

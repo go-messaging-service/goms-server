@@ -14,11 +14,9 @@ type Message material.Message
 func SendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 
 	errorMessage := ErrorMessage{
-		AbstractMessage: material.AbstractMessage{
-			MessageType: material.MT_ERROR,
-		},
-		ErrorCode: errorCode,
-		Error:     errorData,
+		Messagetype: material.MT_ERROR,
+		Errorcode:   errorCode,
+		Error:       errorData,
 	}
 
 	data, err := json.Marshal(errorMessage)

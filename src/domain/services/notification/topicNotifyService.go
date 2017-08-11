@@ -47,11 +47,9 @@ func (tn *TopicNotifyService) StartNotifier() {
 // sendNotification sends the notification or an error if there's one.
 func (tn *TopicNotifyService) sendNotification(notification *technical.Notification) {
 	message := material.Message{
-		AbstractMessage: material.AbstractMessage{
-			MessageType: material.MT_MESSAGE,
-		},
-		Topics: []string{notification.Topic},
-		Data:   notification.Data,
+		Messagetype: material.MT_MESSAGE,
+		Topics:      []string{notification.Topic},
+		Data:        notification.Data,
 	}
 
 	if len(notification.Data) > 10 {

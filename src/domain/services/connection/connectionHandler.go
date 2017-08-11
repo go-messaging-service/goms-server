@@ -93,7 +93,7 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 			messageType := messageTypes[i]
 			logger.Debug("Check " + messageType + " type")
 
-			if message.MessageType == messageType {
+			if message.Messagetype == messageType {
 				logger.Debug("Handle " + messageType + " type")
 				handler[i](message)
 				break
