@@ -50,6 +50,6 @@ type Message struct {
 
 type ErrorMessage struct {
 	AbstractMessage
-	ErrorCode string `json:"error-code"`
+	ErrorCode string `json:"errorcode"`
 	Error     string `json:"error"`
 }
