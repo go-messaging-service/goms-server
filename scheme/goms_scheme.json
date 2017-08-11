@@ -1,0 +1,101 @@
+{
+	"schemes":
+	[
+		{
+			"name":"AbstractMessage",
+			"properties":
+			[
+				{
+					"name": "type",
+					"type": "string",
+					"constant": true,
+					"collection": false
+				}
+			]
+		},
+		{
+			"name": "Message",
+			"properties":
+			[
+				{
+					"name": "type",
+					"type": "string",
+					"constant": true,
+					"collection": false
+				},
+				{
+					"name": "topics",
+					"type": "string",
+					"constant": true,
+					"collection": true
+				},
+				{
+					"name": "data",
+					"type": "string",
+					"constant": true,
+					"collection": false
+				}
+			]
+		},
+		{
+			"name": "ErrorMessage",
+			"properties":
+			[
+				{
+					"name":"errorcode",
+					"type": "string",
+					"constant": true,
+					"collection": false
+				},
+				{
+					"name":"error",
+					"type": "string",
+					"constant": true,
+					"collection": false
+				}
+			]
+		},
+		{
+			"name": "Register",
+			"properties":
+			[
+				{
+					"name": "type",
+					"type": "string",
+					"constant": false,
+					"collection": false
+				},
+				{
+					"name": "topics",
+					"type": "string",
+					"constant": false,
+					"collection": true
+				}
+			]
+		},
+		{
+			"name": "Send",
+			"properties":
+			[
+				{
+					"name": "type",
+					"type": "string",
+					"constant": false,
+					"collection": false
+				},
+				{
+					"name": "topics",
+					"type": "string",
+					"constant": false,
+					"collection": true
+				},
+				{
+					"name": "data",
+					"type": "string",
+					"constant": false,
+					"collection": false
+				}
+			]
+		}
+	]
+}
