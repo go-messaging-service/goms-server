@@ -68,13 +68,13 @@
 				{
 					"name": "messagetype",
 					"type": "string",
-					"constant": false,
+					"constant": true,
 					"collection": false
 				},
 				{
 					"name": "topics",
 					"type": "string",
-					"constant": false,
+					"constant": true,
 					"collection": true
 				}
 			]
@@ -86,19 +86,49 @@
 				{
 					"name": "messagetype",
 					"type": "string",
-					"constant": false,
+					"constant": true,
 					"collection": false
 				},
 				{
 					"name": "topics",
 					"type": "string",
-					"constant": false,
+					"constant": true,
 					"collection": true
 				},
 				{
 					"name": "data",
 					"type": "string",
-					"constant": false,
+					"constant": true,
+					"collection": false
+				}
+			]
+		},
+		{
+			"name": "Logout",
+			"properties":
+			[
+				{
+					"name": "messagetype",
+					"type": "string",
+					"constant": true,
+					"collection": false
+				},
+				{
+					"name": "topics",
+					"type": "string",
+					"constant": true,
+					"collection": true
+				}
+			]
+		},
+		{
+			"name": "Close",
+			"properties":
+			[
+				{
+					"name": "messagetype",
+					"type": "string",
+					"constant": true,
 					"collection": false
 				}
 			]
