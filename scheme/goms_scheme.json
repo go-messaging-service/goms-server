@@ -6,7 +6,7 @@
 			"properties":
 			[
 				{
-					"name": "type",
+					"name": "messagetype",
 					"type": "string",
 					"constant": true,
 					"collection": false
@@ -18,7 +18,7 @@
 			"properties":
 			[
 				{
-					"name": "type",
+					"name": "messagetype",
 					"type": "string",
 					"constant": true,
 					"collection": false
@@ -42,6 +42,12 @@
 			"properties":
 			[
 				{
+					"name": "messagetype",
+					"type": "string",
+					"constant": true,
+					"collection": false
+				},
+				{
 					"name":"errorcode",
 					"type": "string",
 					"constant": true,
@@ -60,7 +66,7 @@
 			"properties":
 			[
 				{
-					"name": "type",
+					"name": "messagetype",
 					"type": "string",
 					"constant": false,
 					"collection": false
@@ -78,7 +84,7 @@
 			"properties":
 			[
 				{
-					"name": "type",
+					"name": "messagetype",
 					"type": "string",
 					"constant": false,
 					"collection": false
