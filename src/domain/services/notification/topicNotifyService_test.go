@@ -1,11 +1,11 @@
-package test
+package notificationServices
 
 import (
 	"bufio"
 	"encoding/json"
-	"goMS/src/domain/services/notification"
-	"goMS/src/technical/material"
-	"goMS/src/technical/services/logger"
+	testUtils "goms-server/src/domain/services/test"
+	"goms-server/src/technical/material"
+	"goms-server/src/technical/services/logger"
 	"net"
 	"testing"
 	"time"
@@ -13,11 +13,11 @@ import (
 
 var conn1, conn2, serv1, serv2 *net.Conn
 var buf1, buf2 *bufio.Reader
-var serviceUnderTest *notificationServices.TopicNotifyService
+var serviceUnderTest *TopicNotifyService
 
 func initConnections(t *testing.T) {
-	conn1, _, serv1, buf1 = initPipe()
-	conn2, _, serv2, buf2 = initPipe()
+	conn1, _, serv1, buf1 = testUtils.InitPipe()
+	conn2, _, serv2, buf2 = testUtils.InitPipe()
 
 	logger.TestMode = true
 
@@ -36,7 +36,7 @@ func tearDownConnection() {
 }
 
 func initNotifyService(t *testing.T) {
-	serviceUnderTest = new(notificationServices.TopicNotifyService)
+	serviceUnderTest = new(TopicNotifyService)
 	serviceUnderTest.Init()
 	go serviceUnderTest.StartNotifier()
 }
@@ -88,7 +88,7 @@ func TestNotifyCorrectly(t *testing.T) {
 }
 
 func TestNotInitializedCreatesError(t *testing.T) {
-	serviceUnderTest = new(notificationServices.TopicNotifyService)
+	serviceUnderTest = new(TopicNotifyService)
 	// This is missing: serviceUnderTest.Init()
 	// There must be an error here:
 	err := serviceUnderTest.StartNotifier()
@@ -99,10 +99,10 @@ func TestNotInitializedCreatesError(t *testing.T) {
 }
 
 func TestSendToExitChanWillExitCorrectly(t *testing.T) {
-	serviceUnderTest = new(notificationServices.TopicNotifyService)
+	serviceUnderTest = new(TopicNotifyService)
 	serviceUnderTest.Init()
 
-	go func(service *notificationServices.TopicNotifyService, t *testing.T) {
+	go func(service *TopicNotifyService, t *testing.T) {
 		err := service.StartNotifier()
 
 		if err != nil {

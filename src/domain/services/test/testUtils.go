@@ -5,7 +5,7 @@ import (
 	"net"
 )
 
-func initPipe() (*net.Conn, *bufio.Reader, *net.Conn, *bufio.Reader) {
+func InitPipe() (*net.Conn, *bufio.Reader, *net.Conn, *bufio.Reader) {
 	client, server := net.Pipe()
 
 	clientReader := bufio.NewReader(client)

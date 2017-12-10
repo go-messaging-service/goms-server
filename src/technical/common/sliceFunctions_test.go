@@ -1,7 +1,7 @@
 package technicalCommon_test
 
 import (
-	"goMS/src/technical/common"
+	"goms-server/src/technical/common"
 	"testing"
 )
 

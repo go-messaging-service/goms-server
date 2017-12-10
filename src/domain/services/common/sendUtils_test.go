@@ -1,8 +1,8 @@
-package test
+package commonServices
 
 import (
 	"bufio"
-	services "goMS/src/domain/services/common"
+	testUtils "goms-server/src/domain/services/test"
 	"net"
 	"testing"
 )
@@ -13,14 +13,14 @@ var serverReader *bufio.Reader
 const TEST_STRING string = "test123"
 
 func TestSendStringWorks(t *testing.T) {
-	client, _, server, serverReader = initPipe()
+	client, _, server, serverReader = testUtils.InitPipe()
 
 	if serverReader.Buffered() != 0 {
 		t.Error("Buffered bytes must be 0")
 		t.Fail()
 	}
 
-	go func(conn *net.Conn) { services.SendStringTo(conn, TEST_STRING) }(client)
+	go func(conn *net.Conn) { SendStringTo(conn, TEST_STRING) }(client)
 
 	data, _, err := serverReader.ReadLine()
 
