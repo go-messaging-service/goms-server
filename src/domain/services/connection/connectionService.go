@@ -41,7 +41,11 @@ func (cs *ConnectionService) Init(topics []string) {
 		logger.Debug("Start notifier for " + topic)
 
 		go func(service notificationServices.TopicNotifyService) {
-			service.StartNotifier()
+			err := service.StartNotifier()
+
+			if err != nil {
+				logger.Fatal(err.Error())
+			}
 		}(service)
 	}
 

@@ -2,6 +2,7 @@ package notificationServices
 
 import (
 	"encoding/json"
+	"errors"
 	"goms-server/src/domain/material"
 	"goms-server/src/domain/services/common"
 	technical "goms-server/src/technical/material"
@@ -29,9 +30,9 @@ func (tn *TopicNotifyService) Init() {
 }
 
 // StartNotifier listens to incoming notification requests.
-func (tn *TopicNotifyService) StartNotifier() {
+func (tn *TopicNotifyService) StartNotifier() error {
 	if !tn.initialized {
-		logger.Fatal("TopicNotifyService not initialized")
+		return errors.New("TopicNotifyService not initialized")
 	}
 
 	for {
