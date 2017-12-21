@@ -110,7 +110,7 @@ For example: If you send a message to a topic before register yourself to it, yo
 1. Client sends the topics as JSON-list to the server:
 ```json
 {
-  "type": "register",
+  "messagetype": "register",
   "topics": [
     "some",
     "topics"
@@ -123,13 +123,13 @@ Maybe there'll be an acknowledgement from the server (__not implemented yet__):
 3. Server sends notification that everything is ready:
 ```json
 {
-  "type": "reg-ack"
+  "messagetype": "reg-ack"
 }
 ```
 It's also possible (for error-correction) to send the list of topics within the acknowledgement (but as mentioned above: __not yet implemented__):
 ```json
 {
-  "type": "reg-ack",
+  "messagetype": "reg-ack",
   "topics": [
     "some",
     "topics"
@@ -141,7 +141,7 @@ It's also possible (for error-correction) to send the list of topics within the 
 1. Client sends a `send` request of the following form to the server:
 ```json
 {
-  "type": "send",
+  "messagetype": "send",
   "topics": [
     "some",
     "topics"
@@ -153,7 +153,7 @@ It's also possible (for error-correction) to send the list of topics within the 
 2. The server will then look into his map to determine all connections to clients which registeres themselves, and then send the message. The message will have this simple format:
 ```json
 {
-  "type": "message",
+  "messagetype": "message",
   "topics": [
     "some",
     "topics"
@@ -168,7 +168,7 @@ Just send the `logout`-message:
 1. Client removes himself from some topics.
 ```json
 {
-  "type": "logout",
+  "messagetype": "logout",
   "topics": [
     "some",
     "topics"
@@ -182,7 +182,7 @@ If you want to be kind to the server, you can use the `close`-message:
 1. Client closes connection, this will remove him from all topics (of course).
 ```json
 {
-  "type": "close"
+  "messagetype": "close"
 }
 ```
 
