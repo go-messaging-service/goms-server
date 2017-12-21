@@ -39,12 +39,6 @@ func (ch *connectionHandler) HandleConnection() {
 
 	reader := bufio.NewReader(*ch.connection)
 
-	// at first only a registration message is allowed
-	ch.waitFor(
-		[]string{material.MT_REGISTER},
-		[]func(Message){ch.handleRegistration},
-		reader)
-
 	// Now a arbitrary amount of registration, logout, close and send messages is allowed
 	for !ch.connectionClosed {
 		ch.waitFor(
