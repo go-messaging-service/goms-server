@@ -75,22 +75,12 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn, config *technic
 	connHandler.Init(conn, config)
 
 	cs.lock()
-	connHandler.RegisterEvent = append(connHandler.RegisterEvent, cs.handleRegisterEvent)
 	connHandler.SendEvent = append(connHandler.SendEvent, cs.handleSendEvent)
 	cs.connectionHandler = append(cs.connectionHandler, &connHandler)
 	cs.unlock()
 	connHandler.HandleConnection()
 
 	(*conn).Close()
-}
-
-// handleRegisterEvent should be called when a connection registered itself to a topic.
-// This will return an error to the client when he wants to register to a topic he's not allowed to register him to.
-func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topic string) {
-	cs.lock()
-	logger.Debug("Register")
-	cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
-	cs.unlock()
 }
 
 // handleSendEvent sends the given data to all clients registeres to the given topics.

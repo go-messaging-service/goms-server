@@ -21,7 +21,6 @@ type connectionHandler struct {
 	connectionClosed bool
 	config           *technicalMaterial.Config
 	registeredTopics []string
-	RegisterEvent    []func(connectionHandler, string) // will be fired when a client registeres himself at some topics
 	SendEvent        []func(connectionHandler, []string, string)
 }
 
@@ -145,12 +144,6 @@ func (ch *connectionHandler) handleRegistration(message Message) {
 	if len(alreadyRegisteredTopics) != 0 {
 		alreadyRegisteredTopics = strings.TrimSuffix(alreadyRegisteredTopics, ",")
 		commonServices.SendErrorMessage(ch.connection, material.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
-	}
-
-	for _, topic := range ch.registeredTopics {
-		for _, event := range ch.RegisterEvent {
-			event(*ch, topic)
-		}
 	}
 }
 
