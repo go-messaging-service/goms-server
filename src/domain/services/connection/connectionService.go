@@ -96,6 +96,7 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topic s
 }
 
 // handleUnregisterEvent unregisteres the client from the given topics. If there's a topic he's not registered to, nothing happens.
+//TODO remove when topicToConnection is not needed anymore
 func (cs *ConnectionService) handleUnregisterEvent(conn connectionHandler, topics []string) {
 	cs.lock()
 
@@ -155,15 +156,4 @@ func remove(s []connectionHandler, e connectionHandler) []connectionHandler {
 	}
 
 	return result
-}
-
-// isAlreadyRegistered checks if the given connection handler is already registered to the given topic
-func (cs *ConnectionService) isAlreadyRegistered(h connectionHandler, topic string) bool {
-	for _, a := range cs.topicToConnection[topic] {
-		if a.connection == h.connection {
-			return true
-		}
-	}
-
-	return false
 }

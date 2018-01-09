@@ -185,6 +185,11 @@ func (ch *connectionHandler) exit() {
 
 // logout will logs the client out from the given topics.
 func (ch *connectionHandler) logout(topics []string) {
+	for _, topic := range topics {
+		ch.registeredTopics = technicalCommon.RemoveString(ch.registeredTopics, topic)
+	}
+
+	//TODO remove when not needed anymore
 	for _, event := range ch.UnregisterEvent {
 		event(*ch, topics)
 	}

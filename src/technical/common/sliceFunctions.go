@@ -22,3 +22,16 @@ func RemoveStrings(s []string, e []string) []string {
 
 	return result
 }
+
+// RemoveString will remove the given string e from the slice s.
+func RemoveString(s []string, e string) []string {
+	result := []string{}
+
+	for _, a := range s {
+		if a != e {
+			result = append(result, a)
+		}
+	}
+
+	return result
+}
