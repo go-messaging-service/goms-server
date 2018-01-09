@@ -32,11 +32,11 @@ func main() {
 	logger.Info("Initialize logger")
 	logger.DebugMode = config.ServerConfig.DebugLogging
 
-	startServer(config)
+	startServer(&config)
 }
 
 // startServer loads all configurations inits the services and starts them
-func startServer(config technicalMaterial.Config) {
+func startServer(config *technicalMaterial.Config) {
 	logger.Info("Initialize services")
 
 	connectionServices, listeningServices := initConnectionService(config)
@@ -45,7 +45,7 @@ func startServer(config technicalMaterial.Config) {
 	for _, connectionService := range connectionServices {
 		go func(connectionService domainServices.ConnectionService) {
 			//TODO evaluate the need of a routine that restarts the service automatically when a error occurred. Something like: Error occurrec --> wait 5 seconds --> create service --> call Run()
-			connectionService.Run()
+			connectionService.Run(config)
 		}(connectionService)
 	}
 
@@ -74,7 +74,7 @@ func loadConfig() technicalMaterial.Config {
 }
 
 // initConnectionService creates connection services bases on the given configuration.
-func initConnectionService(config technicalMaterial.Config) ([]domainServices.ConnectionService, []domainServices.ListeningService) {
+func initConnectionService(config *technicalMaterial.Config) ([]domainServices.ConnectionService, []domainServices.ListeningService) {
 	logger.Info("Initialize connection services")
 
 	amountConnectors := len(config.ServerConfig.Connectors)

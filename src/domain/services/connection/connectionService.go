@@ -57,24 +57,24 @@ func (cs *ConnectionService) Init(topics []string) {
 }
 
 // Run listens to the port of this service and will start the handler.
-func (cs *ConnectionService) Run() {
+func (cs *ConnectionService) Run(config *technical.Config) {
 	if !cs.initialized {
 		logger.Fatal("Connection Service not initialized!")
 	}
 
 	for {
 		conn := <-cs.ConnectionChannel
-		go cs.createAndRunHandler(conn)
+		go cs.createAndRunHandler(conn, config)
 	}
 }
 
 // createAndRunHandler sets up a new connection handler by registering to its events and starts it then.
 // This should run on a new goroutine.
-func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
+func (cs *ConnectionService) createAndRunHandler(conn *net.Conn, config *technical.Config) {
 	logger.Debug("Create connection handler")
 
 	connHandler := connectionHandler{}
-	connHandler.Init(conn)
+	connHandler.Init(conn, config)
 
 	cs.lock()
 	connHandler.RegisterEvent = append(connHandler.RegisterEvent, cs.handleRegisterEvent)
