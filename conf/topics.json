@@ -6,6 +6,7 @@
     "goms",
     "golang",
     "player.created",
-    "player.moved"
+    "player.moved",
+    "object.moved"
   ]
 }
