@@ -91,7 +91,7 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 		var connectionList []*net.Conn
 
 		for _, h := range cs.connectionHandler {
-			if h.connection != handler.connection {
+			if h.connection != handler.connection && h.isRegisteredTo(topic) {
 				connectionList = append(connectionList, h.connection)
 			}
 		}
