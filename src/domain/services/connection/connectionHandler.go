@@ -21,7 +21,7 @@ type connectionHandler struct {
 	connectionClosed bool
 	config           *technicalMaterial.Config
 	registeredTopics []string
-	RegisterEvent    []func(connectionHandler, []string) // will be fired when a client registeres himself at some topics
+	RegisterEvent    []func(connectionHandler, string)   // will be fired when a client registeres himself at some topics
 	UnregisterEvent  []func(connectionHandler, []string) // will be fired when a client un-registeres himself at some topics
 	SendEvent        []func(connectionHandler, []string, string)
 }
@@ -114,10 +114,8 @@ func getMessageFromJSON(jsonData string) Message {
 
 // handleRegistration registeres this connection to the topics specified in the message.
 func (ch *connectionHandler) handleRegistration(message Message) {
-	logger.Debug("Register to topics " + fmt.Sprintf("%#v", message.Topics))
+	logger.Debug("Try to register to topics " + fmt.Sprintf("%#v", message.Topics))
 
-	//for _, event := range ch.RegisterEvent {
-	//event(*ch, message.Topics)
 	// A comma separated list of all topics, the client is not allowed to register to
 	forbiddenTopics := ""
 	alreadyRegisteredTopics := ""
@@ -149,11 +147,10 @@ func (ch *connectionHandler) handleRegistration(message Message) {
 		alreadyRegisteredTopics = strings.TrimSuffix(alreadyRegisteredTopics, ",")
 		commonServices.SendErrorMessage(ch.connection, material.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
 	}
-	//}
 
-	for _, topic := range message.Topics {
-		if !technicalCommon.ContainsString(ch.registeredTopics, topic) {
-			ch.registeredTopics = append(ch.registeredTopics, topic)
+	for _, topic := range ch.registeredTopics {
+		for _, event := range ch.RegisterEvent {
+			event(*ch, topic)
 		}
 	}
 }

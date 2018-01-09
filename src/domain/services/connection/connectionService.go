@@ -2,13 +2,11 @@ package connectionServices
 
 import (
 	"goms-server/src/domain/material"
-	"goms-server/src/domain/services/common"
 	"goms-server/src/domain/services/notification"
 	"goms-server/src/technical/common"
 	technical "goms-server/src/technical/material"
 	"goms-server/src/technical/services/logger"
 	"net"
-	"strings"
 	"sync"
 )
 
@@ -88,40 +86,11 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn, config *technic
 
 // handleRegisterEvent should be called when a connection registered itself to a topic.
 // This will return an error to the client when he wants to register to a topic he's not allowed to register him to.
-func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics []string) {
-	// A comma separated list of all topics, the client is not allowed to register to
-	forbiddenTopics := ""
-	alreadyRegisteredTopics := ""
-
+func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topic string) {
 	cs.lock()
-	for _, topic := range topics {
-		//TODO create a service for this. This should later take care of different user rights
-		if !technicalCommon.ContainsString(cs.topics, topic) {
-			forbiddenTopics += topic + ","
-			logger.Info("Clients wants to register on invalid topic (" + topic + ").")
-
-		} else if cs.isAlreadyRegistered(conn, topic) {
-			alreadyRegisteredTopics += topic + ","
-			logger.Debug("Client already registered on " + topic)
-
-		} else {
-			cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
-			logger.Debug("Register " + topic)
-		}
-	}
+	logger.Debug("Register")
+	cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
 	cs.unlock()
-
-	// Send error message for forbidden topics and cut trailing comma
-	if len(forbiddenTopics) != 0 {
-		forbiddenTopics = strings.TrimSuffix(forbiddenTopics, ",")
-		commonServices.SendErrorMessage(conn.connection, material.ERR_REG_INVALID_TOPIC, forbiddenTopics)
-	}
-
-	// Send error message for already registered topics and cut trailing comma
-	if len(alreadyRegisteredTopics) != 0 {
-		alreadyRegisteredTopics = strings.TrimSuffix(alreadyRegisteredTopics, ",")
-		commonServices.SendErrorMessage(conn.connection, material.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
-	}
 }
 
 // handleUnregisterEvent unregisteres the client from the given topics. If there's a topic he's not registered to, nothing happens.
@@ -142,10 +111,15 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 	cs.lock()
 	for _, topic := range topics {
 		// Get all connections (as *net.Conn slice)
+		// TODO get information if connHandler is registered to topic from the handler itself, not from a map
 		handlerList := cs.topicToConnection[topic]
-		connectionList := make([]*net.Conn, len(handlerList))
-		for i, handler := range handlerList {
-			connectionList[i] = handler.connection
+		var connectionList []*net.Conn
+
+		for _, h := range handlerList {
+			// Do not send to process which sends the data
+			if h.connection != handler.connection {
+				connectionList = append(connectionList, h.connection)
+			}
 		}
 
 		// create notification
