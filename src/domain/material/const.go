@@ -37,21 +37,3 @@ const (
 	//003
 	//004
 )
-
-/*
-type AbstractMessage struct {
-	MessageType string `json:"type,omitempty"`
-}
-
-type Message struct {
-	AbstractMessage
-	Data   string   `json:"data,omitempty"`
-	Topics []string `json:"topics,omitempty"`
-}
-
-type ErrorMessage struct {
-	AbstractMessage
-	ErrorCode string `json:"errorcode"`
-	Error     string `json:"error"`
-}
-*/
