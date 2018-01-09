@@ -3,7 +3,6 @@ package connectionServices
 import (
 	"goms-server/src/domain/material"
 	"goms-server/src/domain/services/notification"
-	"goms-server/src/technical/common"
 	technical "goms-server/src/technical/material"
 	"goms-server/src/technical/services/logger"
 	"net"
@@ -77,7 +76,6 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn, config *technic
 
 	cs.lock()
 	connHandler.RegisterEvent = append(connHandler.RegisterEvent, cs.handleRegisterEvent)
-	connHandler.UnregisterEvent = append(connHandler.UnregisterEvent, cs.handleUnregisterEvent)
 	connHandler.SendEvent = append(connHandler.SendEvent, cs.handleSendEvent)
 	cs.connectionHandler = append(cs.connectionHandler, &connHandler)
 	cs.unlock()
@@ -92,20 +90,6 @@ func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topic s
 	cs.lock()
 	logger.Debug("Register")
 	cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
-	cs.unlock()
-}
-
-// handleUnregisterEvent unregisteres the client from the given topics. If there's a topic he's not registered to, nothing happens.
-//TODO remove when topicToConnection is not needed anymore
-func (cs *ConnectionService) handleUnregisterEvent(conn connectionHandler, topics []string) {
-	cs.lock()
-
-	for topic, handlerList := range cs.topicToConnection {
-		if technicalCommon.ContainsString(topics, topic) {
-			cs.topicToConnection[topic] = remove(handlerList, conn)
-		}
-	}
-
 	cs.unlock()
 }
 

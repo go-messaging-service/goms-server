@@ -21,8 +21,7 @@ type connectionHandler struct {
 	connectionClosed bool
 	config           *technicalMaterial.Config
 	registeredTopics []string
-	RegisterEvent    []func(connectionHandler, string)   // will be fired when a client registeres himself at some topics
-	UnregisterEvent  []func(connectionHandler, []string) // will be fired when a client un-registeres himself at some topics
+	RegisterEvent    []func(connectionHandler, string) // will be fired when a client registeres himself at some topics
 	SendEvent        []func(connectionHandler, []string, string)
 }
 
@@ -187,11 +186,6 @@ func (ch *connectionHandler) exit() {
 func (ch *connectionHandler) logout(topics []string) {
 	for _, topic := range topics {
 		ch.registeredTopics = technicalCommon.RemoveString(ch.registeredTopics, topic)
-	}
-
-	//TODO remove when not needed anymore
-	for _, event := range ch.UnregisterEvent {
-		event(*ch, topics)
 	}
 
 	ch.registeredTopics = technicalCommon.RemoveStrings(ch.registeredTopics, topics)
