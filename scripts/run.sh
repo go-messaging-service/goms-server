@@ -4,11 +4,13 @@ echo "========="
 echo "  CLEAN"
 echo "========="
 echo "Removing old build ..."
-rm -r ./bin/*
-if [ $? -ne 0 ]; then
-	echo ""
-	echo "CLEANUP FAILED!"
-	exit 1
+if [ -d ./bin/ ] && ! [ -z "$(ls -A ./bin/)" ]; then
+	rm -r ./bin/*
+	if [ $? -ne 0 ]; then
+		echo ""
+		echo "CLEANUP FAILED!"
+		exit 1
+	fi
 fi
 echo "CLEANUP DONE"
 echo ""
