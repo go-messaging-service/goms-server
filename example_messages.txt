@@ -1,8 +1,8 @@
-{"type":"register","topics":["golang","news","science","technology"]}
-{"type":"register","topics":["golang","science","someInvalidTopic"]}
+{"messagetype":"register","topics":["golang","news","science","technology"]}
+{"messagetype":"register","topics":["golang","science","someInvalidTopic"]}
 
-{"type":"logout","topics":["news","science"]}
-{"type":"logout","topics":["science","technology"]}
-{"type":"logout","topics":["golang","news"]}
+{"messagetype":"logout","topics":["news","science"]}
+{"messagetype":"logout","topics":["science","technology"]}
+{"messagetype":"logout","topics":["golang","news"]}
 
-{"type":"send","topics":["golang","news"],"data":"Hallo123"}
+{"messagetype":"send","topics":["golang","news"],"data":"Hallo123"}
