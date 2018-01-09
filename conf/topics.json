@@ -4,6 +4,9 @@
     "technology",
     "science",
     "goms",
-    "golang"
+    "golang",
+    "player.created",
+    "player.moved",
+    "object.moved"
   ]
 }
