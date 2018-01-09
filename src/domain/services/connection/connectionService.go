@@ -15,7 +15,6 @@ type ErrorMessage material.ErrorMessage
 
 type ConnectionService struct {
 	topics                      []string
-	topicToConnection           map[string][]connectionHandler
 	connectionHandler           []*connectionHandler
 	topicToNotificationServices map[string]notificationServices.TopicNotifyService
 	initialized                 bool
@@ -26,8 +25,6 @@ type ConnectionService struct {
 // Init will initialize the connection service by creating all topic notifier and initializing fields.
 func (cs *ConnectionService) Init(topics []string) {
 	logger.Debug("Init connection service")
-
-	cs.topicToConnection = make(map[string][]connectionHandler)
 
 	cs.topicToNotificationServices = make(map[string]notificationServices.TopicNotifyService)
 	for _, topic := range topics {
@@ -85,6 +82,7 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn, config *technic
 
 // handleSendEvent sends the given data to all clients registeres to the given topics.
 func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics []string, data string) {
+	//TODO move the lock into loop or is this a root for performance issues?
 	cs.lock()
 	for _, topic := range topics {
 		// Get all connections (as *net.Conn slice)
@@ -117,17 +115,4 @@ func (cs *ConnectionService) lock() {
 // unlock will free the fields so that other goroutines will have access to them.
 func (cs *ConnectionService) unlock() {
 	cs.mutex.Unlock()
-}
-
-// remove will remove the given connection handler from the given array of handlers.
-func remove(s []connectionHandler, e connectionHandler) []connectionHandler {
-	result := []connectionHandler{}
-
-	for _, a := range s {
-		if a.connection != e.connection {
-			result = append(result, a)
-		}
-	}
-
-	return result
 }
