@@ -191,3 +191,7 @@ func (ch *connectionHandler) logout(topics []string) {
 
 	ch.registeredTopics = technicalCommon.RemoveStrings(ch.registeredTopics, topics)
 }
+
+func (ch *connectionHandler) isRegisteredTo(topic string) bool {
+	return technicalCommon.ContainsString(ch.registeredTopics, topic)
+}

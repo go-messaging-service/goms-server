@@ -17,6 +17,7 @@ type ErrorMessage material.ErrorMessage
 type ConnectionService struct {
 	topics                      []string
 	topicToConnection           map[string][]connectionHandler
+	connectionHandler           []*connectionHandler
 	topicToNotificationServices map[string]notificationServices.TopicNotifyService
 	initialized                 bool
 	mutex                       *sync.Mutex
@@ -78,6 +79,7 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn, config *technic
 	connHandler.RegisterEvent = append(connHandler.RegisterEvent, cs.handleRegisterEvent)
 	connHandler.UnregisterEvent = append(connHandler.UnregisterEvent, cs.handleUnregisterEvent)
 	connHandler.SendEvent = append(connHandler.SendEvent, cs.handleSendEvent)
+	cs.connectionHandler = append(cs.connectionHandler, &connHandler)
 	cs.unlock()
 	connHandler.HandleConnection()
 
@@ -111,12 +113,9 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 	cs.lock()
 	for _, topic := range topics {
 		// Get all connections (as *net.Conn slice)
-		// TODO get information if connHandler is registered to topic from the handler itself, not from a map
-		handlerList := cs.topicToConnection[topic]
 		var connectionList []*net.Conn
 
-		for _, h := range handlerList {
-			// Do not send to process which sends the data
+		for _, h := range cs.connectionHandler {
 			if h.connection != handler.connection {
 				connectionList = append(connectionList, h.connection)
 			}
