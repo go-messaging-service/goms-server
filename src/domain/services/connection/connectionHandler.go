@@ -21,7 +21,7 @@ type connectionHandler struct {
 	connectionClosed bool
 	config           *technicalMaterial.Config
 	registeredTopics []string
-	SendEvent        []func(connectionHandler, []string, string)
+	SendEvent        []func(connectionHandler, *Message)
 }
 
 const MAX_PRINTING_LENGTH int = 80
@@ -40,19 +40,23 @@ func (ch *connectionHandler) HandleConnection() {
 		logger.Fatal("Connection not set!")
 	}
 
+	messageTypes := []string{material.MT_REGISTER,
+		material.MT_LOGOUT,
+		material.MT_CLOSE,
+		material.MT_SEND}
+
+	handler := []func(Message){ch.handleRegistration,
+		ch.handleLogout,
+		ch.handleClose,
+		ch.handleSending}
+
 	reader := bufio.NewReader(*ch.connection)
 
 	// Now a arbitrary amount of registration, logout, close and send messages is allowed
 	for !ch.connectionClosed {
 		ch.waitFor(
-			[]string{material.MT_REGISTER,
-				material.MT_LOGOUT,
-				material.MT_CLOSE,
-				material.MT_SEND},
-			[]func(Message){ch.handleRegistration,
-				ch.handleLogout,
-				ch.handleClose,
-				ch.handleSending},
+			messageTypes,
+			handler,
 			reader)
 	}
 }
@@ -150,7 +154,7 @@ func (ch *connectionHandler) handleRegistration(message Message) {
 // handleSending send the given message to all clients interested in the topics specified in the message.
 func (ch *connectionHandler) handleSending(message Message) {
 	for _, event := range ch.SendEvent {
-		event(*ch, message.Topics, message.Data)
+		event(*ch, &message)
 	}
 }
 

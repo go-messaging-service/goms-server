@@ -99,10 +99,10 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn, config *technic
 }
 
 // handleSendEvent sends the given data to all clients registeres to the given topics.
-func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics []string, data string) {
+func (cs *ConnectionService) handleSendEvent(handler connectionHandler, message *Message) {
 	//TODO move the lock into loop or is this a root for performance issues?
 	cs.lock()
-	for _, topic := range topics {
+	for _, topic := range message.Topics {
 		// Get all connections (as *net.Conn slice)
 		var connectionList []*net.Conn
 
@@ -116,7 +116,7 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics [
 		notification := &technical.Notification{
 			Connections: &connectionList,
 			Topic:       topic,
-			Data:        data,
+			Data:        message.Data,
 		}
 
 		// puts the notification in the queue of the responsible service
