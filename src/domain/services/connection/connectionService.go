@@ -77,6 +77,24 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn, config *technic
 	cs.unlock()
 	connHandler.HandleConnection()
 
+	cs.lock()
+
+	// find connection handler index
+	i := -1
+	for j, a := range cs.connectionHandler {
+		if a == &connHandler {
+			i = j
+			break
+		}
+	}
+
+	// remove connection handler
+	if i != -1 {
+		cs.connectionHandler = append(cs.connectionHandler[:i], cs.connectionHandler[i+1:]...)
+	}
+
+	cs.unlock()
+
 	(*conn).Close()
 }
 
