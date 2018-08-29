@@ -1,11 +1,5 @@
 #/bin/bash
 
-# Params
-# $1 - Case ID
-CASE_ID=$1
-
-source ./scripts/test/constants.sh
-
 if [ ! -d "$DIR_BASE" ]
 then
 	echo "Execute this in the root-dir of goMS. The place where the 'scripts/' folder is."

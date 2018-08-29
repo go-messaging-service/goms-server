@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# Params
-# $1 - Case ID
-CASE_ID=$1
-
-source ./scripts/test/constants.sh
-
-echo $CASE_ID
-
 REG=$(cat "$DIR_CASE/messages/register.a-b" | tr -d "\n\t[:space:]")
 echo "Send '$REG'"
 

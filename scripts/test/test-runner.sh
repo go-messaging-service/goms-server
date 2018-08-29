@@ -1,8 +1,6 @@
 #!/bin/bash
 
 echo ">>> INIT"
-
-source ./scripts/test/constants.sh
 CASES="0"
 
 echo ">>> START"
@@ -11,13 +9,14 @@ echo
 for CASE_ID in $CASES
 do
 	echo ">>> SETUP $CASE_ID"
-	"$DIR_BASE/setup.sh" "$CASE_ID"
+	source ./scripts/test/constants.sh
+	source "$DIR_BASE/setup.sh"
 
 	echo ">>> RUN $CASE_ID"
-	"$DIR_BASE/cases/$CASE_ID/test.sh" "$CASE_ID"
+	source "$DIR_BASE/cases/$CASE_ID/test.sh"
 
 	echo ">>> TEAR DOWN $CASE_ID"
-	"$DIR_BASE/tear_down.sh"
+	source "$DIR_BASE/tear_down.sh"
 
 	echo ">>> FINISHED $CASE_ID"
 	echo
