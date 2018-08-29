@@ -5,4 +5,4 @@ DIR_BASE="$DIR_ROOT/test"
 DIR_RES="$DIR_BASE/test_results.$CASE_ID"
 DIR_CASE="$DIR_BASE/cases/$CASE_ID"
 
-SRV_WAIT="1 1 1"
+SRV_WAIT="1"
