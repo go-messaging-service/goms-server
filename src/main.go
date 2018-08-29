@@ -5,16 +5,19 @@ import (
 	"goms-server/src/technical/material"
 	"goms-server/src/technical/services"
 	"goms-server/src/technical/services/logger"
+	"net"
 )
 
+const VERSION string = "v0.3"
+
 func main() {
-	logger.Plain("           ,,,")
+	logger.Plain("           ,")
 	logger.Plain("         ,/#/")
 	logger.Plain("       ,/#/")
 	logger.Plain("     ,/#/")
 	logger.Plain("   ,/#/")
 	logger.Plain(" ,/#/")
-	logger.Plain("/#/__________________")
+	logger.Plain("/#/___________________")
 	logger.Plain("\\####################/")
 	logger.Plain("  \\################/")
 	logger.Plain("    \\############/")
@@ -22,32 +25,23 @@ func main() {
 	logger.Plain("        \\####/")
 	logger.Plain("          \\/")
 	logger.Plain("")
-	logger.Plain("Welcome to the goMS (go Message Service)!")
-	logger.Plain("I will just initialize me and serve you as you configured me :)\n\n")
+	logger.Plain("Starting goMS " + VERSION + " ...")
+	logger.Plain("I will just initialize myself and serve you as you configured me :)\n\n")
 
 	logger.Info("Load configuration")
-
 	config := loadConfig()
 
 	logger.Info("Initialize logger")
 	logger.DebugMode = config.ServerConfig.DebugLogging
 
-	startServer(config)
+	startServer(&config)
 }
 
 // startServer loads all configurations inits the services and starts them
-func startServer(config technicalMaterial.Config) {
+func startServer(config *technicalMaterial.Config) {
 	logger.Info("Initialize services")
 
-	connectionServices, listeningServices := initConnectionService(config)
-
-	logger.Info("Start connection handler")
-	for _, connectionService := range connectionServices {
-		go func(connectionService domainServices.ConnectionService) {
-			//TODO evaluate the need of a routine that restarts the service automatically when a error occurred. Something like: Error occurrec --> wait 5 seconds --> create service --> call Run()
-			connectionService.Run()
-		}(connectionService)
-	}
+	listeningServices := initConnectionService(config)
 
 	logger.Info("Start connection listener")
 	for _, listeningService := range listeningServices {
@@ -74,12 +68,11 @@ func loadConfig() technicalMaterial.Config {
 }
 
 // initConnectionService creates connection services bases on the given configuration.
-func initConnectionService(config technicalMaterial.Config) ([]domainServices.ConnectionService, []domainServices.ListeningService) {
+func initConnectionService(config *technicalMaterial.Config) []domainServices.ListeningService {
 	logger.Info("Initialize connection services")
 
 	amountConnectors := len(config.ServerConfig.Connectors)
 
-	connectionServices := make([]domainServices.ConnectionService, amountConnectors)
 	listeningServices := make([]domainServices.ListeningService, amountConnectors)
 
 	for i, connector := range config.ServerConfig.Connectors {
@@ -87,14 +80,15 @@ func initConnectionService(config technicalMaterial.Config) ([]domainServices.Co
 		connectionService := domainServices.ConnectionService{}
 		connectionService.Init(config.TopicConfig.Topics)
 
-		connectionServices[i] = connectionService
-
 		// listening service
+		newConnectionClosure := func(conn *net.Conn) {
+			connectionService.HandleConnectionAsync(conn, config)
+		}
 		listeningService := domainServices.ListeningService{}
-		listeningService.Init(connector.Ip, connector.Port, config.TopicConfig.Topics, connectionService.ConnectionChannel)
+		listeningService.Init(connector.Ip, connector.Port, config.TopicConfig.Topics, newConnectionClosure)
 
 		listeningServices[i] = listeningService
 	}
 
-	return connectionServices, listeningServices
+	return listeningServices
 }

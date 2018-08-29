@@ -2,34 +2,26 @@ package connectionServices
 
 import (
 	"goms-server/src/domain/material"
-	"goms-server/src/domain/services/common"
 	"goms-server/src/domain/services/notification"
-	"goms-server/src/technical/common"
 	technical "goms-server/src/technical/material"
 	"goms-server/src/technical/services/logger"
 	"net"
-	"strings"
 	"sync"
 )
-
-const MAX_WAITING_CONNECTIONS = 1000
 
 type ErrorMessage material.ErrorMessage
 
 type ConnectionService struct {
 	topics                      []string
-	topicToConnection           map[string][]connectionHandler
+	connectionHandler           []*connectionHandler
 	topicToNotificationServices map[string]notificationServices.TopicNotifyService
 	initialized                 bool
 	mutex                       *sync.Mutex
-	ConnectionChannel           chan *net.Conn
 }
 
 // Init will initialize the connection service by creating all topic notifier and initializing fields.
 func (cs *ConnectionService) Init(topics []string) {
 	logger.Debug("Init connection service")
-
-	cs.topicToConnection = make(map[string][]connectionHandler)
 
 	cs.topicToNotificationServices = make(map[string]notificationServices.TopicNotifyService)
 	for _, topic := range topics {
@@ -51,108 +43,69 @@ func (cs *ConnectionService) Init(topics []string) {
 
 	cs.topics = topics
 	cs.mutex = &sync.Mutex{}
-	cs.ConnectionChannel = make(chan *net.Conn, MAX_WAITING_CONNECTIONS)
 
 	cs.initialized = true
 }
 
-// Run listens to the port of this service and will start the handler.
-func (cs *ConnectionService) Run() {
-	if !cs.initialized {
-		logger.Fatal("Connection Service not initialized!")
-	}
-
-	for {
-		conn := <-cs.ConnectionChannel
-		go cs.createAndRunHandler(conn)
-	}
+//HandleConnectionAsync creates a handler for the given connection and runs it in the background.
+func (cs *ConnectionService) HandleConnectionAsync(conn *net.Conn, config *technical.Config){
+	go cs.createAndRunHandler(conn, config)
 }
 
 // createAndRunHandler sets up a new connection handler by registering to its events and starts it then.
 // This should run on a new goroutine.
-func (cs *ConnectionService) createAndRunHandler(conn *net.Conn) {
+func (cs *ConnectionService) createAndRunHandler(conn *net.Conn, config *technical.Config) {
 	logger.Debug("Create connection handler")
 
 	connHandler := connectionHandler{}
-	connHandler.Init(conn)
+	connHandler.Init(conn, config)
 
 	cs.lock()
-	connHandler.RegisterEvent = append(connHandler.RegisterEvent, cs.handleRegisterEvent)
-	connHandler.UnregisterEvent = append(connHandler.UnregisterEvent, cs.handleUnregisterEvent)
 	connHandler.SendEvent = append(connHandler.SendEvent, cs.handleSendEvent)
+	cs.connectionHandler = append(cs.connectionHandler, &connHandler)
 	cs.unlock()
 	connHandler.HandleConnection()
+
+	cs.lock()
+
+	// find connection handler index
+	i := -1
+	for j, a := range cs.connectionHandler {
+		if a == &connHandler {
+			i = j
+			break
+		}
+	}
+
+	// remove connection handler
+	if i != -1 {
+		cs.connectionHandler = append(cs.connectionHandler[:i], cs.connectionHandler[i+1:]...)
+	}
+
+	cs.unlock()
 
 	(*conn).Close()
 }
 
-// handleRegisterEvent should be called when a connection registered itself to a topic.
-// This will return an error to the client when he wants to register to a topic he's not allowed to register him to.
-func (cs *ConnectionService) handleRegisterEvent(conn connectionHandler, topics []string) {
-	// A comma separated list of all topics, the client is not allowed to register to
-	forbiddenTopics := ""
-	alreadyRegisteredTopics := ""
-
-	cs.lock()
-	for _, topic := range topics {
-		//TODO create a service for this. This should later take care of different user rights
-		if !technicalCommon.ContainsString(cs.topics, topic) {
-			forbiddenTopics += topic + ","
-			logger.Info("Clients wants to register on invalid topic (" + topic + ").")
-
-		} else if cs.isAlreadyRegistered(conn, topic) {
-			alreadyRegisteredTopics += topic + ","
-			logger.Debug("Client already registered on " + topic)
-
-		} else {
-			cs.topicToConnection[topic] = append(cs.topicToConnection[topic], conn)
-			logger.Debug("Register " + topic)
-		}
-	}
-	cs.unlock()
-
-	// Send error message for forbidden topics and cut trailing comma
-	if len(forbiddenTopics) != 0 {
-		forbiddenTopics = strings.TrimSuffix(forbiddenTopics, ",")
-		commonServices.SendErrorMessage(conn.connection, material.ERR_REG_INVALID_TOPIC, forbiddenTopics)
-	}
-
-	// Send error message for already registered topics and cut trailing comma
-	if len(alreadyRegisteredTopics) != 0 {
-		alreadyRegisteredTopics = strings.TrimSuffix(alreadyRegisteredTopics, ",")
-		commonServices.SendErrorMessage(conn.connection, material.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
-	}
-}
-
-// handleUnregisterEvent unregisteres the client from the given topics. If there's a topic he's not registered to, nothing happens.
-func (cs *ConnectionService) handleUnregisterEvent(conn connectionHandler, topics []string) {
-	cs.lock()
-
-	for topic, handlerList := range cs.topicToConnection {
-		if technicalCommon.ContainsString(topics, topic) {
-			cs.topicToConnection[topic] = remove(handlerList, conn)
-		}
-	}
-
-	cs.unlock()
-}
-
 // handleSendEvent sends the given data to all clients registeres to the given topics.
-func (cs *ConnectionService) handleSendEvent(handler connectionHandler, topics []string, data string) {
+func (cs *ConnectionService) handleSendEvent(handler connectionHandler, message *Message) {
+	//TODO move the lock into loop or is this a root for performance issues?
 	cs.lock()
-	for _, topic := range topics {
+	for _, topic := range message.Topics {
 		// Get all connections (as *net.Conn slice)
-		handlerList := cs.topicToConnection[topic]
-		connectionList := make([]*net.Conn, len(handlerList))
-		for i, handler := range handlerList {
-			connectionList[i] = handler.connection
+		var connectionList []*net.Conn
+
+		for _, h := range cs.connectionHandler {
+			if h.connection != handler.connection && h.isRegisteredTo(topic) {
+				connectionList = append(connectionList, h.connection)
+			}
 		}
 
 		// create notification
 		notification := &technical.Notification{
 			Connections: &connectionList,
 			Topic:       topic,
-			Data:        data,
+			Data:        message.Data,
 		}
 
 		// puts the notification in the queue of the responsible service
@@ -169,28 +122,4 @@ func (cs *ConnectionService) lock() {
 // unlock will free the fields so that other goroutines will have access to them.
 func (cs *ConnectionService) unlock() {
 	cs.mutex.Unlock()
-}
-
-// remove will remove the given connection handler from the given array of handlers.
-func remove(s []connectionHandler, e connectionHandler) []connectionHandler {
-	result := []connectionHandler{}
-
-	for _, a := range s {
-		if a.connection != e.connection {
-			result = append(result, a)
-		}
-	}
-
-	return result
-}
-
-// isAlreadyRegistered checks if the given connection handler is already registered to the given topic
-func (cs *ConnectionService) isAlreadyRegistered(h connectionHandler, topic string) bool {
-	for _, a := range cs.topicToConnection[topic] {
-		if a.connection == h.connection {
-			return true
-		}
-	}
-
-	return false
 }
