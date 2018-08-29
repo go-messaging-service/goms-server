@@ -6,3 +6,7 @@
 {"messagetype":"logout","topics":["golang","news"]}
 
 {"messagetype":"send","topics":["golang","news"],"data":"Hallo123"}
+
+# Direkt nacheinander inklusive Zeilenumbruch senden:
+{"messagetype":"register","topics":["golang","news","science","technology"]}
+{"messagetype":"send","topics":["golang","news"],"data":"Hallo123"}
