@@ -8,14 +8,16 @@ import (
 	"net"
 )
 
+const VERSION string = "v0.3"
+
 func main() {
-	logger.Plain("           ,,,")
+	logger.Plain("           ,")
 	logger.Plain("         ,/#/")
 	logger.Plain("       ,/#/")
 	logger.Plain("     ,/#/")
 	logger.Plain("   ,/#/")
 	logger.Plain(" ,/#/")
-	logger.Plain("/#/__________________")
+	logger.Plain("/#/___________________")
 	logger.Plain("\\####################/")
 	logger.Plain("  \\################/")
 	logger.Plain("    \\############/")
@@ -23,11 +25,10 @@ func main() {
 	logger.Plain("        \\####/")
 	logger.Plain("          \\/")
 	logger.Plain("")
-	logger.Plain("Welcome to the goMS (go Message Service)!")
-	logger.Plain("I will just initialize me and serve you as you configured me :)\n\n")
+	logger.Plain("Starting goMS " + VERSION + " ...")
+	logger.Plain("I will just initialize myself and serve you as you configured me :)\n\n")
 
 	logger.Info("Load configuration")
-
 	config := loadConfig()
 
 	logger.Info("Initialize logger")
