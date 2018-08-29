@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ ! -d "$DIR_BASE" ]
+then
+	echo "Execute this in the root-dir of goMS. The place where the 'scripts/' folder is."
+	exit 1
+fi
+
 echo ">>> INIT"
 CASES="0"
 
