@@ -17,7 +17,6 @@ type ConnectionService struct {
 	topicToNotificationServices map[string]notificationServices.TopicNotifyService
 	initialized                 bool
 	mutex                       *sync.Mutex
-	ConnectionChannel           func(*net.Conn)
 }
 
 // Init will initialize the connection service by creating all topic notifier and initializing fields.
