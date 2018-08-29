@@ -11,10 +11,9 @@ type ListeningService struct {
 	initialized       bool
 	host              string
 	port              string
-	connectionChannel func(*net.Conn)//chan *net.Conn
+	connectionChannel func(*net.Conn)
 }
 
-//func (ls *ListeningService) Init(host string, port int, topics []string, connectionChannel chan *net.Conn) {
 func (ls *ListeningService) Init(host string, port int, topics []string, connectionChannel func(*net.Conn)) {
 	logger.Debug("Init listening service for " + host + ":" + strconv.Itoa(port))
 

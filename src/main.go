@@ -43,12 +43,6 @@ func startServer(config *technicalMaterial.Config) {
 	_, listeningServices := initConnectionService(config)
 
 	logger.Info("Start connection handler")
-	//for _, connectionService := range connectionServices {
-	//	go func(connectionService domainServices.ConnectionService) {
-	//		//TODO evaluate the need of a routine that restarts the service automatically when a error occurred. Something like: Error occurrec --> wait 5 seconds --> create service --> call Run()
-	//		connectionService.Run(config)
-	//	}(connectionService)
-	//}
 
 	logger.Info("Start connection listener")
 	for _, listeningService := range listeningServices {
@@ -91,12 +85,11 @@ func initConnectionService(config *technicalMaterial.Config) ([]domainServices.C
 		connectionServices[i] = connectionService
 
 		// listening service
-		listeningService := domainServices.ListeningService{}
-		//listeningService.Init(connector.Ip, connector.Port, config.TopicConfig.Topics, connectionService.ConnectionChannel)
-		f := func(conn *net.Conn){
-			connectionService.HandleNewConnection(conn, config)
+		newConnectionClojure := func(conn *net.Conn){
+			connectionService.HandleConnectionAsync(conn, config)
 		}
-		listeningService.Init(connector.Ip, connector.Port, config.TopicConfig.Topics, f)
+		listeningService := domainServices.ListeningService{}
+		listeningService.Init(connector.Ip, connector.Port, config.TopicConfig.Topics, newConnectionClojure)
 
 		listeningServices[i] = listeningService
 	}
