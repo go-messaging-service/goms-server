@@ -31,6 +31,6 @@ echo ""
 echo "========="
 echo "  START"
 echo "========="
-./bin/goMS-server
+./bin/goMS-server $@
 
 # run "nc localhost 55545" or "sh connect.sh" to connect to the server via terminal

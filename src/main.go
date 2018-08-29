@@ -6,11 +6,39 @@ import (
 	"goms-server/src/technical/services"
 	"goms-server/src/technical/services/logger"
 	"net"
+	"os"
+
+	"github.com/hauke96/kingpin"
 )
 
 const VERSION string = "v0.3"
 
+var (
+	app           = kingpin.New("goMS", "A simple messaging service written in go")
+	appConfigFile = app.Flag("config", "Specifies the configuration file that should be used. This is \"./conf/server.json\" by default.").Short('c').Default("./conf/server.json").String()
+)
+
 func main() {
+	configureCLI()
+	app.Parse(os.Args[1:])
+
+	logger.Info("Load configuration")
+	config := loadConfig()
+
+	logger.Info("Initialize logger")
+	logger.DebugMode = config.ServerConfig.DebugLogging
+
+	startServer(&config)
+}
+
+func configureCLI() {
+	app.Author("Hauke Stieler")
+	app.Version(VERSION)
+	app.HelpFlag.Short('h')
+	app.VersionFlag.Short('v')
+}
+
+func printWelcomeScreen() {
 	logger.Plain("           ,")
 	logger.Plain("         ,/#/")
 	logger.Plain("       ,/#/")
@@ -27,14 +55,6 @@ func main() {
 	logger.Plain("")
 	logger.Plain("Starting goMS " + VERSION + " ...")
 	logger.Plain("I will just initialize myself and serve you as you configured me :)\n\n")
-
-	logger.Info("Load configuration")
-	config := loadConfig()
-
-	logger.Info("Initialize logger")
-	logger.DebugMode = config.ServerConfig.DebugLogging
-
-	startServer(&config)
 }
 
 // startServer loads all configurations inits the services and starts them
@@ -62,7 +82,7 @@ func loadConfig() technicalMaterial.Config {
 	logger.Info("Load configs")
 
 	configLoader := technicalServices.ConfigLoader{}
-	configLoader.LoadConfig("./conf/server.json")
+	configLoader.LoadConfig(*appConfigFile)
 
 	return configLoader.GetConfig()
 }
