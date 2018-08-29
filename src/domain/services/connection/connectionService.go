@@ -9,8 +9,6 @@ import (
 	"sync"
 )
 
-const MAX_WAITING_CONNECTIONS = 1000
-
 type ErrorMessage material.ErrorMessage
 
 type ConnectionService struct {
@@ -19,7 +17,6 @@ type ConnectionService struct {
 	topicToNotificationServices map[string]notificationServices.TopicNotifyService
 	initialized                 bool
 	mutex                       *sync.Mutex
-	ConnectionChannel           chan *net.Conn
 }
 
 // Init will initialize the connection service by creating all topic notifier and initializing fields.
@@ -46,21 +43,13 @@ func (cs *ConnectionService) Init(topics []string) {
 
 	cs.topics = topics
 	cs.mutex = &sync.Mutex{}
-	cs.ConnectionChannel = make(chan *net.Conn, MAX_WAITING_CONNECTIONS)
 
 	cs.initialized = true
 }
 
-// Run listens to the port of this service and will start the handler.
-func (cs *ConnectionService) Run(config *technical.Config) {
-	if !cs.initialized {
-		logger.Fatal("Connection Service not initialized!")
-	}
-
-	for {
-		conn := <-cs.ConnectionChannel
-		go cs.createAndRunHandler(conn, config)
-	}
+//HandleConnectionAsync creates a handler for the given connection and runs it in the background.
+func (cs *ConnectionService) HandleConnectionAsync(conn *net.Conn, config *technical.Config){
+	go cs.createAndRunHandler(conn, config)
 }
 
 // createAndRunHandler sets up a new connection handler by registering to its events and starts it then.
