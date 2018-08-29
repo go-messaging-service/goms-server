@@ -12,5 +12,5 @@
             "port": 55547
         }
     ],
-    "debug-logging": true
+    "debug-logging": false
 }
