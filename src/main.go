@@ -80,7 +80,7 @@ func initConnectionService(config *technicalMaterial.Config) []domainServices.Li
 		connectionService.Init(config.TopicConfig.Topics)
 
 		// listening service
-		newConnectionClosure := func(conn *net.Conn){
+		newConnectionClosure := func(conn *net.Conn) {
 			connectionService.HandleConnectionAsync(conn, config)
 		}
 		listeningService := domainServices.ListeningService{}
