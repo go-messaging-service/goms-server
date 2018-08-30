@@ -1,5 +1,11 @@
 #!/bin/bash
 
+source ./scripts/test/constants.sh
+
+echo "DIR_ROOT : $DIR_ROOT"
+echo "DIR_BASE : $DIR_BASE"
+echo
+
 if [ ! -d "$DIR_BASE" ]
 then
 	echo "Execute this in the root-dir of goMS. The place where the 'scripts/' folder is."
