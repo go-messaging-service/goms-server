@@ -14,7 +14,7 @@ then
 fi
 
 echo ">>> INIT"
-CASES="0"
+CASES="reg_pos_once"
 
 echo ">>> START"
 echo
