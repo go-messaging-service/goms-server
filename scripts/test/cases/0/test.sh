@@ -10,5 +10,5 @@ echo $REG | "$DIR_ROOT/connect.sh" &
 sleep 0.5
 
 # TODO Check if string was there. Create another .sh file with some assertions
-grep -E ": Register a$" "$DIR_RES/server.log"
-grep -E ": Register b$" "$DIR_RES/server.log"
+assert_registered_once "a"
+assert_registered_once "b"

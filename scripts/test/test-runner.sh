@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./scripts/test/lib/constants.sh
+source ./scripts/test/lib/libconst.sh
 
 echo "DIR_ROOT : $DIR_ROOT"
 echo "DIR_BASE : $DIR_BASE"
@@ -22,18 +22,19 @@ echo
 for CASE_ID in $CASES
 do
 	echo ">>> SETUP.....: $CASE_ID"
-	source "$DIR_LIB/constants.sh"
-	source "$DIR_LIB/setup.sh" > "$DIR_RES/setup.log" 2>&1
+	source "$DIR_LIB/libconst.sh"
+	source "$DIR_LIB/setup.sh" > "$DIR_BASE/setup.log" 2>&1
+	mv "$DIR_BASE/setup.log" "$DIR_RES/setup.log"
 
 	echo -n ">>> RUN.......: $CASE_ID"
 	"$DIR_BASE/cases/$CASE_ID/test.sh"	\
-		"$DIR_LIB/param-const.sh"					\
+		"$DIR_LIB/libtest.sh"							\
 		"$DIR_ROOT"												\
 		"$DIR_BASE"												\
 		"$DIR_RES"												\
 		"$DIR_CASE"												\
 		> "$DIR_RES/test.log" 2>&1
-	if [ $? ]
+	if [ $? -eq 0 ]
 	then
 		echo " [ PASS ]"
 	else
