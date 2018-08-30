@@ -21,17 +21,29 @@ echo
 
 for CASE_ID in $CASES
 do
-	echo ">>> SETUP $CASE_ID"
+	echo ">>> SETUP.....: $CASE_ID"
 	source "$DIR_LIB/constants.sh"
-	source "$DIR_LIB/setup.sh"
+	source "$DIR_LIB/setup.sh" > "$DIR_RES/setup.log" 2>&1
 
-	echo ">>> RUN $CASE_ID"
-	source "$DIR_BASE/cases/$CASE_ID/test.sh"
+	echo -n ">>> RUN.......: $CASE_ID"
+	"$DIR_BASE/cases/$CASE_ID/test.sh"	\
+		"$DIR_LIB/param-const.sh"					\
+		"$DIR_ROOT"												\
+		"$DIR_BASE"												\
+		"$DIR_RES"												\
+		"$DIR_CASE"												\
+		> "$DIR_RES/test.log" 2>&1
+	if [ $? ]
+	then
+		echo " [ PASS ]"
+	else
+		echo " [ FAIL ]"
+	fi
 
-	echo ">>> TEAR DOWN $CASE_ID"
-	source "$DIR_LIB/tear_down.sh"
+	echo ">>> TEAR DOWN.: $CASE_ID"
+	source "$DIR_LIB/tear_down.sh" > "$DIR_RES/tear_down.log" 2>&1
 
-	echo ">>> FINISHED $CASE_ID"
+	echo ">>> FINISHED..: $CASE_ID"
 	echo
 done
 

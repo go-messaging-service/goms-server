@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source $1
+
 REG=$(cat "$DIR_CASE/messages/register.a-b" | tr -d "\n\t[:space:]")
 echo "Send '$REG'"
 
