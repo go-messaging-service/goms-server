@@ -1,9 +1,10 @@
 #!/bin/bash
 
-source ./scripts/test/constants.sh
+source ./scripts/test/lib/constants.sh
 
 echo "DIR_ROOT : $DIR_ROOT"
 echo "DIR_BASE : $DIR_BASE"
+echo "DIR_LIB  : $DIR_LIB"
 echo
 
 if [ ! -d "$DIR_BASE" ]
@@ -21,14 +22,14 @@ echo
 for CASE_ID in $CASES
 do
 	echo ">>> SETUP $CASE_ID"
-	source ./scripts/test/constants.sh
-	source "$DIR_BASE/setup.sh"
+	source "$DIR_LIB/constants.sh"
+	source "$DIR_LIB/setup.sh"
 
 	echo ">>> RUN $CASE_ID"
 	source "$DIR_BASE/cases/$CASE_ID/test.sh"
 
 	echo ">>> TEAR DOWN $CASE_ID"
-	source "$DIR_BASE/tear_down.sh"
+	source "$DIR_LIB/tear_down.sh"
 
 	echo ">>> FINISHED $CASE_ID"
 	echo
