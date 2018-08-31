@@ -14,7 +14,7 @@ then
 fi
 
 echo ">>> INIT"
-CASES="reg_pos_once"
+CASES="reg_pos_once reg_stress_multiple"
 
 echo ">>> START"
 echo
