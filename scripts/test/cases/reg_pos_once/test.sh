@@ -9,6 +9,5 @@ echo "Send '$REG'"
 echo $REG | "$DIR_ROOT/connect.sh" &
 sleep 0.5
 
-# TODO Check if string was there. Create another .sh file with some assertions
 assert_registered_once "a"
 assert_registered_once "b"
