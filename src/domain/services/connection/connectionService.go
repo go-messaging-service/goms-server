@@ -1,12 +1,13 @@
 package connectionServices
 
 import (
-	"goms-server/src/domain/material"
-	"goms-server/src/domain/services/notification"
-	technical "goms-server/src/technical/material"
-	"goms-server/src/technical/services/logger"
 	"net"
 	"sync"
+
+	"github.com/go-messaging-service/goms-server/src/domain/material"
+	"github.com/go-messaging-service/goms-server/src/domain/services/notification"
+	technical "github.com/go-messaging-service/goms-server/src/technical/material"
+	"github.com/go-messaging-service/goms-server/src/technical/services/logger"
 )
 
 type ErrorMessage material.ErrorMessage
@@ -48,7 +49,7 @@ func (cs *ConnectionService) Init(topics []string) {
 }
 
 //HandleConnectionAsync creates a handler for the given connection and runs it in the background.
-func (cs *ConnectionService) HandleConnectionAsync(conn *net.Conn, config *technical.Config){
+func (cs *ConnectionService) HandleConnectionAsync(conn *net.Conn, config *technical.Config) {
 	go cs.createAndRunHandler(conn, config)
 }
 

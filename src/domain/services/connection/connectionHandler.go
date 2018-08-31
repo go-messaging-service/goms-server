@@ -4,14 +4,15 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"goms-server/src/domain/material"
-	"goms-server/src/domain/services/common"
-	"goms-server/src/technical/common"
-	"goms-server/src/technical/material"
-	"goms-server/src/technical/services/logger"
 	"math"
 	"net"
 	"strings"
+
+	"github.com/go-messaging-service/goms-server/src/domain/material"
+	"github.com/go-messaging-service/goms-server/src/domain/services/common"
+	"github.com/go-messaging-service/goms-server/src/technical/common"
+	"github.com/go-messaging-service/goms-server/src/technical/material"
+	"github.com/go-messaging-service/goms-server/src/technical/services/logger"
 )
 
 type Message material.Message // just simplify the access to the Message struct

@@ -3,11 +3,12 @@ package notificationServices
 import (
 	"encoding/json"
 	"errors"
-	"goms-server/src/domain/material"
-	"goms-server/src/domain/services/common"
-	technical "goms-server/src/technical/material"
-	"goms-server/src/technical/services/logger"
 	"sync"
+
+	"github.com/go-messaging-service/goms-server/src/domain/material"
+	"github.com/go-messaging-service/goms-server/src/domain/services/common"
+	technical "github.com/go-messaging-service/goms-server/src/technical/material"
+	"github.com/go-messaging-service/goms-server/src/technical/services/logger"
 )
 
 type TopicNotifyService struct {

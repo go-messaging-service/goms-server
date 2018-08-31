@@ -1,8 +1,9 @@
 package technicalCommon_test
 
 import (
-	"goms-server/src/technical/common"
 	"testing"
+
+	"github.com/go-messaging-service/goms-server/src/technical/common"
 )
 
 func getTestSlice() []string {

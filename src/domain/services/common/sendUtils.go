@@ -2,9 +2,10 @@ package commonServices
 
 import (
 	"encoding/json"
-	"goms-server/src/domain/material"
-	"goms-server/src/technical/services/logger"
 	"net"
+
+	"github.com/go-messaging-service/goms-server/src/domain/material"
+	"github.com/go-messaging-service/goms-server/src/technical/services/logger"
 )
 
 type ErrorMessage material.ErrorMessage

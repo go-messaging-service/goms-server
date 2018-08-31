@@ -2,9 +2,10 @@ package technicalServices
 
 import (
 	"encoding/json"
-	"goms-server/src/technical/material"
-	"goms-server/src/technical/services/logger"
 	"io/ioutil"
+
+	"github.com/go-messaging-service/goms-server/src/technical/material"
+	"github.com/go-messaging-service/goms-server/src/technical/services/logger"
 )
 
 // simplify the way of access to structs

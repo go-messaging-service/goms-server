@@ -1,11 +1,12 @@
 package main
 
 import (
-	domainServices "goms-server/src/domain/services/connection"
-	"goms-server/src/technical/material"
-	"goms-server/src/technical/services"
-	"goms-server/src/technical/services/logger"
 	"net"
+
+	domainServices "github.com/go-messaging-service/goms-server/src/domain/services/connection"
+	"github.com/go-messaging-service/goms-server/src/technical/material"
+	"github.com/go-messaging-service/goms-server/src/technical/services"
+	"github.com/go-messaging-service/goms-server/src/technical/services/logger"
 )
 
 const VERSION string = "v0.3"

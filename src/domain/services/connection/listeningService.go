@@ -1,9 +1,10 @@
 package connectionServices
 
 import (
-	"goms-server/src/technical/services/logger"
 	"net"
 	"strconv"
+
+	"github.com/go-messaging-service/goms-server/src/technical/services/logger"
 )
 
 type ListeningService struct {
