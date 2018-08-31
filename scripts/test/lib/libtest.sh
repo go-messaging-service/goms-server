@@ -19,5 +19,5 @@ function assert_registered_once()
 function fail()
 {
 	echo "FAIL: ${BASH_SOURCE[2]} : ${BASH_LINENO[1]}  >  $(head -n ${BASH_LINENO[1]} ${BASH_SOURCE[2]} | tail -n 1)"
-	#exit 1
+	exit 1
 }
