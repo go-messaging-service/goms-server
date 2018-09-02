@@ -12,7 +12,7 @@ import (
 	"github.com/go-messaging-service/goms-server/src/domain/services/common"
 	"github.com/go-messaging-service/goms-server/src/technical/common"
 	"github.com/go-messaging-service/goms-server/src/technical/material"
-	"github.com/go-messaging-service/goms-server/src/technical/services/logger"
+	"github.com/hauke96/sigolo"
 )
 
 type Message material.Message // just simplify the access to the Message struct
@@ -38,7 +38,7 @@ func (ch *connectionHandler) Init(connection *net.Conn, config *technicalMateria
 func (ch *connectionHandler) HandleConnection() {
 	// Not initialized
 	if ch.connection == nil {
-		logger.Fatal("Connection not set!")
+		sigolo.Fatal("Connection not set!")
 	}
 
 	messageTypes := []string{material.MT_REGISTER,
@@ -70,9 +70,9 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 	if len(messageTypes) != len(handler) {
 		if len(messageTypes) > len(handler) {
 			// Fatal here to prevent a "slice bounds out of range" error during runtime
-			logger.Fatal("There're more defined message types then functions mapped to them.")
+			sigolo.Fatal("There're more defined message types then functions mapped to them.")
 		} else {
-			logger.Error("There're more defined functions then message types here. Some message types might not be covered. Fix that!")
+			sigolo.Error("There're more defined functions then message types here. Some message types might not be covered. Fix that!")
 		}
 	}
 
@@ -85,7 +85,7 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 		if MAX_PRINTING_LENGTH < len(rawMessage)-1 {
 			output += " [...]"
 		}
-		logger.Info(output)
+		sigolo.Info(output)
 
 		// JSON to Message-struct
 		message := getMessageFromJSON(rawMessage)
@@ -93,16 +93,16 @@ func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(messa
 		// check type
 		for i := 0; i < len(messageTypes); i++ {
 			messageType := messageTypes[i]
-			logger.Debug("Check if received type '" + message.Messagetype + "' is type '" + messageType + "'")
+			sigolo.Debug("Check if received type '" + message.Messagetype + "' is type '" + messageType + "'")
 
 			if message.Messagetype == messageType {
-				logger.Debug("Handle " + messageType + " type")
+				sigolo.Debug("Handle " + messageType + " type")
 				handler[i](message)
 				break
 			}
 		}
 	} else {
-		logger.Info("The connection will be closed. Reason: " + err.Error())
+		sigolo.Info("The connection will be closed. Reason: " + err.Error())
 		ch.exit()
 		ch.connectionClosed = true
 	}
@@ -117,7 +117,7 @@ func getMessageFromJSON(jsonData string) Message {
 
 // handleRegistration registeres this connection to the topics specified in the message.
 func (ch *connectionHandler) handleRegistration(message Message) {
-	logger.Debug("Try to register to topics " + fmt.Sprintf("%#v", message.Topics))
+	sigolo.Debug("Try to register to topics " + fmt.Sprintf("%#v", message.Topics))
 
 	// A comma separated list of all topics, the client is not allowed to register to
 	forbiddenTopics := ""
@@ -127,15 +127,15 @@ func (ch *connectionHandler) handleRegistration(message Message) {
 		//TODO create a service for this. This should later take care of different user rights
 		if !technicalCommon.ContainsString(ch.config.TopicConfig.Topics, topic) {
 			forbiddenTopics += topic + ","
-			logger.Info("Clients wants to register on invalid topic (" + topic + ").")
+			sigolo.Info("Clients wants to register on invalid topic (" + topic + ").")
 
 		} else if technicalCommon.ContainsString(ch.registeredTopics, topic) {
 			alreadyRegisteredTopics += topic + ","
-			logger.Debug("Client already registered on " + topic)
+			sigolo.Debug("Client already registered on " + topic)
 
 		} else {
 			ch.registeredTopics = append(ch.registeredTopics, topic)
-			logger.Debug("Register " + topic)
+			sigolo.Debug("Register " + topic)
 		}
 	}
 
@@ -161,7 +161,7 @@ func (ch *connectionHandler) handleSending(message Message) {
 
 // handleLogout logs the client out.
 func (ch *connectionHandler) handleLogout(message Message) {
-	logger.Debug(fmt.Sprintf("Unsubscribe from topics %#v", message.Topics))
+	sigolo.Debug(fmt.Sprintf("Unsubscribe from topics %#v", message.Topics))
 	ch.logout(message.Topics)
 }
 
@@ -172,10 +172,10 @@ func (ch *connectionHandler) handleClose(message Message) {
 
 // exit logs the client out from all topics and closes the connection.
 func (ch *connectionHandler) exit() {
-	logger.Debug("Unsubscribe from all topics")
+	sigolo.Debug("Unsubscribe from all topics")
 	ch.logout(ch.registeredTopics)
 
-	logger.Debug("Close connection")
+	sigolo.Debug("Close connection")
 	(*ch.connection).Close()
 	ch.connectionClosed = true
 }

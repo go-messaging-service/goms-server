@@ -8,7 +8,7 @@ import (
 	"github.com/go-messaging-service/goms-server/src/domain/material"
 	"github.com/go-messaging-service/goms-server/src/domain/services/common"
 	technical "github.com/go-messaging-service/goms-server/src/technical/material"
-	"github.com/go-messaging-service/goms-server/src/technical/services/logger"
+	"github.com/hauke96/sigolo"
 )
 
 type TopicNotifyService struct {
@@ -55,16 +55,16 @@ func (tn *TopicNotifyService) sendNotification(notification *technical.Notificat
 	}
 
 	if len(notification.Data) > 10 {
-		logger.Info("send message with data: " + notification.Data[0:10] + "[...]")
+		sigolo.Info("send message with data: " + notification.Data[0:10] + "[...]")
 	} else {
-		logger.Info("send message with data: " + notification.Data)
+		sigolo.Info("send message with data: " + notification.Data)
 	}
 
 	messageByteArray, err := json.Marshal(message)
 	messageString := string(messageByteArray)
 
 	if err != nil {
-		logger.Error("Error parsing message data: " + err.Error())
+		sigolo.Error("Error parsing message data: " + err.Error())
 		for _, connection := range *notification.Connections {
 			commonServices.SendErrorMessage(connection, material.ERR_SEND_FAILED, err.Error())
 		}

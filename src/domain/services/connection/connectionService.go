@@ -7,7 +7,7 @@ import (
 	"github.com/go-messaging-service/goms-server/src/domain/material"
 	"github.com/go-messaging-service/goms-server/src/domain/services/notification"
 	technical "github.com/go-messaging-service/goms-server/src/technical/material"
-	"github.com/go-messaging-service/goms-server/src/technical/services/logger"
+	"github.com/hauke96/sigolo"
 )
 
 type ErrorMessage material.ErrorMessage
@@ -22,7 +22,7 @@ type ConnectionService struct {
 
 // Init will initialize the connection service by creating all topic notifier and initializing fields.
 func (cs *ConnectionService) Init(topics []string) {
-	logger.Debug("Init connection service")
+	sigolo.Debug("Init connection service")
 
 	cs.topicToNotificationServices = make(map[string]notificationServices.TopicNotifyService)
 	for _, topic := range topics {
@@ -31,13 +31,13 @@ func (cs *ConnectionService) Init(topics []string) {
 
 		cs.topicToNotificationServices[topic] = service
 
-		logger.Debug("Start notifier for " + topic)
+		sigolo.Debug("Start notifier for " + topic)
 
 		go func(service notificationServices.TopicNotifyService) {
 			err := service.StartNotifier()
 
 			if err != nil {
-				logger.Fatal(err.Error())
+				sigolo.Fatal(err.Error())
 			}
 		}(service)
 	}
@@ -56,7 +56,7 @@ func (cs *ConnectionService) HandleConnectionAsync(conn *net.Conn, config *techn
 // createAndRunHandler sets up a new connection handler by registering to its events and starts it then.
 // This should run on a new goroutine.
 func (cs *ConnectionService) createAndRunHandler(conn *net.Conn, config *technical.Config) {
-	logger.Debug("Create connection handler")
+	sigolo.Debug("Create connection handler")
 
 	connHandler := connectionHandler{}
 	connHandler.Init(conn, config)

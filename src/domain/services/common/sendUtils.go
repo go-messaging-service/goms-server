@@ -5,7 +5,7 @@ import (
 	"net"
 
 	"github.com/go-messaging-service/goms-server/src/domain/material"
-	"github.com/go-messaging-service/goms-server/src/technical/services/logger"
+	"github.com/hauke96/sigolo"
 )
 
 type ErrorMessage material.ErrorMessage
@@ -23,10 +23,10 @@ func SendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 	data, err := json.Marshal(errorMessage)
 
 	if err == nil {
-		logger.Debug("Sending error")
+		sigolo.Debug("Sending error")
 		SendStringTo(conn, string(data))
 	} else {
-		logger.Error("Error while sending error: " + err.Error())
+		sigolo.Error("Error while sending error: " + err.Error())
 	}
 }
 

@@ -6,45 +6,47 @@ import (
 	domainServices "github.com/go-messaging-service/goms-server/src/domain/services/connection"
 	"github.com/go-messaging-service/goms-server/src/technical/material"
 	"github.com/go-messaging-service/goms-server/src/technical/services"
-	"github.com/go-messaging-service/goms-server/src/technical/services/logger"
+	"github.com/hauke96/sigolo"
 )
 
 const VERSION string = "v0.3"
 
 func main() {
-	logger.Plain("           ,")
-	logger.Plain("         ,/#/")
-	logger.Plain("       ,/#/")
-	logger.Plain("     ,/#/")
-	logger.Plain("   ,/#/")
-	logger.Plain(" ,/#/")
-	logger.Plain("/#/___________________")
-	logger.Plain("\\####################/")
-	logger.Plain("  \\################/")
-	logger.Plain("    \\############/")
-	logger.Plain("      \\########/")
-	logger.Plain("        \\####/")
-	logger.Plain("          \\/")
-	logger.Plain("")
-	logger.Plain("Starting goMS " + VERSION + " ...")
-	logger.Plain("I will just initialize myself and serve you as you configured me :)\n\n")
+	sigolo.Plain("           ,")
+	sigolo.Plain("         ,/#/")
+	sigolo.Plain("       ,/#/")
+	sigolo.Plain("     ,/#/")
+	sigolo.Plain("   ,/#/")
+	sigolo.Plain(" ,/#/")
+	sigolo.Plain("/#/___________________")
+	sigolo.Plain("\\####################/")
+	sigolo.Plain("  \\################/")
+	sigolo.Plain("    \\############/")
+	sigolo.Plain("      \\########/")
+	sigolo.Plain("        \\####/")
+	sigolo.Plain("          \\/")
+	sigolo.Plain("")
+	sigolo.Plain("Starting goMS " + VERSION + " ...")
+	sigolo.Plain("I will just initialize myself and serve you as you configured me :)\n\n")
 
-	logger.Info("Load configuration")
+	sigolo.Info("Load configuration")
 	config := loadConfig()
 
-	logger.Info("Initialize logger")
-	logger.DebugMode = config.ServerConfig.DebugLogging
+	sigolo.Info("Initialize logger")
+	if config.ServerConfig.DebugLogging {
+		sigolo.LogLevel = sigolo.LOG_DEBUG
+	}
 
 	startServer(&config)
 }
 
 // startServer loads all configurations inits the services and starts them
 func startServer(config *technicalMaterial.Config) {
-	logger.Info("Initialize services")
+	sigolo.Info("Initialize services")
 
 	listeningServices := initConnectionService(config)
 
-	logger.Info("Start connection listener")
+	sigolo.Info("Start connection listener")
 	for _, listeningService := range listeningServices {
 		go func(listeningService domainServices.ListeningService) {
 			//TODO evaluate the need of a routine that restarts the service automatically when a error occurred. Something like: Error occurrec --> wait 5 seconds --> create service --> call Run()
@@ -52,7 +54,7 @@ func startServer(config *technicalMaterial.Config) {
 		}(listeningService)
 	}
 
-	logger.Plain("\nThere we go, I'm ready to server ... eh ... serve\n")
+	sigolo.Plain("\nThere we go, I'm ready to server ... eh ... serve\n")
 
 	//TODO remove this and pass channels for closing
 	select {}
@@ -60,7 +62,7 @@ func startServer(config *technicalMaterial.Config) {
 
 // loadConfig loads the server config and its topics config.
 func loadConfig() technicalMaterial.Config {
-	logger.Info("Load configs")
+	sigolo.Info("Load configs")
 
 	configLoader := technicalServices.ConfigLoader{}
 	configLoader.LoadConfig("./conf/server.json")
@@ -70,7 +72,7 @@ func loadConfig() technicalMaterial.Config {
 
 // initConnectionService creates connection services bases on the given configuration.
 func initConnectionService(config *technicalMaterial.Config) []domainServices.ListeningService {
-	logger.Info("Initialize connection services")
+	sigolo.Info("Initialize connection services")
 
 	amountConnectors := len(config.ServerConfig.Connectors)
 
