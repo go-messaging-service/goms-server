@@ -12,6 +12,8 @@ import (
 const VERSION string = "v0.3"
 
 func main() {
+	sigolo.LogLevel = sigolo.LOG_PLAIN
+
 	sigolo.Plain("           ,")
 	sigolo.Plain("         ,/#/")
 	sigolo.Plain("       ,/#/")
@@ -35,6 +37,8 @@ func main() {
 	sigolo.Info("Initialize logger")
 	if config.ServerConfig.DebugLogging {
 		sigolo.LogLevel = sigolo.LOG_DEBUG
+	} else {
+		sigolo.LogLevel = sigolo.LOG_INFO
 	}
 
 	startServer(&config)
@@ -54,7 +58,7 @@ func startServer(config *technicalMaterial.Config) {
 		}(listeningService)
 	}
 
-	sigolo.Plain("\nThere we go, I'm ready to server ... eh ... serve\n")
+	sigolo.Debug("\nThere we go, I'm ready to server ... eh ... serve\n")
 
 	//TODO remove this and pass channels for closing
 	select {}
