@@ -8,7 +8,7 @@ DIR_CASE="$5"
 # $1 - The name of the topic
 function assert_registered_once()
 {
-	amount=$(grep -E ": Register $1\$" "$DIR_RES/server.log" | wc -l)
+	amount=$(grep -E " Register $1\$" "$DIR_RES/server.log" | wc -l)
 
 	if [ $amount -ne 1 ]
 	then
