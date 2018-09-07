@@ -44,13 +44,14 @@ func (cs *Connector) createAndRunHandler(conn *net.Conn, config *config.Config) 
 	connHandler.Init(conn, config)
 
 	cs.lock()
-	connHandler.SendEvent = append(connHandler.SendEvent, cs.distributor.HandleSendEvent)
+	cs.distributor.Add(&connHandler)
 	cs.connectionHandler = append(cs.connectionHandler, &connHandler)
 	cs.unlock()
 	connHandler.HandleConnection()
 
 	cs.lock()
 
+	// TODO move whole list of handlers and this removal into distributor
 	// find connection handler index
 	i := -1
 	for j, a := range cs.connectionHandler {

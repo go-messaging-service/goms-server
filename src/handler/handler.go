@@ -21,6 +21,7 @@ type Handler struct {
 	config           *config.Config
 	registeredTopics []string
 	SendEvent        []func(Handler, *msg.Message)
+	ErrorEvent       []func(Handler, string, *msg.Message)
 }
 
 const MAX_PRINTING_LENGTH int = 80

@@ -37,6 +37,10 @@ func (d *Distributor) Init(topics []string) {
 	}
 }
 
+func (d *Distributor) Add(handler *Handler) {
+	handler.SendEvent = append(handler.SendEvent, d.HandleSendEvent)
+}
+
 func (cs *Distributor) HandleSendEvent(handler Handler, message *msg.Message) {
 	//TODO move the lock into loop or is this a root for performance issues?
 	cs.lock()
