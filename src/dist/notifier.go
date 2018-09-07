@@ -6,13 +6,12 @@ import (
 	"sync"
 
 	"github.com/go-messaging-service/goms-server/src/msg"
-	technical "github.com/go-messaging-service/goms-server/src/technical/material"
 	"github.com/hauke96/sigolo"
 )
 
 type Notifier struct {
-	Queue       chan *technical.Notification
-	Errors      chan *technical.Notification
+	Queue       chan *Notification
+	Errors      chan *Notification
 	Exit        chan bool
 	initialized bool
 	mutex       *sync.Mutex
@@ -20,8 +19,8 @@ type Notifier struct {
 
 // Init creates all neccessary channel (queues) to handle notifications.
 func (tn *Notifier) Init() {
-	tn.Queue = make(chan *technical.Notification)
-	tn.Errors = make(chan *technical.Notification)
+	tn.Queue = make(chan *Notification)
+	tn.Errors = make(chan *Notification)
 	tn.Exit = make(chan bool)
 
 	tn.mutex = &sync.Mutex{}
@@ -46,7 +45,7 @@ func (tn *Notifier) StartNotifier() error {
 }
 
 // sendNotification sends the notification or an error if there's one.
-func (tn *Notifier) sendNotification(notification *technical.Notification) {
+func (tn *Notifier) sendNotification(notification *Notification) {
 	message := msg.Message{
 		Messagetype: msg.MT_MESSAGE,
 		Topics:      []string{notification.Topic},

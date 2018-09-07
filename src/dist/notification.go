@@ -1,4 +1,4 @@
-package technicalMaterial
+package dist
 
 import (
 	"net"

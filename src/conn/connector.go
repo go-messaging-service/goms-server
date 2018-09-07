@@ -103,7 +103,7 @@ func (cs *Connector) handleSendEvent(handler handler.Handler, message *msg.Messa
 		}
 
 		// create notification
-		notification := &technical.Notification{
+		notification := &dist.Notification{
 			Connections: &connectionList,
 			Topic:       topic,
 			Data:        message.Data,

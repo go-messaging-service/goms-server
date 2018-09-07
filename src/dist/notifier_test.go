@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-messaging-service/goms-server/src/technical/material"
 	testUtils "github.com/go-messaging-service/goms-server/src/util"
 )
 
@@ -49,7 +48,7 @@ func TestNotifyCorrectly(t *testing.T) {
 	connections[0] = conn1
 	connections[1] = conn2
 
-	notification := technicalMaterial.Notification{
+	notification := Notification{
 		Connections: &connections,
 		Data:        "test123\n",
 	}
@@ -60,7 +59,7 @@ func TestNotifyCorrectly(t *testing.T) {
 	// Test for client 1
 	//
 	received1, _, err := buf1.ReadLine()
-	receivedObject1 := technicalMaterial.Notification{}
+	receivedObject1 := Notification{}
 	json.Unmarshal(received1, &receivedObject1)
 	if err != nil {
 		t.Fail()
@@ -74,7 +73,7 @@ func TestNotifyCorrectly(t *testing.T) {
 	// Test for client 2
 	//
 	received2, _, err := buf2.ReadLine()
-	receivedObject2 := technicalMaterial.Notification{}
+	receivedObject2 := Notification{}
 	json.Unmarshal(received2, &receivedObject2)
 	if err != nil {
 		t.Fail()
