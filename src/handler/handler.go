@@ -58,6 +58,8 @@ func (ch *Handler) HandleConnection() {
 			handler,
 			reader)
 	}
+
+	// TODO fire closed-event so that the distributor can react on that
 }
 
 // waitFor wats until on of the given message types arrived.
