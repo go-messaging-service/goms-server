@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/go-messaging-service/goms-server/src/dist"
-	"github.com/go-messaging-service/goms-server/src/msg"
 	"github.com/hauke96/sigolo"
 )
 
@@ -36,10 +35,10 @@ func (d *Distributor) Add(handler *Handler) {
 	handler.ErrorEvent = append(handler.ErrorEvent, d.HandleErrorEvent)
 }
 
-func (d *Distributor) HandleSendEvent(handler Handler, message *msg.Message) {
+func (d *Distributor) HandleSendEvent(handler Handler, topics []string, message string) {
 	//TODO move the lock into loop or is this a root for performance issues?
 	d.lock()
-	for _, topic := range message.Topics {
+	for _, topic := range topics {
 		// Get all connections (as *net.Conn slice)
 		var connectionList []*net.Conn
 
@@ -49,7 +48,7 @@ func (d *Distributor) HandleSendEvent(handler Handler, message *msg.Message) {
 			}
 		}
 
-		d.notifier.SendMessage(connectionList, topic, message.Data)
+		d.notifier.SendMessage(connectionList, topic, message)
 	}
 	d.unlock()
 }

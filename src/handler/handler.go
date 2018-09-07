@@ -19,7 +19,7 @@ type Handler struct {
 	connectionClosed bool
 	config           *config.Config
 	registeredTopics []string
-	SendEvent        []func(Handler, *msg.Message)
+	SendEvent        []func(Handler, []string, string)
 	ErrorEvent       []func(*Handler, string, string)
 }
 
@@ -161,7 +161,7 @@ func (h *Handler) handleRegistration(message msg.Message) {
 // handleSending send the given message to all clients interested in the topics specified in the message.
 func (h *Handler) handleSending(message msg.Message) {
 	for _, event := range h.SendEvent {
-		event(*h, &message)
+		event(*h, message.Topics, message.Data)
 	}
 }
 
