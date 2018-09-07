@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/go-messaging-service/goms-server/src/config"
-	"github.com/go-messaging-service/goms-server/src/dist"
 	"github.com/go-messaging-service/goms-server/src/msg"
 	"github.com/go-messaging-service/goms-server/src/util"
 	"github.com/hauke96/sigolo"
@@ -21,7 +20,7 @@ type Handler struct {
 	config           *config.Config
 	registeredTopics []string
 	SendEvent        []func(Handler, *msg.Message)
-	ErrorEvent       []func(Handler, string, *msg.Message)
+	ErrorEvent       []func(*Handler, string, string)
 }
 
 const MAX_PRINTING_LENGTH int = 80
@@ -143,13 +142,19 @@ func (ch *Handler) handleRegistration(message msg.Message) {
 	// Send error message for forbidden topics and cut trailing comma
 	if len(forbiddenTopics) != 0 {
 		forbiddenTopics = strings.TrimSuffix(forbiddenTopics, ",")
-		dist.SendErrorMessage(ch.connection, msg.ERR_REG_INVALID_TOPIC, forbiddenTopics)
+
+		for _, event := range ch.ErrorEvent {
+			event(ch, msg.ERR_REG_INVALID_TOPIC, forbiddenTopics)
+		}
 	}
 
 	// Send error message for already registered topics and cut trailing comma
 	if len(alreadyRegisteredTopics) != 0 {
 		alreadyRegisteredTopics = strings.TrimSuffix(alreadyRegisteredTopics, ",")
-		dist.SendErrorMessage(ch.connection, msg.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
+
+		for _, event := range ch.ErrorEvent {
+			event(ch, msg.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
+		}
 	}
 }
 

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"net"
 	"sync"
 
@@ -39,6 +40,7 @@ func (d *Distributor) Init(topics []string) {
 
 func (d *Distributor) Add(handler *Handler) {
 	handler.SendEvent = append(handler.SendEvent, d.HandleSendEvent)
+	handler.ErrorEvent = append(handler.ErrorEvent, d.HandleErrorEvent)
 }
 
 func (cs *Distributor) HandleSendEvent(handler Handler, message *msg.Message) {
@@ -65,6 +67,28 @@ func (cs *Distributor) HandleSendEvent(handler Handler, message *msg.Message) {
 		cs.topicToNotificationServices[topic].Queue <- notification
 	}
 	cs.unlock()
+}
+
+// TODO maybe just pass connection instead of whole handler?
+func (cs *Distributor) HandleErrorEvent(handler *Handler, errorCode, message string) {
+	// TODO move all this into notifier and maybe generalize it
+
+	errorMessage := msg.ErrorMessage{
+		Messagetype: msg.MT_ERROR,
+		Errorcode:   errorCode,
+		Error:       message,
+	}
+
+	data, err := json.Marshal(errorMessage)
+
+	if err == nil {
+		sigolo.Debug("Sending error")
+		// TODO when in notifier, use the SendStringTo function
+		(*handler.connection).Write([]byte(string(data) + "\n"))
+	} else {
+		sigolo.Error("Error while sending error: " + err.Error())
+	}
+
 }
 
 // lock will prevent race conditions by ensuring that only one goroutine will have access to its fields.
