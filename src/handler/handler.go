@@ -8,9 +8,9 @@ import (
 	"net"
 	"strings"
 
+	"github.com/go-messaging-service/goms-server/src/config"
 	"github.com/go-messaging-service/goms-server/src/dist"
 	"github.com/go-messaging-service/goms-server/src/msg"
-	"github.com/go-messaging-service/goms-server/src/technical/material"
 	"github.com/go-messaging-service/goms-server/src/util"
 	"github.com/hauke96/sigolo"
 )
@@ -18,7 +18,7 @@ import (
 type Handler struct {
 	Connection       *net.Conn
 	connectionClosed bool
-	config           *technicalMaterial.Config
+	config           *config.Config
 	registeredTopics []string
 	SendEvent        []func(Handler, *msg.Message)
 }
@@ -26,7 +26,7 @@ type Handler struct {
 const MAX_PRINTING_LENGTH int = 80
 
 // Init initializes the handler with the given connection.
-func (ch *Handler) Init(connection *net.Conn, config *technicalMaterial.Config) {
+func (ch *Handler) Init(connection *net.Conn, config *config.Config) {
 	ch.Connection = connection
 	ch.config = config
 }

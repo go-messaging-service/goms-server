@@ -1,4 +1,4 @@
-package technicalMaterial
+package config
 
 type Config struct {
 	ServerConfig ServerConfig

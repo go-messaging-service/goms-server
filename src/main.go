@@ -4,9 +4,8 @@ import (
 	"net"
 	"os"
 
+	"github.com/go-messaging-service/goms-server/src/config"
 	"github.com/go-messaging-service/goms-server/src/conn"
-	"github.com/go-messaging-service/goms-server/src/technical/material"
-	"github.com/go-messaging-service/goms-server/src/technical/services"
 	"github.com/hauke96/kingpin"
 	"github.com/hauke96/sigolo"
 )
@@ -66,7 +65,7 @@ func printWelcomeScreen() {
 }
 
 // startServer loads all configurations inits the services and starts them
-func startServer(config *technicalMaterial.Config) {
+func startServer(config *config.Config) {
 	sigolo.Info("Initialize services")
 
 	listeningServices := initConnectionService(config)
@@ -86,17 +85,17 @@ func startServer(config *technicalMaterial.Config) {
 }
 
 // loadConfig loads the server config and its topics config.
-func loadConfig() technicalMaterial.Config {
+func loadConfig() config.Config {
 	sigolo.Info("Load configs")
 
-	configLoader := technicalServices.ConfigLoader{}
+	configLoader := config.ConfigLoader{}
 	configLoader.LoadConfig(*appConfigFile)
 
 	return configLoader.GetConfig()
 }
 
 // initConnectionService creates connection services bases on the given configuration.
-func initConnectionService(config *technicalMaterial.Config) []conn.Listener {
+func initConnectionService(config *config.Config) []conn.Listener {
 	sigolo.Info("Initialize connection services")
 
 	amountConnectors := len(config.ServerConfig.Connectors)

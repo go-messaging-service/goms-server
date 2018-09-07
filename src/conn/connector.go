@@ -4,10 +4,10 @@ import (
 	"net"
 	"sync"
 
+	"github.com/go-messaging-service/goms-server/src/config"
 	"github.com/go-messaging-service/goms-server/src/dist"
 	"github.com/go-messaging-service/goms-server/src/handler"
 	"github.com/go-messaging-service/goms-server/src/msg"
-	technical "github.com/go-messaging-service/goms-server/src/technical/material"
 	"github.com/hauke96/sigolo"
 )
 
@@ -48,13 +48,13 @@ func (cs *Connector) Init(topics []string) {
 }
 
 //HandleConnectionAsync creates a handler for the given connection and runs it in the background.
-func (cs *Connector) HandleConnectionAsync(conn *net.Conn, config *technical.Config) {
+func (cs *Connector) HandleConnectionAsync(conn *net.Conn, config *config.Config) {
 	go cs.createAndRunHandler(conn, config)
 }
 
 // createAndRunHandler sets up a new connection handler by registering to its events and starts it then.
 // This should run on a new goroutine.
-func (cs *Connector) createAndRunHandler(conn *net.Conn, config *technical.Config) {
+func (cs *Connector) createAndRunHandler(conn *net.Conn, config *config.Config) {
 	sigolo.Debug("Create connection handler")
 
 	connHandler := handler.Handler{}

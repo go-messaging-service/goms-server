@@ -1,10 +1,9 @@
-package technicalServices
+package config
 
 import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/go-messaging-service/goms-server/src/technical/material"
 	"github.com/hauke96/sigolo"
 )
 
@@ -14,8 +13,8 @@ import (
 //type ServerConfig technicalMaterial.ServerConfig
 
 type ConfigLoader struct {
-	topicConfig  *technicalMaterial.TopicConfig
-	serverConfig *technicalMaterial.ServerConfig
+	topicConfig  *TopicConfig
+	serverConfig *ServerConfig
 }
 
 // LoadTopics reads the config file for the topics and fills the TopicConfig field.
@@ -29,7 +28,7 @@ func (cl *ConfigLoader) loadTopics(filename string) {
 		sigolo.Error(err.Error())
 	}
 
-	cl.topicConfig = &technicalMaterial.TopicConfig{}
+	cl.topicConfig = &TopicConfig{}
 	json.Unmarshal(data, cl.topicConfig)
 }
 
@@ -44,15 +43,15 @@ func (cl *ConfigLoader) LoadConfig(filename string) {
 		sigolo.Fatal(err.Error())
 	}
 
-	cl.serverConfig = &technicalMaterial.ServerConfig{}
+	cl.serverConfig = &ServerConfig{}
 	json.Unmarshal(data, cl.serverConfig)
 
 	cl.loadTopics(cl.serverConfig.TopicLocation)
 }
 
 // GetConfig creates a configuration every topic and server information is in.
-func (cl *ConfigLoader) GetConfig() technicalMaterial.Config {
-	return technicalMaterial.Config{
+func (cl *ConfigLoader) GetConfig() Config {
+	return Config{
 		TopicConfig:  *cl.topicConfig,
 		ServerConfig: *cl.serverConfig,
 	}
