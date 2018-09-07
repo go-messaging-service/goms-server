@@ -16,7 +16,7 @@ type ErrorMessage material.ErrorMessage
 type Connector struct {
 	topics                      []string
 	connectionHandler           []*handler.Handler
-	topicToNotificationServices map[string]notificationServices.TopicNotifyService
+	topicToNotificationServices map[string]notificationServices.Notifier
 	initialized                 bool
 	mutex                       *sync.Mutex
 }
@@ -25,16 +25,16 @@ type Connector struct {
 func (cs *Connector) Init(topics []string) {
 	sigolo.Debug("Init connection service")
 
-	cs.topicToNotificationServices = make(map[string]notificationServices.TopicNotifyService)
+	cs.topicToNotificationServices = make(map[string]notificationServices.Notifier)
 	for _, topic := range topics {
-		service := notificationServices.TopicNotifyService{}
+		service := notificationServices.Notifier{}
 		service.Init()
 
 		cs.topicToNotificationServices[topic] = service
 
 		sigolo.Debug("Start notifier for " + topic)
 
-		go func(service notificationServices.TopicNotifyService) {
+		go func(service notificationServices.Notifier) {
 			err := service.StartNotifier()
 
 			if err != nil {
