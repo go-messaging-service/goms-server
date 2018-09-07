@@ -73,7 +73,7 @@ func startServer(config *technicalMaterial.Config) {
 
 	sigolo.Info("Start connection listener")
 	for _, listeningService := range listeningServices {
-		go func(listeningService domainServices.ListeningService) {
+		go func(listeningService domainServices.Listener) {
 			//TODO evaluate the need of a routine that restarts the service automatically when a error occurred. Something like: Error occurrec --> wait 5 seconds --> create service --> call Run()
 			listeningService.Run()
 		}(listeningService)
@@ -96,12 +96,12 @@ func loadConfig() technicalMaterial.Config {
 }
 
 // initConnectionService creates connection services bases on the given configuration.
-func initConnectionService(config *technicalMaterial.Config) []domainServices.ListeningService {
+func initConnectionService(config *technicalMaterial.Config) []domainServices.Listener {
 	sigolo.Info("Initialize connection services")
 
 	amountConnectors := len(config.ServerConfig.Connectors)
 
-	listeningServices := make([]domainServices.ListeningService, amountConnectors)
+	listeningServices := make([]domainServices.Listener, amountConnectors)
 
 	for i, connector := range config.ServerConfig.Connectors {
 		// connection service
@@ -112,7 +112,7 @@ func initConnectionService(config *technicalMaterial.Config) []domainServices.Li
 		newConnectionClosure := func(conn *net.Conn) {
 			connectionService.HandleConnectionAsync(conn, config)
 		}
-		listeningService := domainServices.ListeningService{}
+		listeningService := domainServices.Listener{}
 		listeningService.Init(connector.Ip, connector.Port, config.TopicConfig.Topics, newConnectionClosure)
 
 		listeningServices[i] = listeningService

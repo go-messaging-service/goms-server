@@ -7,7 +7,7 @@ import (
 	"github.com/hauke96/sigolo"
 )
 
-type ListeningService struct {
+type Listener struct {
 	listener          net.Listener
 	initialized       bool
 	host              string
@@ -15,7 +15,7 @@ type ListeningService struct {
 	connectionChannel func(*net.Conn)
 }
 
-func (ls *ListeningService) Init(host string, port int, topics []string, connectionChannel func(*net.Conn)) {
+func (ls *Listener) Init(host string, port int, topics []string, connectionChannel func(*net.Conn)) {
 	sigolo.Debug("Init listening service for " + host + ":" + strconv.Itoa(port))
 
 	ls.host = host
@@ -28,7 +28,7 @@ func (ls *ListeningService) Init(host string, port int, topics []string, connect
 }
 
 // Run listens to the port of this service and will start the handler.
-func (ls *ListeningService) Run() {
+func (ls *Listener) Run() {
 	if !ls.initialized {
 		sigolo.Fatal("Listening Service not initialized!")
 	}
@@ -45,7 +45,7 @@ func (ls *ListeningService) Run() {
 }
 
 // listenTo actually listens to the port on the given host. It'll also exits the application if there's any problem.
-func (ls *ListeningService) listenTo() {
+func (ls *Listener) listenTo() {
 	sigolo.Debug("Try to listen on port " + ls.port)
 
 	listener, err := net.Listen("tcp", ls.host+":"+ls.port)
@@ -62,7 +62,7 @@ func (ls *ListeningService) listenTo() {
 }
 
 // waitForConnection accepts an incoming connection request.
-func (ls *ListeningService) waitForConnection() (*net.Conn, error) {
+func (ls *Listener) waitForConnection() (*net.Conn, error) {
 	conn, err := ls.listener.Accept()
 
 	if err == nil {
