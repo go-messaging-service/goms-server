@@ -8,13 +8,10 @@ import (
 	"github.com/hauke96/sigolo"
 )
 
-type ErrorMessage material.ErrorMessage
-type Message material.Message
-
 // sendErrorMessage sends the given error data as an error message to the given client.
 func SendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 
-	errorMessage := ErrorMessage{
+	errorMessage := material.ErrorMessage{
 		Messagetype: material.MT_ERROR,
 		Errorcode:   errorCode,
 		Error:       errorData,

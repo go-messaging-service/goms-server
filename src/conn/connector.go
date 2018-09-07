@@ -11,8 +11,6 @@ import (
 	"github.com/hauke96/sigolo"
 )
 
-type ErrorMessage material.ErrorMessage
-
 type Connector struct {
 	topics                      []string
 	connectionHandler           []*handler.Handler
@@ -90,7 +88,7 @@ func (cs *Connector) createAndRunHandler(conn *net.Conn, config *technical.Confi
 }
 
 // handleSendEvent sends the given data to all clients registeres to the given topics.
-func (cs *Connector) handleSendEvent(handler handler.Handler, message *handler.Message) {
+func (cs *Connector) handleSendEvent(handler handler.Handler, message *material.Message) {
 	//TODO move the lock into loop or is this a root for performance issues?
 	cs.lock()
 	for _, topic := range message.Topics {

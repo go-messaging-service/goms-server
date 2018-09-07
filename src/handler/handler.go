@@ -15,14 +15,12 @@ import (
 	"github.com/hauke96/sigolo"
 )
 
-type Message material.Message // just simplify the access to the Message struct
-
 type Handler struct {
 	Connection       *net.Conn
 	connectionClosed bool
 	config           *technicalMaterial.Config
 	registeredTopics []string
-	SendEvent        []func(Handler, *Message)
+	SendEvent        []func(Handler, *material.Message)
 }
 
 const MAX_PRINTING_LENGTH int = 80
@@ -46,7 +44,7 @@ func (ch *Handler) HandleConnection() {
 		material.MT_CLOSE,
 		material.MT_SEND}
 
-	handler := []func(Message){ch.handleRegistration,
+	handler := []func(material.Message){ch.handleRegistration,
 		ch.handleLogout,
 		ch.handleClose,
 		ch.handleSending}
@@ -64,7 +62,7 @@ func (ch *Handler) HandleConnection() {
 
 // waitFor wats until on of the given message types arrived.
 // The i-th argument in the messageTypes array must match to the i-th argument in the handler array.
-func (ch *Handler) waitFor(messageTypes []string, handler []func(message Message), reader *bufio.Reader) {
+func (ch *Handler) waitFor(messageTypes []string, handler []func(message material.Message), reader *bufio.Reader) {
 
 	// Check if the arrays match and error/fatal here
 	if len(messageTypes) != len(handler) {
@@ -109,14 +107,14 @@ func (ch *Handler) waitFor(messageTypes []string, handler []func(message Message
 }
 
 // getMessageFromJSON converts the given json-data into a message object.
-func getMessageFromJSON(jsonData string) Message {
-	message := Message{}
+func getMessageFromJSON(jsonData string) material.Message {
+	message := material.Message{}
 	json.Unmarshal([]byte(jsonData), &message)
 	return message
 }
 
 // handleRegistration registeres this connection to the topics specified in the message.
-func (ch *Handler) handleRegistration(message Message) {
+func (ch *Handler) handleRegistration(message material.Message) {
 	sigolo.Debug("Try to register to topics " + fmt.Sprintf("%#v", message.Topics))
 
 	// A comma separated list of all topics, the client is not allowed to register to
@@ -153,20 +151,20 @@ func (ch *Handler) handleRegistration(message Message) {
 }
 
 // handleSending send the given message to all clients interested in the topics specified in the message.
-func (ch *Handler) handleSending(message Message) {
+func (ch *Handler) handleSending(message material.Message) {
 	for _, event := range ch.SendEvent {
 		event(*ch, &message)
 	}
 }
 
 // handleLogout logs the client out.
-func (ch *Handler) handleLogout(message Message) {
+func (ch *Handler) handleLogout(message material.Message) {
 	sigolo.Debug(fmt.Sprintf("Unsubscribe from topics %#v", message.Topics))
 	ch.logout(message.Topics)
 }
 
 // handleClose logs the client out from all topics and closes the connection.
-func (ch *Handler) handleClose(message Message) {
+func (ch *Handler) handleClose(message material.Message) {
 	ch.exit()
 }
 
