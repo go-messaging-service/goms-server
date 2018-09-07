@@ -1,4 +1,4 @@
-package commonServices
+package dist
 
 import (
 	"bufio"

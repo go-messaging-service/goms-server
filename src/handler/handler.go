@@ -8,7 +8,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/go-messaging-service/goms-server/src/domain/services/common"
+	"github.com/go-messaging-service/goms-server/src/dist"
 	"github.com/go-messaging-service/goms-server/src/msg"
 	"github.com/go-messaging-service/goms-server/src/technical/common"
 	"github.com/go-messaging-service/goms-server/src/technical/material"
@@ -140,13 +140,13 @@ func (ch *Handler) handleRegistration(message msg.Message) {
 	// Send error message for forbidden topics and cut trailing comma
 	if len(forbiddenTopics) != 0 {
 		forbiddenTopics = strings.TrimSuffix(forbiddenTopics, ",")
-		commonServices.SendErrorMessage(ch.Connection, msg.ERR_REG_INVALID_TOPIC, forbiddenTopics)
+		dist.SendErrorMessage(ch.Connection, msg.ERR_REG_INVALID_TOPIC, forbiddenTopics)
 	}
 
 	// Send error message for already registered topics and cut trailing comma
 	if len(alreadyRegisteredTopics) != 0 {
 		alreadyRegisteredTopics = strings.TrimSuffix(alreadyRegisteredTopics, ",")
-		commonServices.SendErrorMessage(ch.Connection, msg.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
+		dist.SendErrorMessage(ch.Connection, msg.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
 	}
 }
 
