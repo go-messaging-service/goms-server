@@ -12,7 +12,7 @@ import (
 
 type ErrorMessage material.ErrorMessage
 
-type ConnectionService struct {
+type Connector struct {
 	topics                      []string
 	connectionHandler           []*connectionHandler
 	topicToNotificationServices map[string]notificationServices.TopicNotifyService
@@ -21,7 +21,7 @@ type ConnectionService struct {
 }
 
 // Init will initialize the connection service by creating all topic notifier and initializing fields.
-func (cs *ConnectionService) Init(topics []string) {
+func (cs *Connector) Init(topics []string) {
 	sigolo.Debug("Init connection service")
 
 	cs.topicToNotificationServices = make(map[string]notificationServices.TopicNotifyService)
@@ -49,13 +49,13 @@ func (cs *ConnectionService) Init(topics []string) {
 }
 
 //HandleConnectionAsync creates a handler for the given connection and runs it in the background.
-func (cs *ConnectionService) HandleConnectionAsync(conn *net.Conn, config *technical.Config) {
+func (cs *Connector) HandleConnectionAsync(conn *net.Conn, config *technical.Config) {
 	go cs.createAndRunHandler(conn, config)
 }
 
 // createAndRunHandler sets up a new connection handler by registering to its events and starts it then.
 // This should run on a new goroutine.
-func (cs *ConnectionService) createAndRunHandler(conn *net.Conn, config *technical.Config) {
+func (cs *Connector) createAndRunHandler(conn *net.Conn, config *technical.Config) {
 	sigolo.Debug("Create connection handler")
 
 	connHandler := connectionHandler{}
@@ -89,7 +89,7 @@ func (cs *ConnectionService) createAndRunHandler(conn *net.Conn, config *technic
 }
 
 // handleSendEvent sends the given data to all clients registeres to the given topics.
-func (cs *ConnectionService) handleSendEvent(handler connectionHandler, message *Message) {
+func (cs *Connector) handleSendEvent(handler connectionHandler, message *Message) {
 	//TODO move the lock into loop or is this a root for performance issues?
 	cs.lock()
 	for _, topic := range message.Topics {
@@ -116,11 +116,11 @@ func (cs *ConnectionService) handleSendEvent(handler connectionHandler, message 
 }
 
 // lock will prevent race conditions by ensuring that only one goroutine will have access to its fields.
-func (cs *ConnectionService) lock() {
+func (cs *Connector) lock() {
 	cs.mutex.Lock()
 }
 
 // unlock will free the fields so that other goroutines will have access to them.
-func (cs *ConnectionService) unlock() {
+func (cs *Connector) unlock() {
 	cs.mutex.Unlock()
 }

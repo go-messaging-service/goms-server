@@ -106,7 +106,7 @@ func initConnectionService(config *technicalMaterial.Config) []conn.Listener {
 
 	for i, connector := range config.ServerConfig.Connectors {
 		// connection service
-		connectionService := domainServices.ConnectionService{}
+		connectionService := domainServices.Connector{}
 		connectionService.Init(config.TopicConfig.Topics)
 
 		// listening service
