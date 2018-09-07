@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"net"
 	"sync"
 
@@ -11,7 +10,8 @@ import (
 )
 
 type Distributor struct {
-	knownHandler                []*Handler
+	knownHandler []*Handler
+	// TODO replace this map by just one instance of the notifier. If this makes performance problems, create multiple ones, but until then ... remove this complexity
 	topicToNotificationServices map[string]dist.Notifier
 	mutex                       *sync.Mutex
 }
@@ -71,24 +71,14 @@ func (d *Distributor) HandleSendEvent(handler Handler, message *msg.Message) {
 
 // TODO maybe just pass connection instead of whole handler?
 func (d *Distributor) HandleErrorEvent(handler *Handler, errorCode, message string) {
-	// TODO move all this into notifier and maybe generalize it
+	// We take an arbitrary topic here to get at least any notifier. There's a todo in the struct regarding the notifier-map
+	var n dist.Notifier
 
-	errorMessage := msg.ErrorMessage{
-		Messagetype: msg.MT_ERROR,
-		Errorcode:   errorCode,
-		Error:       message,
+	for _, n = range d.topicToNotificationServices {
+		break
 	}
 
-	data, err := json.Marshal(errorMessage)
-
-	if err == nil {
-		sigolo.Debug("Sending error")
-		// TODO when in notifier, use the SendStringTo function
-		(*handler.connection).Write([]byte(string(data) + "\n"))
-	} else {
-		sigolo.Error("Error while sending error: " + err.Error())
-	}
-
+	n.SendError(handler.connection, errorCode, message)
 }
 
 // lock will prevent race conditions by ensuring that only one goroutine will have access to its fields.

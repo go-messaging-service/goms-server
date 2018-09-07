@@ -3,6 +3,7 @@ package dist
 import (
 	"encoding/json"
 	"errors"
+	"net"
 	"sync"
 
 	"github.com/go-messaging-service/goms-server/src/msg"
@@ -44,6 +45,7 @@ func (n *Notifier) StartNotifier() error {
 	}
 }
 
+// TODO instead of notification, take multiple arguments, built notification and pass it here to queue
 // sendNotification sends the notification or an error if there's one.
 func (n *Notifier) sendNotification(notification *Notification) {
 	message := msg.Message{
@@ -73,4 +75,22 @@ func (n *Notifier) sendNotification(notification *Notification) {
 		//no error handling here, because we wouln't be able to send it to the client because SendError uses SendString
 		SendStringTo(connection, messageString)
 	}
+}
+
+func (n *Notifier) SendError(connection *net.Conn, errorCode, message string) {
+	errorMessage := msg.ErrorMessage{
+		Messagetype: msg.MT_ERROR,
+		Errorcode:   errorCode,
+		Error:       message,
+	}
+
+	data, err := json.Marshal(errorMessage)
+
+	if err == nil {
+		sigolo.Debug("Sending error")
+		SendStringTo(connection, string(data)+"\n")
+	} else {
+		sigolo.Error("Error while sending error: " + err.Error())
+	}
+
 }
