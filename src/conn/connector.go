@@ -87,6 +87,7 @@ func (cs *Connector) createAndRunHandler(conn *net.Conn, config *technical.Confi
 	(*conn).Close()
 }
 
+// TODO move this according to https://github.com/go-messaging-service/goms-server/issues/2 into own service called "distributor" which is used by the handler. So the handler fires an event to the distributor and not to the connector.
 // handleSendEvent sends the given data to all clients registeres to the given topics.
 func (cs *Connector) handleSendEvent(handler handler.Handler, message *msg.Message) {
 	//TODO move the lock into loop or is this a root for performance issues?
