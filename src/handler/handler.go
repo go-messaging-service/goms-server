@@ -26,16 +26,16 @@ type Handler struct {
 const MAX_PRINTING_LENGTH int = 80
 
 // Init initializes the handler with the given connection.
-func (ch *Handler) Init(connection *net.Conn, config *config.Config) {
-	ch.connection = connection
-	ch.config = config
+func (h *Handler) Init(connection *net.Conn, config *config.Config) {
+	h.connection = connection
+	h.config = config
 }
 
 // HandleConnection starts a routine to handle registration and sending messages.
 // This will run until the client logs out, so run this in a goroutine.
-func (ch *Handler) HandleConnection() {
+func (h *Handler) HandleConnection() {
 	// Not initialized
-	if ch.connection == nil {
+	if h.connection == nil {
 		sigolo.Fatal("Connection not set!")
 	}
 
@@ -44,16 +44,16 @@ func (ch *Handler) HandleConnection() {
 		msg.MT_CLOSE,
 		msg.MT_SEND}
 
-	handler := []func(msg.Message){ch.handleRegistration,
-		ch.handleLogout,
-		ch.handleClose,
-		ch.handleSending}
+	handler := []func(msg.Message){h.handleRegistration,
+		h.handleLogout,
+		h.handleClose,
+		h.handleSending}
 
-	reader := bufio.NewReader(*ch.connection)
+	reader := bufio.NewReader(*h.connection)
 
 	// Now a arbitrary amount of registration, logout, close and send messages is allowed
-	for !ch.connectionClosed {
-		ch.waitFor(
+	for !h.connectionClosed {
+		h.waitFor(
 			messageTypes,
 			handler,
 			reader)
@@ -64,7 +64,7 @@ func (ch *Handler) HandleConnection() {
 
 // waitFor wats until on of the given message types arrived.
 // The i-th argument in the messageTypes array must match to the i-th argument in the handler array.
-func (ch *Handler) waitFor(messageTypes []string, handler []func(message msg.Message), reader *bufio.Reader) {
+func (h *Handler) waitFor(messageTypes []string, handler []func(message msg.Message), reader *bufio.Reader) {
 
 	// Check if the arrays match and error/fatal here
 	if len(messageTypes) != len(handler) {
@@ -103,8 +103,8 @@ func (ch *Handler) waitFor(messageTypes []string, handler []func(message msg.Mes
 		}
 	} else {
 		sigolo.Info("The connection will be closed. Reason: " + err.Error())
-		ch.exit()
-		ch.connectionClosed = true
+		h.exit()
+		h.connectionClosed = true
 	}
 }
 
@@ -116,7 +116,7 @@ func getMessageFromJSON(jsonData string) msg.Message {
 }
 
 // handleRegistration registeres this connection to the topics specified in the message.
-func (ch *Handler) handleRegistration(message msg.Message) {
+func (h *Handler) handleRegistration(message msg.Message) {
 	sigolo.Debug("Try to register to topics " + fmt.Sprintf("%#v", message.Topics))
 
 	// A comma separated list of all topics, the client is not allowed to register to
@@ -125,16 +125,16 @@ func (ch *Handler) handleRegistration(message msg.Message) {
 
 	for _, topic := range message.Topics {
 		//TODO create a service for this. This should later take care of different user rights
-		if !util.ContainsString(ch.config.TopicConfig.Topics, topic) {
+		if !util.ContainsString(h.config.TopicConfig.Topics, topic) {
 			forbiddenTopics += topic + ","
 			sigolo.Info("Clients wants to register on invalid topic (" + topic + ").")
 
-		} else if util.ContainsString(ch.registeredTopics, topic) {
+		} else if util.ContainsString(h.registeredTopics, topic) {
 			alreadyRegisteredTopics += topic + ","
 			sigolo.Debug("Client already registered on " + topic)
 
 		} else {
-			ch.registeredTopics = append(ch.registeredTopics, topic)
+			h.registeredTopics = append(h.registeredTopics, topic)
 			sigolo.Debug("Register " + topic)
 		}
 	}
@@ -143,8 +143,8 @@ func (ch *Handler) handleRegistration(message msg.Message) {
 	if len(forbiddenTopics) != 0 {
 		forbiddenTopics = strings.TrimSuffix(forbiddenTopics, ",")
 
-		for _, event := range ch.ErrorEvent {
-			event(ch, msg.ERR_REG_INVALID_TOPIC, forbiddenTopics)
+		for _, event := range h.ErrorEvent {
+			event(h, msg.ERR_REG_INVALID_TOPIC, forbiddenTopics)
 		}
 	}
 
@@ -152,49 +152,49 @@ func (ch *Handler) handleRegistration(message msg.Message) {
 	if len(alreadyRegisteredTopics) != 0 {
 		alreadyRegisteredTopics = strings.TrimSuffix(alreadyRegisteredTopics, ",")
 
-		for _, event := range ch.ErrorEvent {
-			event(ch, msg.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
+		for _, event := range h.ErrorEvent {
+			event(h, msg.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
 		}
 	}
 }
 
 // handleSending send the given message to all clients interested in the topics specified in the message.
-func (ch *Handler) handleSending(message msg.Message) {
-	for _, event := range ch.SendEvent {
-		event(*ch, &message)
+func (h *Handler) handleSending(message msg.Message) {
+	for _, event := range h.SendEvent {
+		event(*h, &message)
 	}
 }
 
 // handleLogout logs the client out.
-func (ch *Handler) handleLogout(message msg.Message) {
+func (h *Handler) handleLogout(message msg.Message) {
 	sigolo.Debug(fmt.Sprintf("Unsubscribe from topics %#v", message.Topics))
-	ch.logout(message.Topics)
+	h.logout(message.Topics)
 }
 
 // handleClose logs the client out from all topics and closes the connection.
-func (ch *Handler) handleClose(message msg.Message) {
-	ch.exit()
+func (h *Handler) handleClose(message msg.Message) {
+	h.exit()
 }
 
 // exit logs the client out from all topics and closes the connection.
-func (ch *Handler) exit() {
+func (h *Handler) exit() {
 	sigolo.Debug("Unsubscribe from all topics")
-	ch.logout(ch.registeredTopics)
+	h.logout(h.registeredTopics)
 
 	sigolo.Debug("Close connection")
-	(*ch.connection).Close()
-	ch.connectionClosed = true
+	(*h.connection).Close()
+	h.connectionClosed = true
 }
 
 // logout will logs the client out from the given topics.
-func (ch *Handler) logout(topics []string) {
+func (h *Handler) logout(topics []string) {
 	for _, topic := range topics {
-		ch.registeredTopics = util.RemoveString(ch.registeredTopics, topic)
+		h.registeredTopics = util.RemoveString(h.registeredTopics, topic)
 	}
 
-	ch.registeredTopics = util.RemoveStrings(ch.registeredTopics, topics)
+	h.registeredTopics = util.RemoveStrings(h.registeredTopics, topics)
 }
 
-func (ch *Handler) IsRegisteredTo(topic string) bool {
-	return util.ContainsString(ch.registeredTopics, topic)
+func (h *Handler) IsRegisteredTo(topic string) bool {
+	return util.ContainsString(h.registeredTopics, topic)
 }

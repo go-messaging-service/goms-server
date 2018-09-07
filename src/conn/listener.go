@@ -15,29 +15,29 @@ type Listener struct {
 	connectionChannel func(*net.Conn)
 }
 
-func (ls *Listener) Init(host string, port int, topics []string, connectionChannel func(*net.Conn)) {
+func (l *Listener) Init(host string, port int, topics []string, connectionChannel func(*net.Conn)) {
 	sigolo.Debug("Init listening service for " + host + ":" + strconv.Itoa(port))
 
-	ls.host = host
-	ls.port = strconv.Itoa(port)
-	ls.connectionChannel = connectionChannel
+	l.host = host
+	l.port = strconv.Itoa(port)
+	l.connectionChannel = connectionChannel
 
-	ls.listenTo()
+	l.listenTo()
 
-	ls.initialized = true
+	l.initialized = true
 }
 
 // Run listens to the port of this service and will start the handler.
-func (ls *Listener) Run() {
-	if !ls.initialized {
+func (l *Listener) Run() {
+	if !l.initialized {
 		sigolo.Fatal("Listening Service not initialized!")
 	}
 
 	for {
-		conn, err := ls.waitForConnection()
+		conn, err := l.waitForConnection()
 
 		if err == nil {
-			ls.connectionChannel(conn)
+			l.connectionChannel(conn)
 		} else {
 			sigolo.Error(err.Error())
 		}
@@ -45,28 +45,28 @@ func (ls *Listener) Run() {
 }
 
 // listenTo actually listens to the port on the given host. It'll also exits the application if there's any problem.
-func (ls *Listener) listenTo() {
-	sigolo.Debug("Try to listen on port " + ls.port)
+func (l *Listener) listenTo() {
+	sigolo.Debug("Try to listen on port " + l.port)
 
-	listener, err := net.Listen("tcp", ls.host+":"+ls.port)
+	listener, err := net.Listen("tcp", l.host+":"+l.port)
 
 	if err == nil && listener != nil {
-		sigolo.Info("Listen on " + ls.host + ":" + ls.port)
-		ls.listener = listener
+		sigolo.Info("Listen on " + l.host + ":" + l.port)
+		l.listener = listener
 	} else if err != nil {
 		sigolo.Error(err.Error())
 		sigolo.Fatal("Maybe the port is not free?")
 	} else if listener == nil {
-		sigolo.Fatal("Could not listen to " + ls.host + ":" + ls.port + ". Unfortunately there's no error I could print here :( Check if no other services are running on port " + ls.port + ".")
+		sigolo.Fatal("Could not listen to " + l.host + ":" + l.port + ". Unfortunately there's no error I could print here :( Check if no other services are running on port " + l.port + ".")
 	}
 }
 
 // waitForConnection accepts an incoming connection request.
-func (ls *Listener) waitForConnection() (*net.Conn, error) {
-	conn, err := ls.listener.Accept()
+func (l *Listener) waitForConnection() (*net.Conn, error) {
+	conn, err := l.listener.Accept()
 
 	if err == nil {
-		sigolo.Info("Got connection on " + ls.host + ":" + ls.port)
+		sigolo.Info("Got connection on " + l.host + ":" + l.port)
 		return &conn, nil
 	}
 

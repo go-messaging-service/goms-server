@@ -18,34 +18,34 @@ type Notifier struct {
 }
 
 // Init creates all neccessary channel (queues) to handle notifications.
-func (tn *Notifier) Init() {
-	tn.Queue = make(chan *Notification)
-	tn.Errors = make(chan *Notification)
-	tn.Exit = make(chan bool)
+func (n *Notifier) Init() {
+	n.Queue = make(chan *Notification)
+	n.Errors = make(chan *Notification)
+	n.Exit = make(chan bool)
 
-	tn.mutex = &sync.Mutex{}
+	n.mutex = &sync.Mutex{}
 
-	tn.initialized = true
+	n.initialized = true
 }
 
 // StartNotifier listens to incoming notification requests.
-func (tn *Notifier) StartNotifier() error {
-	if !tn.initialized {
+func (n *Notifier) StartNotifier() error {
+	if !n.initialized {
 		return errors.New("TopicNotifyService not initialized")
 	}
 
 	for {
 		select {
-		case notification := <-tn.Queue:
-			go tn.sendNotification(notification)
-		case <-tn.Exit:
+		case notification := <-n.Queue:
+			go n.sendNotification(notification)
+		case <-n.Exit:
 			break
 		}
 	}
 }
 
 // sendNotification sends the notification or an error if there's one.
-func (tn *Notifier) sendNotification(notification *Notification) {
+func (n *Notifier) sendNotification(notification *Notification) {
 	message := msg.Message{
 		Messagetype: msg.MT_MESSAGE,
 		Topics:      []string{notification.Topic},
