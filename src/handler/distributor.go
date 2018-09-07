@@ -11,31 +11,24 @@ import (
 
 type Distributor struct {
 	knownHandler []*Handler
-	// TODO replace this map by just one instance of the notifier. If this makes performance problems, create multiple ones, but until then ... remove this complexity
-	topicToNotificationServices map[string]dist.Notifier
-	mutex                       *sync.Mutex
+	notifier     *dist.Notifier
+	mutex        *sync.Mutex
 }
 
 func (d *Distributor) Init(topics []string) {
-	d.topicToNotificationServices = make(map[string]dist.Notifier)
+	d.notifier = &dist.Notifier{}
+	d.notifier.Init()
 	d.mutex = &sync.Mutex{}
 
-	for _, topic := range topics {
-		service := dist.Notifier{}
-		service.Init()
+	sigolo.Debug("Start notifier")
 
-		d.topicToNotificationServices[topic] = service
+	go func(service *dist.Notifier) {
+		err := service.StartNotifier()
 
-		sigolo.Debug("Start notifier for " + topic)
-
-		go func(service dist.Notifier) {
-			err := service.StartNotifier()
-
-			if err != nil {
-				sigolo.Fatal(err.Error())
-			}
-		}(service)
-	}
+		if err != nil {
+			sigolo.Fatal(err.Error())
+		}
+	}(d.notifier)
 }
 
 func (d *Distributor) Add(handler *Handler) {
@@ -64,21 +57,14 @@ func (d *Distributor) HandleSendEvent(handler Handler, message *msg.Message) {
 		}
 
 		// puts the notification in the queue of the responsible service
-		d.topicToNotificationServices[topic].Queue <- notification
+		d.notifier.Queue <- notification
 	}
 	d.unlock()
 }
 
 // TODO maybe just pass connection instead of whole handler?
 func (d *Distributor) HandleErrorEvent(handler *Handler, errorCode, message string) {
-	// We take an arbitrary topic here to get at least any notifier. There's a todo in the struct regarding the notifier-map
-	var n dist.Notifier
-
-	for _, n = range d.topicToNotificationServices {
-		break
-	}
-
-	n.SendError(handler.connection, errorCode, message)
+	d.notifier.SendError(handler.connection, errorCode, message)
 }
 
 // lock will prevent race conditions by ensuring that only one goroutine will have access to its fields.
