@@ -2,9 +2,10 @@ package commonServices
 
 import (
 	"bufio"
-	testUtils "goms-server/src/domain/services/test"
 	"net"
 	"testing"
+
+	testUtils "github.com/go-messaging-service/goms-server/src/domain/services/test"
 )
 
 var client, server *net.Conn

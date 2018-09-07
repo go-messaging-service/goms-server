@@ -1,9 +1,10 @@
 package connectionServices
 
 import (
-	"goms-server/src/technical/services/logger"
 	"net"
 	"strconv"
+
+	"github.com/hauke96/sigolo"
 )
 
 type ListeningService struct {
@@ -15,7 +16,7 @@ type ListeningService struct {
 }
 
 func (ls *ListeningService) Init(host string, port int, topics []string, connectionChannel func(*net.Conn)) {
-	logger.Debug("Init listening service for " + host + ":" + strconv.Itoa(port))
+	sigolo.Debug("Init listening service for " + host + ":" + strconv.Itoa(port))
 
 	ls.host = host
 	ls.port = strconv.Itoa(port)
@@ -29,7 +30,7 @@ func (ls *ListeningService) Init(host string, port int, topics []string, connect
 // Run listens to the port of this service and will start the handler.
 func (ls *ListeningService) Run() {
 	if !ls.initialized {
-		logger.Fatal("Listening Service not initialized!")
+		sigolo.Fatal("Listening Service not initialized!")
 	}
 
 	for {
@@ -38,25 +39,25 @@ func (ls *ListeningService) Run() {
 		if err == nil {
 			ls.connectionChannel(conn)
 		} else {
-			logger.Error(err.Error())
+			sigolo.Error(err.Error())
 		}
 	}
 }
 
 // listenTo actually listens to the port on the given host. It'll also exits the application if there's any problem.
 func (ls *ListeningService) listenTo() {
-	logger.Debug("Try to listen on port " + ls.port)
+	sigolo.Debug("Try to listen on port " + ls.port)
 
 	listener, err := net.Listen("tcp", ls.host+":"+ls.port)
 
 	if err == nil && listener != nil {
-		logger.Info("Listen on " + ls.host + ":" + ls.port)
+		sigolo.Info("Listen on " + ls.host + ":" + ls.port)
 		ls.listener = listener
 	} else if err != nil {
-		logger.Error(err.Error())
-		logger.Fatal("Maybe the port is not free?")
+		sigolo.Error(err.Error())
+		sigolo.Fatal("Maybe the port is not free?")
 	} else if listener == nil {
-		logger.Fatal("Could not listen to " + ls.host + ":" + ls.port + ". Unfortunately there's no error I could print here :( Check if no other services are running on port " + ls.port + ".")
+		sigolo.Fatal("Could not listen to " + ls.host + ":" + ls.port + ". Unfortunately there's no error I could print here :( Check if no other services are running on port " + ls.port + ".")
 	}
 }
 
@@ -65,10 +66,10 @@ func (ls *ListeningService) waitForConnection() (*net.Conn, error) {
 	conn, err := ls.listener.Accept()
 
 	if err == nil {
-		logger.Info("Got connection on " + ls.host + ":" + ls.port)
+		sigolo.Info("Got connection on " + ls.host + ":" + ls.port)
 		return &conn, nil
 	}
 
-	logger.Error(err.Error())
+	sigolo.Error(err.Error())
 	return nil, err
 }
