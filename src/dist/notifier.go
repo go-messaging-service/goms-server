@@ -5,8 +5,8 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/go-messaging-service/goms-server/src/domain/material"
 	"github.com/go-messaging-service/goms-server/src/domain/services/common"
+	"github.com/go-messaging-service/goms-server/src/msg"
 	technical "github.com/go-messaging-service/goms-server/src/technical/material"
 	"github.com/hauke96/sigolo"
 )
@@ -48,8 +48,8 @@ func (tn *Notifier) StartNotifier() error {
 
 // sendNotification sends the notification or an error if there's one.
 func (tn *Notifier) sendNotification(notification *technical.Notification) {
-	message := material.Message{
-		Messagetype: material.MT_MESSAGE,
+	message := msg.Message{
+		Messagetype: msg.MT_MESSAGE,
 		Topics:      []string{notification.Topic},
 		Data:        notification.Data,
 	}
@@ -66,7 +66,7 @@ func (tn *Notifier) sendNotification(notification *technical.Notification) {
 	if err != nil {
 		sigolo.Error("Error parsing message data: " + err.Error())
 		for _, connection := range *notification.Connections {
-			commonServices.SendErrorMessage(connection, material.ERR_SEND_FAILED, err.Error())
+			commonServices.SendErrorMessage(connection, msg.ERR_SEND_FAILED, err.Error())
 		}
 		return
 	}

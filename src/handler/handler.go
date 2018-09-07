@@ -8,8 +8,8 @@ import (
 	"net"
 	"strings"
 
-	"github.com/go-messaging-service/goms-server/src/domain/material"
 	"github.com/go-messaging-service/goms-server/src/domain/services/common"
+	"github.com/go-messaging-service/goms-server/src/msg"
 	"github.com/go-messaging-service/goms-server/src/technical/common"
 	"github.com/go-messaging-service/goms-server/src/technical/material"
 	"github.com/hauke96/sigolo"
@@ -20,7 +20,7 @@ type Handler struct {
 	connectionClosed bool
 	config           *technicalMaterial.Config
 	registeredTopics []string
-	SendEvent        []func(Handler, *material.Message)
+	SendEvent        []func(Handler, *msg.Message)
 }
 
 const MAX_PRINTING_LENGTH int = 80
@@ -39,12 +39,12 @@ func (ch *Handler) HandleConnection() {
 		sigolo.Fatal("Connection not set!")
 	}
 
-	messageTypes := []string{material.MT_REGISTER,
-		material.MT_LOGOUT,
-		material.MT_CLOSE,
-		material.MT_SEND}
+	messageTypes := []string{msg.MT_REGISTER,
+		msg.MT_LOGOUT,
+		msg.MT_CLOSE,
+		msg.MT_SEND}
 
-	handler := []func(material.Message){ch.handleRegistration,
+	handler := []func(msg.Message){ch.handleRegistration,
 		ch.handleLogout,
 		ch.handleClose,
 		ch.handleSending}
@@ -62,7 +62,7 @@ func (ch *Handler) HandleConnection() {
 
 // waitFor wats until on of the given message types arrived.
 // The i-th argument in the messageTypes array must match to the i-th argument in the handler array.
-func (ch *Handler) waitFor(messageTypes []string, handler []func(message material.Message), reader *bufio.Reader) {
+func (ch *Handler) waitFor(messageTypes []string, handler []func(message msg.Message), reader *bufio.Reader) {
 
 	// Check if the arrays match and error/fatal here
 	if len(messageTypes) != len(handler) {
@@ -107,14 +107,14 @@ func (ch *Handler) waitFor(messageTypes []string, handler []func(message materia
 }
 
 // getMessageFromJSON converts the given json-data into a message object.
-func getMessageFromJSON(jsonData string) material.Message {
-	message := material.Message{}
+func getMessageFromJSON(jsonData string) msg.Message {
+	message := msg.Message{}
 	json.Unmarshal([]byte(jsonData), &message)
 	return message
 }
 
 // handleRegistration registeres this connection to the topics specified in the message.
-func (ch *Handler) handleRegistration(message material.Message) {
+func (ch *Handler) handleRegistration(message msg.Message) {
 	sigolo.Debug("Try to register to topics " + fmt.Sprintf("%#v", message.Topics))
 
 	// A comma separated list of all topics, the client is not allowed to register to
@@ -140,31 +140,31 @@ func (ch *Handler) handleRegistration(message material.Message) {
 	// Send error message for forbidden topics and cut trailing comma
 	if len(forbiddenTopics) != 0 {
 		forbiddenTopics = strings.TrimSuffix(forbiddenTopics, ",")
-		commonServices.SendErrorMessage(ch.Connection, material.ERR_REG_INVALID_TOPIC, forbiddenTopics)
+		commonServices.SendErrorMessage(ch.Connection, msg.ERR_REG_INVALID_TOPIC, forbiddenTopics)
 	}
 
 	// Send error message for already registered topics and cut trailing comma
 	if len(alreadyRegisteredTopics) != 0 {
 		alreadyRegisteredTopics = strings.TrimSuffix(alreadyRegisteredTopics, ",")
-		commonServices.SendErrorMessage(ch.Connection, material.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
+		commonServices.SendErrorMessage(ch.Connection, msg.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
 	}
 }
 
 // handleSending send the given message to all clients interested in the topics specified in the message.
-func (ch *Handler) handleSending(message material.Message) {
+func (ch *Handler) handleSending(message msg.Message) {
 	for _, event := range ch.SendEvent {
 		event(*ch, &message)
 	}
 }
 
 // handleLogout logs the client out.
-func (ch *Handler) handleLogout(message material.Message) {
+func (ch *Handler) handleLogout(message msg.Message) {
 	sigolo.Debug(fmt.Sprintf("Unsubscribe from topics %#v", message.Topics))
 	ch.logout(message.Topics)
 }
 
 // handleClose logs the client out from all topics and closes the connection.
-func (ch *Handler) handleClose(message material.Message) {
+func (ch *Handler) handleClose(message msg.Message) {
 	ch.exit()
 }
 

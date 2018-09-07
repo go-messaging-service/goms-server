@@ -1,4 +1,4 @@
-package material
+package msg
 
 type ErrorMessage struct {
 	Messagetype  string `json:"messagetype"`

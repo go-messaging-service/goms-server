@@ -5,8 +5,8 @@ import (
 	"sync"
 
 	"github.com/go-messaging-service/goms-server/src/dist"
-	"github.com/go-messaging-service/goms-server/src/domain/material"
 	"github.com/go-messaging-service/goms-server/src/handler"
+	"github.com/go-messaging-service/goms-server/src/msg"
 	technical "github.com/go-messaging-service/goms-server/src/technical/material"
 	"github.com/hauke96/sigolo"
 )
@@ -88,7 +88,7 @@ func (cs *Connector) createAndRunHandler(conn *net.Conn, config *technical.Confi
 }
 
 // handleSendEvent sends the given data to all clients registeres to the given topics.
-func (cs *Connector) handleSendEvent(handler handler.Handler, message *material.Message) {
+func (cs *Connector) handleSendEvent(handler handler.Handler, message *msg.Message) {
 	//TODO move the lock into loop or is this a root for performance issues?
 	cs.lock()
 	for _, topic := range message.Topics {

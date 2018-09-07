@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"net"
 
-	"github.com/go-messaging-service/goms-server/src/domain/material"
+	"github.com/go-messaging-service/goms-server/src/msg"
 	"github.com/hauke96/sigolo"
 )
 
 // sendErrorMessage sends the given error data as an error message to the given client.
 func SendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 
-	errorMessage := material.ErrorMessage{
-		Messagetype: material.MT_ERROR,
+	errorMessage := msg.ErrorMessage{
+		Messagetype: msg.MT_ERROR,
 		Errorcode:   errorCode,
 		Error:       errorData,
 	}

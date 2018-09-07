@@ -1,4 +1,4 @@
-package material
+package msg
 
 type Register struct {
 	Messagetype  string `json:"messagetype"`
