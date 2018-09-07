@@ -49,15 +49,7 @@ func (d *Distributor) HandleSendEvent(handler Handler, message *msg.Message) {
 			}
 		}
 
-		// create notification
-		notification := &dist.Notification{
-			Connections: &connectionList,
-			Topic:       topic,
-			Data:        message.Data,
-		}
-
-		// puts the notification in the queue of the responsible service
-		d.notifier.Queue <- notification
+		d.notifier.SendMessage(connectionList, topic, message.Data)
 	}
 	d.unlock()
 }

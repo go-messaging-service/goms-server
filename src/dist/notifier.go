@@ -45,6 +45,17 @@ func (n *Notifier) StartNotifier() error {
 	}
 }
 
+func (n *Notifier) SendMessage(connections []*net.Conn, topic, message string) {
+	// create notification
+	notification := &Notification{
+		Connections: &connections,
+		Topic:       topic,
+		Data:        message,
+	}
+
+	n.Queue <- notification
+}
+
 // TODO instead of notification, take multiple arguments, built notification and pass it here to queue
 // sendNotification sends the notification or an error if there's one.
 func (n *Notifier) sendNotification(notification *Notification) {
