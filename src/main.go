@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/go-messaging-service/goms-server/src/conn"
-	domainServices "github.com/go-messaging-service/goms-server/src/domain/services/connection"
 	"github.com/go-messaging-service/goms-server/src/technical/material"
 	"github.com/go-messaging-service/goms-server/src/technical/services"
 	"github.com/hauke96/kingpin"
@@ -106,7 +105,7 @@ func initConnectionService(config *technicalMaterial.Config) []conn.Listener {
 
 	for i, connector := range config.ServerConfig.Connectors {
 		// connection service
-		connectionService := domainServices.Connector{}
+		connectionService := conn.Connector{}
 		connectionService.Init(config.TopicConfig.Topics)
 
 		// listening service

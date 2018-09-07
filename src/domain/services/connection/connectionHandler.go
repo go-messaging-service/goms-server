@@ -17,27 +17,27 @@ import (
 
 type Message material.Message // just simplify the access to the Message struct
 
-type connectionHandler struct {
-	connection       *net.Conn
+type ConnectionHandler struct {
+	Connection       *net.Conn
 	connectionClosed bool
 	config           *technicalMaterial.Config
 	registeredTopics []string
-	SendEvent        []func(connectionHandler, *Message)
+	SendEvent        []func(ConnectionHandler, *Message)
 }
 
 const MAX_PRINTING_LENGTH int = 80
 
 // Init initializes the handler with the given connection.
-func (ch *connectionHandler) Init(connection *net.Conn, config *technicalMaterial.Config) {
-	ch.connection = connection
+func (ch *ConnectionHandler) Init(connection *net.Conn, config *technicalMaterial.Config) {
+	ch.Connection = connection
 	ch.config = config
 }
 
 // HandleConnection starts a routine to handle registration and sending messages.
 // This will run until the client logs out, so run this in a goroutine.
-func (ch *connectionHandler) HandleConnection() {
+func (ch *ConnectionHandler) HandleConnection() {
 	// Not initialized
-	if ch.connection == nil {
+	if ch.Connection == nil {
 		sigolo.Fatal("Connection not set!")
 	}
 
@@ -51,7 +51,7 @@ func (ch *connectionHandler) HandleConnection() {
 		ch.handleClose,
 		ch.handleSending}
 
-	reader := bufio.NewReader(*ch.connection)
+	reader := bufio.NewReader(*ch.Connection)
 
 	// Now a arbitrary amount of registration, logout, close and send messages is allowed
 	for !ch.connectionClosed {
@@ -64,7 +64,7 @@ func (ch *connectionHandler) HandleConnection() {
 
 // waitFor wats until on of the given message types arrived.
 // The i-th argument in the messageTypes array must match to the i-th argument in the handler array.
-func (ch *connectionHandler) waitFor(messageTypes []string, handler []func(message Message), reader *bufio.Reader) {
+func (ch *ConnectionHandler) waitFor(messageTypes []string, handler []func(message Message), reader *bufio.Reader) {
 
 	// Check if the arrays match and error/fatal here
 	if len(messageTypes) != len(handler) {
@@ -116,7 +116,7 @@ func getMessageFromJSON(jsonData string) Message {
 }
 
 // handleRegistration registeres this connection to the topics specified in the message.
-func (ch *connectionHandler) handleRegistration(message Message) {
+func (ch *ConnectionHandler) handleRegistration(message Message) {
 	sigolo.Debug("Try to register to topics " + fmt.Sprintf("%#v", message.Topics))
 
 	// A comma separated list of all topics, the client is not allowed to register to
@@ -142,46 +142,46 @@ func (ch *connectionHandler) handleRegistration(message Message) {
 	// Send error message for forbidden topics and cut trailing comma
 	if len(forbiddenTopics) != 0 {
 		forbiddenTopics = strings.TrimSuffix(forbiddenTopics, ",")
-		commonServices.SendErrorMessage(ch.connection, material.ERR_REG_INVALID_TOPIC, forbiddenTopics)
+		commonServices.SendErrorMessage(ch.Connection, material.ERR_REG_INVALID_TOPIC, forbiddenTopics)
 	}
 
 	// Send error message for already registered topics and cut trailing comma
 	if len(alreadyRegisteredTopics) != 0 {
 		alreadyRegisteredTopics = strings.TrimSuffix(alreadyRegisteredTopics, ",")
-		commonServices.SendErrorMessage(ch.connection, material.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
+		commonServices.SendErrorMessage(ch.Connection, material.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
 	}
 }
 
 // handleSending send the given message to all clients interested in the topics specified in the message.
-func (ch *connectionHandler) handleSending(message Message) {
+func (ch *ConnectionHandler) handleSending(message Message) {
 	for _, event := range ch.SendEvent {
 		event(*ch, &message)
 	}
 }
 
 // handleLogout logs the client out.
-func (ch *connectionHandler) handleLogout(message Message) {
+func (ch *ConnectionHandler) handleLogout(message Message) {
 	sigolo.Debug(fmt.Sprintf("Unsubscribe from topics %#v", message.Topics))
 	ch.logout(message.Topics)
 }
 
 // handleClose logs the client out from all topics and closes the connection.
-func (ch *connectionHandler) handleClose(message Message) {
+func (ch *ConnectionHandler) handleClose(message Message) {
 	ch.exit()
 }
 
 // exit logs the client out from all topics and closes the connection.
-func (ch *connectionHandler) exit() {
+func (ch *ConnectionHandler) exit() {
 	sigolo.Debug("Unsubscribe from all topics")
 	ch.logout(ch.registeredTopics)
 
 	sigolo.Debug("Close connection")
-	(*ch.connection).Close()
+	(*ch.Connection).Close()
 	ch.connectionClosed = true
 }
 
 // logout will logs the client out from the given topics.
-func (ch *connectionHandler) logout(topics []string) {
+func (ch *ConnectionHandler) logout(topics []string) {
 	for _, topic := range topics {
 		ch.registeredTopics = technicalCommon.RemoveString(ch.registeredTopics, topic)
 	}
@@ -189,6 +189,6 @@ func (ch *connectionHandler) logout(topics []string) {
 	ch.registeredTopics = technicalCommon.RemoveStrings(ch.registeredTopics, topics)
 }
 
-func (ch *connectionHandler) isRegisteredTo(topic string) bool {
+func (ch *ConnectionHandler) IsRegisteredTo(topic string) bool {
 	return technicalCommon.ContainsString(ch.registeredTopics, topic)
 }

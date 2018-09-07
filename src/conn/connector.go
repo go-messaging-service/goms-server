@@ -1,10 +1,11 @@
-package connectionServices
+package conn
 
 import (
 	"net"
 	"sync"
 
 	"github.com/go-messaging-service/goms-server/src/domain/material"
+	"github.com/go-messaging-service/goms-server/src/domain/services/connection"
 	"github.com/go-messaging-service/goms-server/src/domain/services/notification"
 	technical "github.com/go-messaging-service/goms-server/src/technical/material"
 	"github.com/hauke96/sigolo"
@@ -14,7 +15,7 @@ type ErrorMessage material.ErrorMessage
 
 type Connector struct {
 	topics                      []string
-	connectionHandler           []*connectionHandler
+	connectionHandler           []*connectionServices.ConnectionHandler
 	topicToNotificationServices map[string]notificationServices.TopicNotifyService
 	initialized                 bool
 	mutex                       *sync.Mutex
@@ -58,7 +59,7 @@ func (cs *Connector) HandleConnectionAsync(conn *net.Conn, config *technical.Con
 func (cs *Connector) createAndRunHandler(conn *net.Conn, config *technical.Config) {
 	sigolo.Debug("Create connection handler")
 
-	connHandler := connectionHandler{}
+	connHandler := connectionServices.ConnectionHandler{}
 	connHandler.Init(conn, config)
 
 	cs.lock()
@@ -89,7 +90,7 @@ func (cs *Connector) createAndRunHandler(conn *net.Conn, config *technical.Confi
 }
 
 // handleSendEvent sends the given data to all clients registeres to the given topics.
-func (cs *Connector) handleSendEvent(handler connectionHandler, message *Message) {
+func (cs *Connector) handleSendEvent(handler connectionServices.ConnectionHandler, message *connectionServices.Message) {
 	//TODO move the lock into loop or is this a root for performance issues?
 	cs.lock()
 	for _, topic := range message.Topics {
@@ -97,8 +98,8 @@ func (cs *Connector) handleSendEvent(handler connectionHandler, message *Message
 		var connectionList []*net.Conn
 
 		for _, h := range cs.connectionHandler {
-			if h.connection != handler.connection && h.isRegisteredTo(topic) {
-				connectionList = append(connectionList, h.connection)
+			if h.Connection != handler.Connection && h.IsRegisteredTo(topic) {
+				connectionList = append(connectionList, h.Connection)
 			}
 		}
 
