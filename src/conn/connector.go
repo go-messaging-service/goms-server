@@ -4,8 +4,8 @@ import (
 	"net"
 	"sync"
 
+	"github.com/go-messaging-service/goms-server/src/dist"
 	"github.com/go-messaging-service/goms-server/src/domain/material"
-	"github.com/go-messaging-service/goms-server/src/domain/services/notification"
 	"github.com/go-messaging-service/goms-server/src/handler"
 	technical "github.com/go-messaging-service/goms-server/src/technical/material"
 	"github.com/hauke96/sigolo"
@@ -16,7 +16,7 @@ type ErrorMessage material.ErrorMessage
 type Connector struct {
 	topics                      []string
 	connectionHandler           []*handler.Handler
-	topicToNotificationServices map[string]notificationServices.Notifier
+	topicToNotificationServices map[string]dist.Notifier
 	initialized                 bool
 	mutex                       *sync.Mutex
 }
@@ -25,16 +25,16 @@ type Connector struct {
 func (cs *Connector) Init(topics []string) {
 	sigolo.Debug("Init connection service")
 
-	cs.topicToNotificationServices = make(map[string]notificationServices.Notifier)
+	cs.topicToNotificationServices = make(map[string]dist.Notifier)
 	for _, topic := range topics {
-		service := notificationServices.Notifier{}
+		service := dist.Notifier{}
 		service.Init()
 
 		cs.topicToNotificationServices[topic] = service
 
 		sigolo.Debug("Start notifier for " + topic)
 
-		go func(service notificationServices.Notifier) {
+		go func(service dist.Notifier) {
 			err := service.StartNotifier()
 
 			if err != nil {

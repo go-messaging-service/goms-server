@@ -1,4 +1,4 @@
-package notificationServices
+package dist
 
 import (
 	"bufio"
