@@ -45,8 +45,8 @@ func (cs *Distributor) HandleSendEvent(handler Handler, message *msg.Message) {
 		var connectionList []*net.Conn
 
 		for _, h := range cs.knownHandler {
-			if h.Connection != handler.Connection && h.IsRegisteredTo(topic) {
-				connectionList = append(connectionList, h.Connection)
+			if h.connection != handler.connection && h.IsRegisteredTo(topic) {
+				connectionList = append(connectionList, h.connection)
 			}
 		}
 

@@ -16,7 +16,7 @@ import (
 )
 
 type Handler struct {
-	Connection       *net.Conn
+	connection       *net.Conn
 	connectionClosed bool
 	config           *config.Config
 	registeredTopics []string
@@ -27,7 +27,7 @@ const MAX_PRINTING_LENGTH int = 80
 
 // Init initializes the handler with the given connection.
 func (ch *Handler) Init(connection *net.Conn, config *config.Config) {
-	ch.Connection = connection
+	ch.connection = connection
 	ch.config = config
 }
 
@@ -35,7 +35,7 @@ func (ch *Handler) Init(connection *net.Conn, config *config.Config) {
 // This will run until the client logs out, so run this in a goroutine.
 func (ch *Handler) HandleConnection() {
 	// Not initialized
-	if ch.Connection == nil {
+	if ch.connection == nil {
 		sigolo.Fatal("Connection not set!")
 	}
 
@@ -49,7 +49,7 @@ func (ch *Handler) HandleConnection() {
 		ch.handleClose,
 		ch.handleSending}
 
-	reader := bufio.NewReader(*ch.Connection)
+	reader := bufio.NewReader(*ch.connection)
 
 	// Now a arbitrary amount of registration, logout, close and send messages is allowed
 	for !ch.connectionClosed {
@@ -142,13 +142,13 @@ func (ch *Handler) handleRegistration(message msg.Message) {
 	// Send error message for forbidden topics and cut trailing comma
 	if len(forbiddenTopics) != 0 {
 		forbiddenTopics = strings.TrimSuffix(forbiddenTopics, ",")
-		dist.SendErrorMessage(ch.Connection, msg.ERR_REG_INVALID_TOPIC, forbiddenTopics)
+		dist.SendErrorMessage(ch.connection, msg.ERR_REG_INVALID_TOPIC, forbiddenTopics)
 	}
 
 	// Send error message for already registered topics and cut trailing comma
 	if len(alreadyRegisteredTopics) != 0 {
 		alreadyRegisteredTopics = strings.TrimSuffix(alreadyRegisteredTopics, ",")
-		dist.SendErrorMessage(ch.Connection, msg.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
+		dist.SendErrorMessage(ch.connection, msg.ERR_REG_ALREADY_REGISTERED, alreadyRegisteredTopics)
 	}
 }
 
@@ -176,7 +176,7 @@ func (ch *Handler) exit() {
 	ch.logout(ch.registeredTopics)
 
 	sigolo.Debug("Close connection")
-	(*ch.Connection).Close()
+	(*ch.connection).Close()
 	ch.connectionClosed = true
 }
 
