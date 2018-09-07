@@ -1,4 +1,4 @@
-package connectionServices
+package conn
 
 import (
 	"net"
