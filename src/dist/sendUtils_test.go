@@ -1,11 +1,12 @@
-package dist
+package dist_test
 
 import (
 	"bufio"
 	"net"
 	"testing"
 
-	testUtils "github.com/go-messaging-service/goms-server/src/domain/services/test"
+	"github.com/go-messaging-service/goms-server/src/dist"
+	testUtils "github.com/go-messaging-service/goms-server/src/util"
 )
 
 var client, server *net.Conn
@@ -21,7 +22,7 @@ func TestSendStringWorks(t *testing.T) {
 		t.Fail()
 	}
 
-	go func(conn *net.Conn) { SendStringTo(conn, TEST_STRING) }(client)
+	go func(conn *net.Conn) { dist.SendStringTo(conn, TEST_STRING) }(client)
 
 	data, _, err := serverReader.ReadLine()
 

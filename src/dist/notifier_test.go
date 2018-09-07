@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	testUtils "github.com/go-messaging-service/goms-server/src/domain/services/test"
 	"github.com/go-messaging-service/goms-server/src/technical/material"
+	testUtils "github.com/go-messaging-service/goms-server/src/util"
 )
 
 var conn1, conn2, serv1, serv2 *net.Conn

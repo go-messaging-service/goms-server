@@ -10,8 +10,8 @@ import (
 
 	"github.com/go-messaging-service/goms-server/src/dist"
 	"github.com/go-messaging-service/goms-server/src/msg"
-	"github.com/go-messaging-service/goms-server/src/technical/common"
 	"github.com/go-messaging-service/goms-server/src/technical/material"
+	"github.com/go-messaging-service/goms-server/src/util"
 	"github.com/hauke96/sigolo"
 )
 
@@ -123,11 +123,11 @@ func (ch *Handler) handleRegistration(message msg.Message) {
 
 	for _, topic := range message.Topics {
 		//TODO create a service for this. This should later take care of different user rights
-		if !technicalCommon.ContainsString(ch.config.TopicConfig.Topics, topic) {
+		if !util.ContainsString(ch.config.TopicConfig.Topics, topic) {
 			forbiddenTopics += topic + ","
 			sigolo.Info("Clients wants to register on invalid topic (" + topic + ").")
 
-		} else if technicalCommon.ContainsString(ch.registeredTopics, topic) {
+		} else if util.ContainsString(ch.registeredTopics, topic) {
 			alreadyRegisteredTopics += topic + ","
 			sigolo.Debug("Client already registered on " + topic)
 
@@ -181,12 +181,12 @@ func (ch *Handler) exit() {
 // logout will logs the client out from the given topics.
 func (ch *Handler) logout(topics []string) {
 	for _, topic := range topics {
-		ch.registeredTopics = technicalCommon.RemoveString(ch.registeredTopics, topic)
+		ch.registeredTopics = util.RemoveString(ch.registeredTopics, topic)
 	}
 
-	ch.registeredTopics = technicalCommon.RemoveStrings(ch.registeredTopics, topics)
+	ch.registeredTopics = util.RemoveStrings(ch.registeredTopics, topics)
 }
 
 func (ch *Handler) IsRegisteredTo(topic string) bool {
-	return technicalCommon.ContainsString(ch.registeredTopics, topic)
+	return util.ContainsString(ch.registeredTopics, topic)
 }
