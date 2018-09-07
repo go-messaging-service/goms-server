@@ -15,7 +15,7 @@ type ErrorMessage material.ErrorMessage
 
 type Connector struct {
 	topics                      []string
-	connectionHandler           []*connectionServices.ConnectionHandler
+	connectionHandler           []*connectionServices.Handler
 	topicToNotificationServices map[string]notificationServices.TopicNotifyService
 	initialized                 bool
 	mutex                       *sync.Mutex
@@ -59,7 +59,7 @@ func (cs *Connector) HandleConnectionAsync(conn *net.Conn, config *technical.Con
 func (cs *Connector) createAndRunHandler(conn *net.Conn, config *technical.Config) {
 	sigolo.Debug("Create connection handler")
 
-	connHandler := connectionServices.ConnectionHandler{}
+	connHandler := connectionServices.Handler{}
 	connHandler.Init(conn, config)
 
 	cs.lock()
@@ -90,7 +90,7 @@ func (cs *Connector) createAndRunHandler(conn *net.Conn, config *technical.Confi
 }
 
 // handleSendEvent sends the given data to all clients registeres to the given topics.
-func (cs *Connector) handleSendEvent(handler connectionServices.ConnectionHandler, message *connectionServices.Message) {
+func (cs *Connector) handleSendEvent(handler connectionServices.Handler, message *connectionServices.Message) {
 	//TODO move the lock into loop or is this a root for performance issues?
 	cs.lock()
 	for _, topic := range message.Topics {

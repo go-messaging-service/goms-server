@@ -17,25 +17,25 @@ import (
 
 type Message material.Message // just simplify the access to the Message struct
 
-type ConnectionHandler struct {
+type Handler struct {
 	Connection       *net.Conn
 	connectionClosed bool
 	config           *technicalMaterial.Config
 	registeredTopics []string
-	SendEvent        []func(ConnectionHandler, *Message)
+	SendEvent        []func(Handler, *Message)
 }
 
 const MAX_PRINTING_LENGTH int = 80
 
 // Init initializes the handler with the given connection.
-func (ch *ConnectionHandler) Init(connection *net.Conn, config *technicalMaterial.Config) {
+func (ch *Handler) Init(connection *net.Conn, config *technicalMaterial.Config) {
 	ch.Connection = connection
 	ch.config = config
 }
 
 // HandleConnection starts a routine to handle registration and sending messages.
 // This will run until the client logs out, so run this in a goroutine.
-func (ch *ConnectionHandler) HandleConnection() {
+func (ch *Handler) HandleConnection() {
 	// Not initialized
 	if ch.Connection == nil {
 		sigolo.Fatal("Connection not set!")
@@ -64,7 +64,7 @@ func (ch *ConnectionHandler) HandleConnection() {
 
 // waitFor wats until on of the given message types arrived.
 // The i-th argument in the messageTypes array must match to the i-th argument in the handler array.
-func (ch *ConnectionHandler) waitFor(messageTypes []string, handler []func(message Message), reader *bufio.Reader) {
+func (ch *Handler) waitFor(messageTypes []string, handler []func(message Message), reader *bufio.Reader) {
 
 	// Check if the arrays match and error/fatal here
 	if len(messageTypes) != len(handler) {
@@ -116,7 +116,7 @@ func getMessageFromJSON(jsonData string) Message {
 }
 
 // handleRegistration registeres this connection to the topics specified in the message.
-func (ch *ConnectionHandler) handleRegistration(message Message) {
+func (ch *Handler) handleRegistration(message Message) {
 	sigolo.Debug("Try to register to topics " + fmt.Sprintf("%#v", message.Topics))
 
 	// A comma separated list of all topics, the client is not allowed to register to
@@ -153,25 +153,25 @@ func (ch *ConnectionHandler) handleRegistration(message Message) {
 }
 
 // handleSending send the given message to all clients interested in the topics specified in the message.
-func (ch *ConnectionHandler) handleSending(message Message) {
+func (ch *Handler) handleSending(message Message) {
 	for _, event := range ch.SendEvent {
 		event(*ch, &message)
 	}
 }
 
 // handleLogout logs the client out.
-func (ch *ConnectionHandler) handleLogout(message Message) {
+func (ch *Handler) handleLogout(message Message) {
 	sigolo.Debug(fmt.Sprintf("Unsubscribe from topics %#v", message.Topics))
 	ch.logout(message.Topics)
 }
 
 // handleClose logs the client out from all topics and closes the connection.
-func (ch *ConnectionHandler) handleClose(message Message) {
+func (ch *Handler) handleClose(message Message) {
 	ch.exit()
 }
 
 // exit logs the client out from all topics and closes the connection.
-func (ch *ConnectionHandler) exit() {
+func (ch *Handler) exit() {
 	sigolo.Debug("Unsubscribe from all topics")
 	ch.logout(ch.registeredTopics)
 
@@ -181,7 +181,7 @@ func (ch *ConnectionHandler) exit() {
 }
 
 // logout will logs the client out from the given topics.
-func (ch *ConnectionHandler) logout(topics []string) {
+func (ch *Handler) logout(topics []string) {
 	for _, topic := range topics {
 		ch.registeredTopics = technicalCommon.RemoveString(ch.registeredTopics, topic)
 	}
@@ -189,6 +189,6 @@ func (ch *ConnectionHandler) logout(topics []string) {
 	ch.registeredTopics = technicalCommon.RemoveStrings(ch.registeredTopics, topics)
 }
 
-func (ch *ConnectionHandler) IsRegisteredTo(topic string) bool {
+func (ch *Handler) IsRegisteredTo(topic string) bool {
 	return technicalCommon.ContainsString(ch.registeredTopics, topic)
 }
