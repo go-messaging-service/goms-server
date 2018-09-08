@@ -14,7 +14,12 @@ then
 fi
 
 echo ">>> INIT"
-CASES="reg_pos_once reg_stress_multiple send_pos_once"
+CASES="reg_pos_once
+reg_stress_multiple
+send_pos_once
+send_pos_multiple_messages
+send_stress_multiple_clients
+"
 
 echo ">>> START"
 echo
