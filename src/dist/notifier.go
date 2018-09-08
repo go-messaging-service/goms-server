@@ -46,6 +46,9 @@ func (n *Notifier) StartNotifier() error {
 	}
 }
 
+// SendMessage enqueues the request to send the message into the queue.
+// Therefore the sending itself will happen a bit later because the background
+// thread will read from the queue.
 func (n *Notifier) SendMessage(connections []*net.Conn, topic, message string) {
 	// create notification
 	notification := &Notification{
@@ -91,6 +94,8 @@ func (n *Notifier) sendNotification(notification *Notification) {
 	}
 }
 
+// TODO also create a queue for the errors
+// SendError directly sends the error, there's no asynchronous queue here.
 func (n *Notifier) SendError(connection *net.Conn, errorCode, message string) {
 	errorMessage := msg.ErrorMessage{
 		Messagetype: msg.MT_ERROR,

@@ -15,6 +15,7 @@ type Distributor struct {
 	mutex        *sync.Mutex
 }
 
+// Init initializes the distributor and starts the notifier.
 func (d *Distributor) Init(topics []string) {
 	d.notifier = &dist.Notifier{}
 	d.notifier.Init()
@@ -31,6 +32,7 @@ func (d *Distributor) Init(topics []string) {
 	}(d.notifier)
 }
 
+// Add adds the handler to the list of handlers and registeres the distributor to events.
 func (d *Distributor) Add(handler *Handler) {
 	d.knownHandler = append(d.knownHandler, handler)
 
@@ -38,6 +40,8 @@ func (d *Distributor) Add(handler *Handler) {
 	handler.ErrorEvent = append(handler.ErrorEvent, d.HandleErrorEvent)
 }
 
+// HandleSendEvent will determine the receivers of the message and passes the
+// request to send the message to the notifier.
 func (d *Distributor) HandleSendEvent(handler Handler, topics []string, message string) {
 	//TODO move the lock into loop or is this a root for performance issues?
 	d.lock()
@@ -59,6 +63,7 @@ func (d *Distributor) HandleSendEvent(handler Handler, topics []string, message 
 }
 
 // TODO maybe just pass connection instead of whole handler?
+// HandleErrorEvent will pass the error to the notifier, who will send the error.
 func (d *Distributor) HandleErrorEvent(handler *Handler, errorCode, message string) {
 	d.notifier.SendError(handler.connection, errorCode, message)
 }
