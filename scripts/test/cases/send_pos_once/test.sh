@@ -21,5 +21,4 @@ wait_tiny
 assert_no_errors
 assert_registered_n "a" 2
 assert_registered_n "with spaces" 2
-echo "check send $MSG?"
 assert_sent_once "$MSG"

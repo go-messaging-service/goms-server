@@ -56,9 +56,35 @@ function assert_sent_once()
 	fi
 }
 
+# $1 - The content of the message
+# $2 - The amount of times sent
+function assert_sent_n()
+{
+	amount_server=$(grep -E "send message with data: " "$DIR_RES/server.log" | wc -l)
+	if [ $amount_server -ne $2 ]
+	then
+		fail
+	fi
+}
+
+# $1 - The content of the message
+# $2 - The amount of times received
+function assert_received_n()
+{
+	amount_client=$(grep -E "^\{\"messagetype\":\"message\"" "$DIR_RES/test.log" | grep -E "\"data\":\"$1\"\}$" | wc -l)
+	echo $amount_client
+	if [ $amount_client -ne $2 ]
+	then
+		fail
+	fi
+}
+
 function fail()
 {
-	echo "FAIL: ${BASH_SOURCE[2]} : ${BASH_LINENO[1]}  >  $(head -n ${BASH_LINENO[1]} ${BASH_SOURCE[2]} | tail -n 1)"
+	echo "FAIL"
+	echo "Stack trace:"
+	echo "    0 : ${BASH_SOURCE[1]} : ${BASH_LINENO[0]}  >  $(head -n ${BASH_LINENO[0]} ${BASH_SOURCE[1]} | tail -n 1)"
+	echo "    1 : ${BASH_SOURCE[2]} : ${BASH_LINENO[1]}  >  $(head -n ${BASH_LINENO[1]} ${BASH_SOURCE[2]} | tail -n 1)"
 	exit 1
 }
 
