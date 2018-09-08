@@ -31,6 +31,8 @@ func (d *Distributor) Init(topics []string) {
 }
 
 func (d *Distributor) Add(handler *Handler) {
+	d.knownHandler = append(d.knownHandler, handler)
+
 	handler.SendEvent = append(handler.SendEvent, d.HandleSendEvent)
 	handler.ErrorEvent = append(handler.ErrorEvent, d.HandleErrorEvent)
 }
