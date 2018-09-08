@@ -1,0 +1,7 @@
+{
+	"messagetype": "send",
+	"topics": [
+		"a"
+	],
+	"data": "This is a message to registered members."
+}

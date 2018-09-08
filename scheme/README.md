@@ -3,6 +3,6 @@ The `json2code.jar` comes from my [`json2code` project](https://github.com/hauke
 
 Jus execute the following command:
 ```
-java -jar json2code.jar goms_scheme.json go ../src/domain/material/ material
+java -jar json2code.jar goms_scheme.json go ../src/message/ message
 
 ```
