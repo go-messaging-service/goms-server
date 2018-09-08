@@ -36,7 +36,7 @@ function assert_sent_once()
 	then
 		fail
 	fi
-	
+
 	amount_client=$(grep -E "\"messagetype\":\"message\"" "$DIR_RES/test.log" | grep -E "\"data\":\"$1\"" | wc -l)
 	if [ $amount_server -ne 1 ]
 	then
@@ -48,4 +48,24 @@ function fail()
 {
 	echo "FAIL: ${BASH_SOURCE[2]} : ${BASH_LINENO[1]}  >  $(head -n ${BASH_LINENO[1]} ${BASH_SOURCE[2]} | tail -n 1)"
 	exit 1
+}
+
+function wait_tiny()
+{
+	sleep 0.1
+}
+
+function wait_short()
+{
+	sleep 0.5
+}
+
+function wait_med()
+{
+	sleep 1
+}
+
+function wait_long()
+{
+	sleep 2
 }

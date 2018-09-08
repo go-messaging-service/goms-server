@@ -12,7 +12,7 @@ do
 	echo $REG
 done
 ) | "$DIR_ROOT/connect.sh" &
-sleep 2
+wait_long
 
 assert_registered_once "a"
 assert_registered_once "with spaces"

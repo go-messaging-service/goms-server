@@ -9,14 +9,14 @@ echo "Send '$SEND'"
 
 # Register someone and wait a bit
 echo "$REG" | "$DIR_ROOT/connect.sh" &
-sleep 0.5
+wait_tiny
 
 # Send some data over to the client above
 (
 	echo "$REG"
 	echo "$SEND"
 ) | "$DIR_ROOT/connect.sh" &
-sleep 0.5
+wait_tiny
 
 assert_registered_n "a" 2
 assert_registered_n "with spaces" 2
