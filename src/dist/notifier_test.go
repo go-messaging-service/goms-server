@@ -14,6 +14,8 @@ var conn1, conn2, serv1, serv2 *net.Conn
 var buf1, buf2 *bufio.Reader
 var serviceUnderTest *Notifier
 
+const TEST_STRING string = "test123"
+
 func initConnections(t *testing.T) {
 	conn1, _, serv1, buf1 = testUtils.InitPipe()
 	conn2, _, serv2, buf2 = testUtils.InitPipe()
@@ -111,4 +113,26 @@ func TestSendToExitChanWillExitCorrectly(t *testing.T) {
 	time.Sleep(time.Millisecond)
 
 	serviceUnderTest.Exit <- true
+}
+
+func TestSendStringWorks(t *testing.T) {
+	conn1, _, serv1, buf1 = testUtils.InitPipe()
+
+	if buf1.Buffered() != 0 {
+		t.Error("Buffered bytes must be 0")
+		t.Fail()
+	}
+
+	go func(conn *net.Conn) { SendStringTo(conn, TEST_STRING) }(conn1)
+
+	data, _, err := buf1.ReadLine()
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if string(data) != TEST_STRING {
+		t.Error("Buffered bytes must be !=0")
+		t.Fail()
+	}
 }

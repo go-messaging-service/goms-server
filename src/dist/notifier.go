@@ -11,6 +11,13 @@ import (
 	"github.com/hauke96/sigolo"
 )
 
+// SendStringTo sends the given string with an \n character to the given connection.
+func SendStringTo(connection *net.Conn, data string) error {
+	_, err := (*connection).Write([]byte(data + "\n"))
+
+	return err
+}
+
 type Notifier struct {
 	Queue       chan *Notification
 	Errors      chan *Notification
@@ -80,7 +87,7 @@ func (n *Notifier) sendNotification(notification *Notification) {
 	if err != nil {
 		sigolo.Error("Error parsing message data: " + err.Error())
 		for _, connection := range *notification.Connections {
-			SendErrorMessage(connection, msg.ERR_SEND_FAILED, err.Error())
+			n.SendError(connection, msg.ERR_SEND_FAILED, err.Error())
 		}
 		return
 	}
