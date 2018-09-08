@@ -9,5 +9,6 @@ echo "Send '$REG'"
 echo $REG | "$DIR_ROOT/connect.sh" &
 wait_tiny
 
+assert_no_errors
 assert_registered_once "a"
 assert_registered_once "with spaces"

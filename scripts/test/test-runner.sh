@@ -29,10 +29,9 @@ do
 	echo -n ">>> RUN.......: $CASE_ID"
 	"$DIR_BASE/cases/$CASE_ID/test.sh"	\
 		"$DIR_LIB/libtest.sh"							\
+		"$DIR_LIB/libconst.sh"						\
 		"$DIR_ROOT"												\
-		"$DIR_BASE"												\
-		"$DIR_RES"												\
-		"$DIR_CASE"												\
+		"$CASE_ID"												\
 		> "$DIR_RES/test.log" 2>&1
 	if [ $? -eq 0 ]
 	then

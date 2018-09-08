@@ -1,11 +1,23 @@
 #!/bin/bash
 
-DIR_ROOT="$2"
-DIR_BASE="$3"
-DIR_RES="$4"
-DIR_CASE="$5"
+DIR_ROOT="$3"
+CASE_ID="$4"
+source "$2"
 
-# TODO Create an assert_no_err which will be needed very often
+function assert_no_errors()
+{
+	amount_server=$(grep -i "error" "$DIR_RES/server.log" | wc -l)
+	if [ $amount_server -ne 0 ]
+	then
+		fail
+	fi
+
+	amount_client=$(grep -i "error" "$DIR_RES/test.log" | wc -l)
+	if [ $amount_client -ne 0 ]
+	then
+		fail
+	fi
+}
 
 # $1 - The name of the topic
 function assert_registered_once()
@@ -37,8 +49,8 @@ function assert_sent_once()
 		fail
 	fi
 
-	amount_client=$(grep -E "\"messagetype\":\"message\"" "$DIR_RES/test.log" | grep -E "\"data\":\"$1\"" | wc -l)
-	if [ $amount_server -ne 1 ]
+	amount_client=$(grep -E "^\{\"messagetype\":\"message\"" "$DIR_RES/test.log" | grep -E "\"data\":\"$1\"\}$" | wc -l)
+	if [ $amount_client -ne 1 ]
 	then
 		fail
 	fi
