@@ -3,6 +3,7 @@ package dist
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net"
 	"sync"
 
@@ -56,7 +57,6 @@ func (n *Notifier) SendMessage(connections []*net.Conn, topic, message string) {
 	n.Queue <- notification
 }
 
-// TODO instead of notification, take multiple arguments, built notification and pass it here to queue
 // sendNotification sends the notification or an error if there's one.
 func (n *Notifier) sendNotification(notification *Notification) {
 	message := msg.Message{
@@ -83,8 +83,11 @@ func (n *Notifier) sendNotification(notification *Notification) {
 	}
 
 	for _, connection := range *notification.Connections {
-		//no error handling here, because we wouln't be able to send it to the client because SendError uses SendString
-		SendStringTo(connection, messageString)
+		err := SendStringTo(connection, messageString)
+
+		if err != nil {
+			sigolo.Error(fmt.Sprintf("Could not send message to %s", (*connection).RemoteAddr()))
+		}
 	}
 }
 

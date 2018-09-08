@@ -28,6 +28,8 @@ func SendErrorMessage(conn *net.Conn, errorCode, errorData string) {
 }
 
 // SendStringTo sends the given string with an \n character to the given connection.
-func SendStringTo(connection *net.Conn, data string) {
-	(*connection).Write([]byte(data + "\n"))
+func SendStringTo(connection *net.Conn, data string) error {
+	_, err := (*connection).Write([]byte(data + "\n"))
+
+	return err
 }

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net"
 	"sync"
 
@@ -45,7 +46,9 @@ func (d *Distributor) HandleSendEvent(handler Handler, topics []string, message 
 		var connectionList []*net.Conn
 
 		for _, h := range d.knownHandler {
+			sigolo.Debug(fmt.Sprintf("Check handler %v for topic %s", h, topic))
 			if h.connection != handler.connection && h.IsRegisteredTo(topic) {
+				sigolo.Debug(fmt.Sprintf("Found handler %v for topic %s", h, topic))
 				connectionList = append(connectionList, h.connection)
 			}
 		}
