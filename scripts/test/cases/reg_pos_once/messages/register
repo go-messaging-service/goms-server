@@ -1,7 +1,7 @@
 {
 	"messagetype": "register",
 	"topics": [
-		"b",
-		"c"
+		"a",
+		"with spaces"
 	]
 }

@@ -7,3 +7,5 @@ DIR_CASE="$DIR_BASE/cases/$CASE_ID"
 DIR_LIB="$DIR_BASE/lib"
 
 SRV_WAIT="1"
+
+MSG="This is a message to registered members."
