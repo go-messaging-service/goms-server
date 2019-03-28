@@ -10,7 +10,7 @@ import (
 	"github.com/hauke96/sigolo"
 )
 
-const VERSION string = "v0.4.0"
+const VERSION string = "v0.3.1"
 
 var (
 	app           = kingpin.New("goMS", "A simple messaging service written in go")
