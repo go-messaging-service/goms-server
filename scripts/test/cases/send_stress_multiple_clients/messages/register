@@ -1,0 +1,7 @@
+{
+	"messagetype": "register",
+	"topics": [
+		"a",
+		"with spaces"
+	]
+}
